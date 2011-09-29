@@ -402,35 +402,34 @@ function fn_DBOpenDatabase(msg, functionToCall) {
 		errMsg = msg.substring(19);
 	}
 	else if (msg == 'DATABASEOPEN') {
-		//fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameContacts);
-		fn_DBDropTable(gTableNameContacts,"fn_DBOpenDatabase");  //Only use this line when testing and wanting to clear data
+		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameContacts);
+		//fn_DBDropTable(gTableNameContacts,"fn_DBOpenDatabase");  //Only use this line when testing and wanting to clear data
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameContacts) {
 		fn_DBCreateTable(gTableNameContacts, 'fn_DBOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameContacts) {
-		//fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameContactGroups);  
-		fn_DBDropTable(gTableNameContactGroups,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameContactGroups);  
+		//fn_DBDropTable(gTableNameContactGroups,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameContactGroups) {
 		fn_DBCreateTable(gTableNameContactGroups, 'fn_DBOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameContactGroups) {
-		//fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameUser);  
-		fn_DBDropTable(gTableNameUser,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameUser);  
+		//fn_DBDropTable(gTableNameUser,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameUser) {
 		fn_DBCreateTable(gTableNameUser, 'fn_DBOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameUser) {
-		//fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameOutstandingURLs);  
-		fn_DBDropTable(gTableNameOutstandingURLs,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameOutstandingURLs);  
+		//fn_DBDropTable(gTableNameOutstandingURLs,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameOutstandingURLs) {
 		fn_DBCreateTable(gTableNameOutstandingURLs, 'fn_DBOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameOutstandingURLs) {
-		//fn_DBAddRecord(sql, 'fn_DBOpenDatabase')
 		window[gParentFunctionToCall]('DATABASEOKAY');	
 	}
 	else if (msg.substring(0,17) == 'DBDROPTABLEERROR:') {

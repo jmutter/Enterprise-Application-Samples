@@ -9,6 +9,8 @@ var gContactRecords;
 var gContactGroups;
 var gGroupCounter = 0;
 var gGroupNameToProcess = '';
+var gGroupNameSelected = '';
+var gInsertGroupCounter;
 
 function addContact(msg, email){
 //function addContact(msg, email){
@@ -136,13 +138,12 @@ function buildContactsListing(msg, functionToCall){
 	
 	var errMsg = '';
 	var sql = '';
-	alert ('buildContactsListing: ' + msg);
 	if (msg == '') {		
 		gParentFunctionToCall = functionToCall;  //Save off function since recursive calls back here won't preserve it
 		writeLog('buildContactsListing Starting');	
 		writeLog('  Retrieving contact entries for selected name');
 		sql = 'SELECT contactid, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts;
-		sql += ' WHERE group = \'' + gContactGroupName + '\'';
+		sql += ' WHERE groupname = \'' + gGroupNameSelected + '\'';
 		if (gUserListingOrder == 'FirstName') {
 		  sql += ' ORDER BY firstname, lastname';
 		}	
@@ -257,7 +258,7 @@ function displayContactGroups(msg) {
 	
 	var errMsg = '';
 	var sql = '';
-	//alert ('displayContactGroups: ' + msg);
+	alert ('displayContactGroups: ' + msg);
 	if (msg == '') {		
 		writeLog('displayContactGroups Starting');	
 		writeLog('  Retrieving list of groups');			
@@ -268,12 +269,24 @@ function displayContactGroups(msg) {
 		errMsg = msg.substring(18);
 	}
 	else if (msg == 'DBGETRECORDSSUCCESS') {
-		gContactRecords = gDBRecordsRetrieved;
-		if (gContactRecords.length == 0) {
+		//gContactRecords = gDBRecordsRetrieved;
+		if (gDBRecordsRetrieved.length == 0) {
 			displayScreen(gScreenNameNoContacts);
 		}
+		else if (gDBRecordsRetrieved.length == 1) {
+			var array = gDBRecordsRetrieved[0].split(gDelim);
+			gGroupNameSelected = array[0];
+			buildContactsListing('','displayContactGroups');
+		}
 		else {
+			alert ('Display ' + gDBRecordsRetrieved.length + ' groups');
 		}		
+	}	
+	else if (msg.substring(0,26) == 'BUILDCONTACTSLISTINGERROR:' ) {
+		errMsg = msg.substring(26);
+	}
+	else if (msg == 'BUILDCONTACTSLISTINGSUCCESS') {
+		displayScreen(gScreenNameContacts);
 	}
 	else {
 		errMsg = 'Invalid parm for getContactGroups: ' + msg; 	
@@ -366,7 +379,6 @@ function processContactsPayload(msg) {
 
 	var sql = '';
 	var errMsg = '';
-	alert ('processContactRecords: ' + msg);
 	if (msg == '') {
   	writeLog('processContactRecords Starting');
   	var groupsFound = '';
@@ -451,9 +463,11 @@ function processContactsPayload(msg) {
   	}
   	if (gGroupCounter < gContactGroups.length) { 
   		gGroupNameToProcess = gContactGroups[gGroupCounter];
+  		gContactGroups[gGroupCounter] = gContactGroups[gGroupCounter] + gDelim + getDate(gUserDateDisplay) + ' @ ' + getTime();
   		insertContactRecords('','processContactsPayload');
   	}
   	else {
+		  writeLog('processContactRecords Finished');
   		updateGroups('');  		
   	}
   	gGroupCounter++;
@@ -461,13 +475,6 @@ function processContactsPayload(msg) {
 	else if (msg.substring(0,20) == 'INSERTCONTACTSERROR:') {
 		errMsg = msg.substring(20);
 	}
-	//else {
-		//notifyUser();  //Now that we have received and stored all requested records, we can notify the user
-		//var ourDate = getDate(gUserDateDisplay);
-		//var ourTime = getTime();
-		//sql = 'UPDATE ' + gTableNameUser + ' SET recordsreceived = \'' + ourDate + ' @ ' + ourTime + '\' WHERE recordid = \'' + gUserRecordID + '\'';
-		//fn_DBUpdateRecord(sql, 'insertContactRecords'); 
-	//}	
 	else {
 		errMsg = 'processContactRecords invalid msg: ' + msg;
 	}
@@ -478,25 +485,46 @@ function processContactsPayload(msg) {
 }
 
 function updateGroups(msg) {
-  var errMsg = '';
-  if (msg == '') {
-  	writeLog('upateGroups Starting');	
-  	gGroupCounter++;  	
-	}
 	
-		gInsertCounter = 0;
-		sql = 'DELETE FROM ' + gTableNameContacts + ' WHERE groupname = \'' + gGroupNameToProcess + '\'';
-		fn_DBDeleteRecord(sql, 'insertContactRecords');		
-
+  var errMsg = '';
+  var array;
+  var sql;
+  var groupRecord;
+  if (msg == '') {
+  	writeLog('upateGroups Starting');		 
+		gInsertGroupCounter = 0;
+  	msg = 'DBADDRECORDSUCCESS';  //Set to default to start the process
+	}
+	if (msg == 'DBADDRECORDSUCCESS') {
+		if (gInsertGroupCounter < gContactGroups.length) {			
+			groupRecord = gContactGroups[gInsertGroupCounter];
+			array = groupRecord.split(gDelim);
+			sql = 'DELETE FROM ' + gTableNameContactGroups + ' WHERE groupname = \'' + array[0] + '\'';
+			fn_DBDeleteRecord(sql, 'updateGroups');	
+		}
+		else {
+			writeLog('updateGroups Finished');
+			displayContactGroups('');
+		}
+	}
 	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
 		errMsg = msg.substring(20);
 	}
-	else if (msg == 'DBDELETERECORDSUCCESS'
+	else if (msg == 'DBDELETERECORDSUCCESS') {
+		groupRecord = gContactGroups[gInsertGroupCounter];
+		array = groupRecord.split(gDelim);
+		gInsertGroupCounter++;  //This needs to go after the last usage of the counter to get it incremented 
+		sql = 'INSERT INTO ' + gTableNameContactGroups;
+		sql += '(groupname,recordsreceived)';
+		sql += ' VALUES(\'' + array[0] + '\',\'' + array[1] + '\')';
+		fn_DBAddRecord(sql, 'updateGroups');		
+	}
+	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
+		errMsg = msg.substring(17);
 	}
 	else {
   	errMsg = 'updateGroups invalid msg: ' + msg;
-	}
-	
+	}	
 	if (errMsg != '') {
 		writeLog('updateGroups Finished - ERROR - '+ errMsg);
 		alert('Error processing contact records:\n' + errMsg);
