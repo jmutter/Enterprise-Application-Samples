@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:rim="http://www.blackberry.com/ns/widgets" version="1.0.0.0">
+  <name>SEC Emergency Contact</name>
+  <description>This application provides emergency contact information relating the Securities and Exchance Commission.			</description>
+  <author rim:copyright="2011" href="www.sec.gov">Securities and Exchance Commission</author>
+  <license>This application adheres to the www.sec.gov standard license agreement.</license>
+  <feature id="blackberry.app" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.app.event" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.identity" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.message" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.invoke" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.invoke.PhoneArguments" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.pim.Appointment" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.push" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.system" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.system.event" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.ui.menu" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.utils" required="true" version="1.0.0.0"/>
+  <feature id="webworks.notification" required="true" version="1.0.0.0"/>
+  <feature id="webworks.system.log" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.invoke.AddressBookArguments" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.pim.Address" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.pim.Contact" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.identity.phone" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.find" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.invoke.BrowserArguments" required="true" version="1.0.0.0"/>
+  <access subdomains="true" uri="http://www.dagobahserver.com"/>
+  <icon rim:hover="false" src="images/mcca.png"/>
+  <content src="index.html"/>
+  <rim:connection>
+    <id>MDS</id>
+  </rim:connection>
+  <rim:loadingScreen backgroundColor="#000000" foregroundImage="images/loading.gif" onFirstLaunch="true"/>
+  <rim:cache maxCacheSizeTotal="2048"/>
+</widget>

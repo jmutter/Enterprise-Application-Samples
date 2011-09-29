@@ -1,0 +1,7 @@
+{"EmergencyCall":[
+  {"datetime":"09/19/2011 @ 5:45pm"
+	,"number":"866-834-4161 x123456" 
+  	,"details":"just testing.  need to test what this looks like with line returns"  	
+	,"accepturl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=Accept" 
+	,"declineurl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=Decline"} 
+]}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" id="viewport" content="height=device-height,width=device-width,initial-scale=1,user-scalable=yes" />
+		
+		<title>Emergency Contact List</title>
+  	<!--CSS-->
+  	<link rel="stylesheet" href="scripts/jquery.mobile/jquery.mobile.min.css" type="text/css"/>
+   	<script type="text/javascript" src="scripts/jquery/jquery-1.6.2.min.js"></script> 
+    <script type="text/javascript" src="scripts/jquery.mobile/jquery.mobile.min.js"></script>
+    <script type="text/javascript" src="scripts/jquery/jquery_collapse.js"></script>
+    <script type="text/javascript" src="scripts/actions.js"></script>
+		<script type="text/javascript" src="scripts/database.js"></script>
+		<script type="text/javascript" src="scripts/connection.js"></script>
+		<script type="text/javascript" src="scripts/functions.js"></script>
+		<script type="text/javascript" src="scripts/contacts.js"></script>
+		<script type="text/javascript" src="scripts/emergency.js"></script>
+		<script type="text/javascript" src="scripts/options.js"></script>			
+		<script type="text/javascript" src="scripts/secretkey.js"></script>
+ 		<!-- Custom JS -->
+    <script>
+				$(document).ready(function(){
+						$('.panel').hide();
+					
+						$('.panelTitle').collapser({
+							target: 'next',
+							effect: 'slide',
+							changeText: 0,
+							expandClass: 'expIco',
+							collapseClass: 'collIco'
+						}, function(){
+							$('.panel').slideUp();
+						});
+				});
+		</script>
+		<!-- Custom JS -->		
+	</head>
+
+	<body>
+		<!--
+		This is the JQuery Mobile implementation of a page. Here we define three sections for a header, content, and footer.
+		#listprofiles will hold our profile list.
+		-->
+		<div id="contacts" data-role="page" class="type-interior">
+			<div data-role="header">
+				<h1>Contacts</h1>
+			</div> 
+			<div data-role="content">
+				<br/>
+	 			<ul id="listprofiles" data-role="listview" data-inset="true" data-filter="true" data-theme="a" data-dividertheme="e">
+				</ul>	
+			</div>
+			<div data-role="footer" class="footer-docs" data-theme="c">
+			</div>
+		</div>	
+
+		<div id="nocontacts">
+			<label>No Contacts to display</label>
+		</div>	
+		
+		<div id="options">
+			<label>User Options</label>
+			<label style="position: absolute; top: 30px; left: 5px;">Listing Order</label>
+			<input type="radio" style="position:absolute; top:60px; left:20px" name="listingorder" id="rbListingLastName" value="LastName" onclick="rbListingLastName_Click">
+			<label style="position:absolute; top:60px; left:50px; font-size:10pt">By Lastname</label>
+			<input type="radio" style="position:absolute; top:90px; left:20px" name="listingorder" id="rbListingFirstName" value="FirstName" onclick="rbListingFirstName_Click">
+			<label style="position:absolute; top:90px; left:50px; font-size:10pt">By Firstname</label>			
+			<label style="position: absolute; top: 130px; left: 5px;">Date Display</label>			
+			<input type="radio" style="position:absolute; top:160px; left:20px" name="datedisplay" id="rbDateDisplayMMDDYYYY" value="MMDDYYYY" onclick="rbDateDisplayMMDDYYYY_Click">
+			<label style="position:absolute; top:160px; left:50px; font-size:10pt">MM/DD/YYYY</label>
+			<input type="radio" style="position:absolute; top:190px; left:20px" name="datedisplay" id="rbDateDisplayDDMMYYYY" value="DDMMYYYY" onclick="rbDateDisplayDDMMYYYY_Click">
+			<label style="position:absolute; top:190px; left:50px; font-size:10pt">DD/MM/YYYY</label>
+			<input type="radio" style="position:absolute; top:220px; left:20px" name="datedisplay" id="rbDateDisplayYYYYMMDD" value="YYYYMMDD" onclick="rbDateDisplayYYYYMMDD_Click">
+			<label style="position:absolute; top:220px; left:50px; font-size:10pt">YYYY-MM-DD</label>
+		</div>	
+		
+		<div id="emergencycall">
+			<label style="position:absolute; top:5px; left:40px; font-size:20pt">Emergency Call</label>
+			<label style="position:absolute; top:70px; left:7px"; font-size:8pt>When:</label>
+			<input type="text" disabled="disabled" style="position:absolute; top:69px; left:100px; height:19px; width:245px; font-size:8pt" id=emergencycalldatetime>
+			<label style="position:absolute; top:105px; left:7px"; font-size:8pt>Number:</label>
+			<input type="text" disabled="disabled" style="position:absolute; top:104px; left:100px; height:19px; width:245px; font-size:8pt" id=emergencycallphonenumber>
+			<label style="position:absolute; top:140px; left:7px"; font-size:8pt>Details:</label>
+			<textarea readonly="readonly" style="position:absolute; padding-top:0px padding-bottom:0px; padding-left:0px; padding-right:0px; font-family:Arial; color:#254117; top:170px; left:10px" rows="25" cols="67" id="emergencycalldetails"></textarea>
+		</div>		
+
+		<div id="emergencynotification">
+			<label style="position:absolute; top:5px; left:40px; font-size:20pt">Emergency Notification</label>
+			<label style="position:absolute; top:140px; left:7px"; font-size:8pt>Details:</label>
+			<textarea readonly="readonly" style="position:absolute; padding-top:0px padding-bottom:0px; padding-left:0px; padding-right:0px; font-family:Arial; color:#254117; top:170px; left:10px" rows="25" cols="67" id="emergencynotificationdetails"></textarea>
+		</div>		
+	</body>
+</html>
