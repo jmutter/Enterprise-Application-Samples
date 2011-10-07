@@ -15,16 +15,16 @@ namespace ECLServerASP
     {
         //Array lists to hold the contents of the input files in memory
         ArrayList empArray = new ArrayList();
-        ArrayList emerArray = new ArrayList();        
+        ArrayList emerArray = new ArrayList();
+        ArrayList emailArray = new ArrayList();
                 
-        //private void sendData(string sendData, string destEmail)
-        private void sendData(string sendData)
+        private void sendData(string sendData, string destEmail)        
         {
             string result = null;            
             
-            string httpURL = "http://" + "localhost"
+            string httpURL = "http://" + txtServer.Text
                                 + ":" + txtMDSPort.Text
-                                + "/push?DESTINATION=" + "simulator@pushme.com"
+                                + "/push?DESTINATION=" + destEmail //"simulator@pushme.com"
                                 + "&PORT=" + "3333"
                                 + "&REQUESTURI=/";            
             try
@@ -51,33 +51,35 @@ namespace ECLServerASP
             }
             catch (Exception ex)
             {
-                lstStatus.Items.Add(DateTime.Now + " -- Exception: " + ex.Message);                
+                logError("sendData()", ex.Message);
+                lstStatus.Items.Add(DateTime.Now + " -- Exception Occurred, check ECLServerErrorLog.txt");                
             }
         }
 
         /// <summary>
-        /// creates the JSON for the "Emergency" ECL
+        /// creates the JSON for the "Emergency Notification" payload
         /// </summary>
         /// <param name="obj">an object containig the data to be converted JSON</param>
         /// <returns>string containg json</returns>
-        private string createJSONEmer(object obj)
+        private string createJSONEmerNoti(object obj)
         {
             try
             {
                 //file to test json
-                TextWriter tw = new StreamWriter("C:\\temp\\jsonOutputEmer.txt",true);
+                TextWriter tw = new StreamWriter("C:\\temp\\jsonOutputEmerNoti.txt",true);
                 
                 string jsonBody = string.Empty;
 
-                EmergencyInfo emerObj = (EmergencyInfo)obj;
-
+                EmergencyNoti emerObjNoti = (EmergencyNoti)obj;                
+                
+                //long myDateTime = DateTime.Now.ToUniversalTime().Ticks / TimeSpan.TicksPerMillisecond;
+                //DateTime apptTime = new DateTime(Convert.ToInt32(drpListYear.Text), Convert.ToInt32(drpListMonth.Text), Convert.ToInt32(drpListDay.Text), Convert.ToInt32(drpListHour.Text), Convert.ToInt32(drpListMin.Text), 0);
+                //long apptTimeInMs = apptTime.ToUniversalTime().Ticks / TimeSpan.TicksPerMillisecond;
+                
                 jsonBody +=
-                    "{" + @"""Emergency""" + ":[" +
-                    @"{" + @"""datetime""" + ":" + @"""" + emerObj.ecCallDateTime + @"""" +
-                    "," + @"""details""" + ":" + @"""" + emerObj.ecDetails + @"""" +
-                    "," + @"""conferencenumber""" + ":" + @"""" + emerObj.ecBridgeNum + @"""" +
-                    "," + @"""accepturl""" + ":" + @"""" + emerObj.ecAcceptURL + @"""" +
-                    "," + @"""declineurl""" + ":" + @"""" + emerObj.ecDeclineURL + @"""";
+                    "{" + @"""EmergencyNotification""" + ":[" +
+                    @"{" + @"""details""" + ":" + @"""" + emerObjNoti.ecAcceptURL + @"""" +                                        
+                    "," + @"""accepturl""" + ":" + @"""" + emerObjNoti.ecAcceptURL + @"""";
                 jsonBody += "}]}";
 
                 //writing data into file for testing
@@ -90,7 +92,44 @@ namespace ECLServerASP
             }
             catch (Exception ex)
             {
-                lstStatus.Items.Add(DateTime.Now + " -- Exception: " + ex.Message);
+                logError("createJSONEmer()", ex.Message);
+                lstStatus.Items.Add(DateTime.Now + " -- Exception Occurred, check ECLServerErrorLog.txt");                
+                return null;
+            }
+        }
+
+        private string createJSONEmerCall(object obj)
+        {
+            try
+            {
+                //file to test json
+                TextWriter tw = new StreamWriter("C:\\temp\\jsonOutputEmerCall.txt", true);
+
+                string jsonBody = string.Empty;
+
+                EmergencyCall emerObj = (EmergencyCall)obj;                
+
+                jsonBody +=
+                    "{" + @"""EmergencyCall""" + ":[" +
+                    @"{" + @"""datetime""" + ":" + @"""" + emerObj.ecCallDateTime + @"""" +
+                    "," + @"""details""" + ":" + @"""" + emerObj.ecDetails + @"""" +
+                    "," + @"""phonenumber""" + ":" + @"""" + emerObj.ecBridgeNum + @"""" +
+                    "," + @"""accepturl""" + ":" + @"""" + emerObj.ecAcceptURL + @"""" +
+                    "," + @"""declineurl""" + ":" + @"""" + emerObj.ecDeclineURL + @"""";
+                jsonBody += "}]}";
+
+                //writing data into file for testing
+                Console.WriteLine(jsonBody);
+                tw.WriteLine(jsonBody);
+                tw.Close();
+
+                //return json to calling function
+                return jsonBody;
+            }
+            catch (Exception ex)
+            {
+                logError("createJSONEmer()", ex.Message);
+                lstStatus.Items.Add(DateTime.Now + " -- Exception Occurred, check ECLServerErrorLog.txt");
                 return null;
             }
         }
@@ -114,7 +153,7 @@ namespace ECLServerASP
 
                 for (int i = 0; i < empArrayCount; i++)
                 {
-                    EmployeeInfo empObj = (EmployeeInfo)empArray[i];
+                    EmergencyContact empObj = (EmergencyContact)empArray[i];
                     jsonBody +=
                       @"{" + @"""lastname""" + ":" + @"""" + empObj.ecLName + @"""" +
                         "," + @"""firstname""" + ":" + @"""" + empObj.ecFName + @"""" +
@@ -149,7 +188,8 @@ namespace ECLServerASP
             }
             catch (Exception ex)
             {
-                lstStatus.Items.Add(DateTime.Now + " -- Exception: " + ex.Message);
+                logError("createJSONContact()", ex.Message);
+                lstStatus.Items.Add(DateTime.Now + " -- Exception Occurred, check ECLServerErrorLog.txt");                
                 return null;
             }
         }
@@ -184,7 +224,8 @@ namespace ECLServerASP
             }
             catch (Exception ex)
             {
-                lstStatus.Items.Add(DateTime.Now + " -- Exception: " + ex.Message);
+                logError("createJSONContact()", ex.Message);
+                lstStatus.Items.Add(DateTime.Now + " -- Exception Occurred, check ECLServerErrorLog.txt");                
                 return null;
             }
         }
@@ -202,12 +243,16 @@ namespace ECLServerASP
             {
                 if (txtContactSrc.Text.Trim() != string.Empty)
                 {
+                    //list structures contaiing contents of data file to be inputted &
+                    //recipient emails
                     List<string[]> data = readFile(txtContactSrc.Text);
-                    if (data != null)
+                    List<string[]> emails = readFile(txtContactRecip.Text);
+
+                    if (data != null && emails != null)
                     {
                         foreach (string[] dataIn in data)
                         {
-                            EmployeeInfo empObj = new EmployeeInfo();
+                            EmergencyContact empObj = new EmergencyContact();
                             empObj.ecFName = dataIn[0].ToString();                            
                             empObj.ecLName = dataIn[1].ToString();
                             empObj.ecTitle = dataIn[2].ToString();
@@ -226,12 +271,38 @@ namespace ECLServerASP
                             empArray.Add(empObj);
                         }
 
-                        string dataToSend = createJSONContact(empArray);
 
-                        if (dataToSend != null)
+                        string dataToSend = createJSONContact(empArray);
+                        
+                        foreach (string[] emailIn in emails)
                         {
-                            sendData(dataToSend);
+                            sendData(dataToSend, emailIn[0].ToString());
+                            //EmailRecip emailObj = new EmailRecip();
+                            //emailObj.emailAddrRecip = emailIn[0].ToString();
+                            //emailArray.Add(emailObj);
                         }
+
+                        ////loop through each email from the file, load them into an arraylist
+                        ////NOTE: This step can be combined
+                        //foreach (string[] emailIn in emails)
+                        //{
+                        //    EmailRecip emailObj = new EmailRecip();
+                        //    emailObj.emailAddrRecip = emailIn[0].ToString();
+                        //    emailArray.Add(emailObj);
+                        //}
+                        
+                        
+
+                        ////Loop through email array and senddata to each contact in list
+                        ////NOTE: This step can be combined with above
+                        //if (dataToSend != null)
+                        //{
+                        //    int emailArrayCount = emailArray.Count;
+                        //    for (int i = 0; i < emailArrayCount; i++)
+                        //    {
+                        //        sendData(dataToSend, txtContactRecip.Text);
+                        //    }
+                        //}
                     }
                 }
                 else
@@ -241,7 +312,8 @@ namespace ECLServerASP
             }
             catch (Exception ex)
             {
-                lstStatus.Items.Add(DateTime.Now + " -- Exception: " + ex.Message);
+                logError("btnContactECL_Click()", ex.Message);
+                lstStatus.Items.Add(DateTime.Now + " -- Exception Occurred, check ECLServerErrorLog.txt");                
             }
         }
 
@@ -258,29 +330,84 @@ namespace ECLServerASP
                 if (txtEmerSrc.Text.Trim() != string.Empty)
                 {
                     List<string[]> data = readFile(txtEmerSrc.Text);
-                    if (data != null)
+                    List<string[]> emails = readFile(txtEmerRecp.Text);
+
+                    if (data != null && emails != null)
                     {
                         foreach (string[] dataIn in data)
                         {
-                            EmergencyInfo emerObj = new EmergencyInfo();
+                            EmergencyCall emerObj = new EmergencyCall();
                             emerObj.ecEmailAddr = dataIn[0].ToString();
                             emerObj.ecBridgeNum = txtBridge.Text;
                             emerObj.ecDetails = txtMtgDesc.Text;
-                            emerObj.ecAcceptURL = "http://localhost/ECLServer/ECLServer.ashx?email=" + emerObj.ecEmailAddr + "&response=accept";
-                            emerObj.ecDeclineURL = "http://localhost/ECLServer/ECLServer.ashx?email=" + emerObj.ecEmailAddr + "&response=decline";
-                            emerObj.ecCallDateTime = drpListMonth.Text + "/" + drpListDay.Text + "/" + drpListYear.Text + " " + drpListHour.Text + ":" + drpListMin.Text + " " + drpListAmPm.Text;                                                        
+                            emerObj.ecAcceptURL = "http://" + txtServer.Text+ "/ECLServer/ECLServer.ashx?email=" + emerObj.ecEmailAddr + "&response=accept";
+                            emerObj.ecDeclineURL = "http://" + txtServer.Text + "/ECLServer/ECLServer.ashx?email=" + emerObj.ecEmailAddr + "&response=decline";
+
+                            //long myDateTime = DateTime.Now.ToUniversalTime().Ticks / TimeSpan.TicksPerMillisecond;
+                            DateTime apptTime = new DateTime(Convert.ToInt32(drpListYear.Text), Convert.ToInt32(drpListMonth.Text), Convert.ToInt32(drpListDay.Text), Convert.ToInt32(drpListHour.Text), Convert.ToInt32(drpListMin.Text), 0);
+                            long apptTimeInMs = apptTime.ToUniversalTime().Ticks / TimeSpan.TicksPerMillisecond;
+
+                            emerObj.ecCallDateTime = apptTimeInMs.ToString();                                
                             emerArray.Add(emerObj);
                         }
 
+
+                        //********************************************
+                        //loop through each email from the file, load them into an arraylist
+                        //NOTE: This step can be combined
+                        //foreach (string[] emailIn in emails)
+                        //{
+                        //    //EmailRecip emailObj = new EmailRecip();
+                        //    //emailObj.emailAddrRecip = emailIn[0].ToString();
+                        //    //emailArray.Add(emailObj);
+                        //}
+
+                        //string dataToSend = createJSONEmerCall(emerArray[i]);
+
                         for (int i = 0; i < emerArray.Count; i++)
                         {
-                            string dataToSend = createJSONEmer(emerArray[i]);
+                            string dataToSend = createJSONEmerCall(emerArray[i]);
 
                             if (dataToSend != null)
                             {
-                                sendData(dataToSend);
-                            }
+                                foreach (string[] emailIn in emails)
+                                {
+                                    sendData(dataToSend, emailIn[0].ToString());
+                                }    
+                            }                            
                         }                        
+
+                        //Loop through email array and senddata to each contact in list
+                        //NOTE: This step can be combined with above
+                        //if (dataToSend != null)
+                        //{
+                        //    foreach (string[] emailIn in emails)
+                        //    {
+                        //        sendData(dataToSend, emailIn[0].ToString());
+                        //        //EmailRecip emailObj = new EmailRecip();
+                        //        //emailObj.emailAddrRecip = emailIn[0].ToString();
+                        //        //emailArray.Add(emailObj);
+                        //    }
+                            
+                        //    //int emailArrayCount = emailArray.Count;
+                        //    //for (int i = 0; i < emailArrayCount; i++)
+                        //    //{
+                             
+                        //    //}
+                        //}
+
+                        //********************************************
+
+
+                        //for (int i = 0; i < emerArray.Count; i++)
+                        //{
+                        //    string dataToSend = createJSONEmerCall(emerArray[i]);
+
+                        //    if (dataToSend != null)
+                        //    {
+                        //        sendData(dataToSend, txtEmerRecp.Text);
+                        //    }
+                        //}                        
                     }
                 }
                 else
@@ -290,8 +417,28 @@ namespace ECLServerASP
             }
             catch (Exception ex)
             {
+                logError("btnEmerECL_Click()", ex.Message);
+                lstStatus.Items.Add(DateTime.Now + " -- Exception Occurred, check ECLServerErrorLog.txt");                
+            }
+        }
+
+        private void logError(string method, string message)
+        {
+            try
+            {
+                TextWriter tw = new StreamWriter("C:\\temp\\ECLServerErrorLog.txt", true);
+                tw.WriteLine(DateTime.Now + " Exception in " + method + " : " + message);
+                tw.Close();
+            }
+            catch (Exception ex)
+            {
                 lstStatus.Items.Add(DateTime.Now + " -- Exception: " + ex.Message);
             }
+        }
+
+        protected void Page_Load(object sender, EventArgs e)
+        {
+
         }
     } 
 

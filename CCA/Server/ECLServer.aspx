@@ -30,7 +30,7 @@
         <br />
         <asp:TabContainer ID="TabContainer1" runat="server" Height="400px" 
             Width="420px" BackColor="Gray" ActiveTabIndex="1">
-            <asp:TabPanel ID="TabPanel1" runat="server" HeaderText="ECL Contact">
+            <asp:TabPanel ID="TabPanel1" runat="server" HeaderText="Contact List">
                 <ContentTemplate>                                                                                                                                                                                                 
                     </br>
                     <!-- <b>Select ECL to send</b>
@@ -38,24 +38,22 @@
                     <asp:DropDownList ID="drpDwnECLContact" runat="server" Width="100">
                         <asp:ListItem value="" text="Not Implemented" />
                     </asp:DropDownList>-->
+                    <b>Recipient File</b>
                     </br>
+                    <asp:TextBox ID="txtContactRecip" runat="server"></asp:TextBox>                    
                     </br>
+                    </br>                    
                     <b>Source file of ECL (.csv)</b>
                     </br>
                     <asp:TextBox ID="txtContactSrc" runat="server" ReadOnly="False"></asp:TextBox>
                     </br>
-                    </br>
-                    <b>Destination email of ECL</b>
-                    </br>
-                    <asp:TextBox ID="txtContactDest" runat="server"></asp:TextBox>                    
-                    </br>
-                    </br>
+                    </br>                    
                     <asp:Button ID="btnContactECL" runat="server" OnClick="btnContactECL_Click" 
                         Text="Send ECL" />                    
                 </ContentTemplate>
             </asp:TabPanel>
             
-            <asp:TabPanel ID="TabPanel2" runat="server" HeaderText="ECL Emergency" BorderColor="Silver">
+            <asp:TabPanel ID="TabPanel2" runat="server" HeaderText="Emergency Call" BorderColor="Silver">
                 <ContentTemplate>
                     </br>
                     <!--<b>Select ECL to send</b>
@@ -63,8 +61,11 @@
                     <asp:DropDownList ID="drpDwnECLEmer" runat="server" Width="100">
                         <asp:ListItem value="" text="Not Implemented" />
                     </asp:DropDownList>-->
+                    <b>Recipient File</b>
                     </br>
+                    <asp:TextBox ID="txtEmerRecp" runat="server"></asp:TextBox>                    
                     </br>
+                    </br>                    
                     <b>Source file of ECL (.csv)</b>
                     </br>
                     <asp:TextBox ID="txtEmerSrc" runat="server" ReadOnly="False"></asp:TextBox>
@@ -164,12 +165,19 @@
                     </br>
                     </br>
                     <asp:Button ID="btnEmerECL" runat="server" OnClick="btnEmerECL_Click" 
-                        Text="Send ECL" />                    
+                        Text="Emergency Call" />                    
                 </br>
                 </ContentTemplate>
             </asp:TabPanel>
             
-            <asp:TabPanel ID="TabPanel3" runat="server" HeaderText="ECL Config" BackColor="#CCCCCC">
+            <asp:TabPanel ID="TabPanel3" runat="server" HeaderText="Emergency Notification" BorderColor="Silver">
+                <ContentTemplate>
+                    <asp:Button ID="btnEmerNoti" runat="server" OnClick="btnEmerECL_Click" 
+                        Text="Emergency Notification" />
+                </ContentTemplate>
+            </asp:TabPanel>
+            
+            <asp:TabPanel ID="TabPanel4" runat="server" HeaderText="ECL Config" BackColor="#CCCCCC">
                 <ContentTemplate>
                 <br/>
                 <br/>
@@ -177,6 +185,11 @@
                 <b>MDS Listening Port </b>
                     <br/>
                     <asp:TextBox ID="txtMDSPort" runat="server"></asp:TextBox>                    
+                    <br/>
+                    <br/>
+                <b>Hosting Server</b>
+                    <br/>
+                    <asp:TextBox ID="txtServer" runat="server"></asp:TextBox>                    
                 </ContentTemplate>
             </asp:TabPanel>
         </asp:TabContainer>
@@ -186,7 +199,7 @@
     </br>
     <b>Logging</b>
     </br>
-    <asp:ListBox ID="lstStatus" runat="server" Width="700"></asp:ListBox>
+    <asp:ListBox ID="lstStatus" runat="server" Width="500"></asp:ListBox>
     <asp:SqlDataSource ID="SqlDataSource1" runat="server">
         
     </asp:SqlDataSource>

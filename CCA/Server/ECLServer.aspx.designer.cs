@@ -59,6 +59,15 @@ namespace ECLServerASP {
         protected global::System.Web.UI.WebControls.DropDownList drpDwnECLContact;
         
         /// <summary>
+        /// txtContactRecip control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtContactRecip;
+        
+        /// <summary>
         /// txtContactSrc control.
         /// </summary>
         /// <remarks>
@@ -66,15 +75,6 @@ namespace ECLServerASP {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtContactSrc;
-        
-        /// <summary>
-        /// txtContactDest control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtContactDest;
         
         /// <summary>
         /// btnContactECL control.
@@ -102,6 +102,15 @@ namespace ECLServerASP {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList drpDwnECLEmer;
+        
+        /// <summary>
+        /// txtEmerRecp control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtEmerRecp;
         
         /// <summary>
         /// txtEmerSrc control.
@@ -203,6 +212,24 @@ namespace ECLServerASP {
         protected global::AjaxControlToolkit.TabPanel TabPanel3;
         
         /// <summary>
+        /// btnEmerNoti control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnEmerNoti;
+        
+        /// <summary>
+        /// TabPanel4 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::AjaxControlToolkit.TabPanel TabPanel4;
+        
+        /// <summary>
         /// txtMDSPort control.
         /// </summary>
         /// <remarks>
@@ -210,6 +237,15 @@ namespace ECLServerASP {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtMDSPort;
+        
+        /// <summary>
+        /// txtServer control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtServer;
         
         /// <summary>
         /// lstStatus control.
