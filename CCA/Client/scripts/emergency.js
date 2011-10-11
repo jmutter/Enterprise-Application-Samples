@@ -22,7 +22,7 @@ function acceptEmergencyCall() {
 //*		Nothing
 //*************************************************************	
 
-	writeLog('User clicked Accept');
+	writeLog('User clicked EmergencyCall Accept');
 	writeLog('Creating calendar entry');
 	var newAppt = new blackberry.pim.Appointment();
 	newAppt.location = gEmergencyCallPhoneNumber;
@@ -46,7 +46,8 @@ function acceptEmergencyCall() {
 	//newAppt.attendees = attendees;
 
 	newAppt.save();
-	processEmergency('',gEmergencyCallAcceptURL);
+	saveURL('',gEmergencyCallAcceptURL);
+	displayScreen(gScreenNamePrevious);
 }
 
 function acceptEmergencyNotification() {
@@ -59,11 +60,12 @@ function acceptEmergencyNotification() {
 //*		Nothing
 //*************************************************************	
 
-	writeLog('User clicked Accept');
-	processEmergency('', gEmergencyNotificationAcceptURL);
+	writeLog('User clicked EmergencyNotification Accept');
+	saveURL('', gEmergencyNotificationAcceptURL);
+	displayScreen(gScreenNamePrevious);	
 }
 
-function addMenu_EmergencyCall() {
+function addMenuEmergencyCall() {
 //*************************************************************
 //* This function will create the necessary menu items for the
 //* emergency call screen.
@@ -74,6 +76,7 @@ function addMenu_EmergencyCall() {
 //*************************************************************	
 
 	try {
+		writeLog('addMenuEmergencyCall Starting');
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItem_topSeperator1 = new blackberry.ui.menu.MenuItem(true, 1);
 		var menuItem_accept = new blackberry.ui.menu.MenuItem(false, 2,"Accept", acceptEmergencyCall);
@@ -81,13 +84,14 @@ function addMenu_EmergencyCall() {
 		blackberry.ui.menu.addMenuItem(menuItem_topSeperator1);
 		blackberry.ui.menu.addMenuItem(menuItem_accept);
 		blackberry.ui.menu.addMenuItem(menuItem_decline);
+		writeLog('addMenuEmergencyCall Finished');
 	} 
 	catch (e) {
-		alert('Error building listing menu: ' + e.name + '; ' + e.message);
+		writeLog('addMenuEmergencyCall Finished - ERROR - '+ e.message);
 	}
 }
 
-function addMenu_EmergencyNotification() {
+function addMenuEmergencyNotification() {
 //*************************************************************
 //* This function will create the necessary menu items for the
 //* emergency notification screen.
@@ -98,14 +102,16 @@ function addMenu_EmergencyNotification() {
 //*************************************************************	
 
 	try {
+		writeLog('addMenuEmergencyNotification Starting');
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItem_topSeperator1 = new blackberry.ui.menu.MenuItem(true, 1);
-		var menuItem_accept = new blackberry.ui.menu.MenuItem(false, 2,"Accept", acceptEmergencyCall);
+		var menuItem_accept = new blackberry.ui.menu.MenuItem(false, 2,"Accept", acceptEmergencyNotification);
 		blackberry.ui.menu.addMenuItem(menuItem_topSeperator1);
 		blackberry.ui.menu.addMenuItem(menuItem_accept);
+		writeLog('addMenuEmergencyNotification Finished');
 	} 
 	catch (e) {
-		alert('Error building listing menu: ' + e.name + '; ' + e.message);
+		writeLog('addMenuEmergencyCall Finished - ERROR - ' + e.message);
 	}
 }
 
@@ -119,8 +125,9 @@ function declineEmergencyCall() {
 //*		Nothing
 //*************************************************************	
 
-	writeLog('User clicked Decline');
-	processEmergency('', gEmergencyCallDeclineURL);
+	writeLog('User clicked EmergencyCall Decline');
+	saveURL('', gEmergencyCallDeclineURL);
+	displayScreen(gScreenNamePrevious);
 }
 
 function displayEmergencyCall(msg) {
@@ -216,35 +223,4 @@ function displayEmergencyNotification(msg) {
 	writeLog('displayEmergencyNotification Finished');
 	gEmergencyRequestType = 'notification';
 	displayScreen(gScreenNameEmergencyNotification);
-}
-
-function processEmergency(msg, urlToSave) {
-	//*************************************************************
-//* This function will update the database with the outstanding
-//* URL that is being requested.
-//* Parms:
-//*		Success/Failure message of recursive calls
-//* Value Returned: 
-//*		Nothing
-//*************************************************************	
-	var errMsg = '';
-	if (msg == '') {
-		sql = 'INSERT INTO ' + gTableNameOutstandingURLs;
-		sql += '(url,datetime,lastattemptdatetime)';
-		sql += ' VALUES(\'' + urlToSave + '\',\'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\',\'\')';
-		fn_DBAddRecord(sql, 'getStarted');		
-	}
-	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
-		errMsg = msg.substring(17);
-	}
-	else if (msg == 'DBADDRECORDSUCCESS') {
-		postURLs();
-		displayScreen(gScreenNameListing);
-	}
-	else {
-		errMsg = 'processEmergency received invalid msg: ' + msg;
-	}	
-	if (errMsg != '') {
-		alert('Error processing emergency ' + gEmergencyRequestType + ' request:\n' + errMsg);
-	}
 }

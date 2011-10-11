@@ -6,19 +6,28 @@
 //Global Variables
 var gOptionsChangeDetected = false;
 
-function addMenu_Options() {
+function addMenuOptions() {
+//*************************************************************
+//* This function will add the appropriate menu items for the 
+//* Options screen
+//* Parms:
+//*		Success/Failure message of recursive calls
+//* Value Returned: 
+//*		Nothing
+//*************************************************************		
 	try {
-		blackberry.ui.menu.clearMenuItems();  //Clear the menu items
-		
-		var menuItem_topSeperator1 = new blackberry.ui.menu.MenuItem(true, 1);
-		var menuItem_save = new blackberry.ui.menu.MenuItem(false, 2,"Save", saveOptions);
-		var menuItem_cancel = new blackberry.ui.menu.MenuItem(false, 3,"Cancel", cancelOptions);		
-		blackberry.ui.menu.addMenuItem(menuItem_topSeperator1);
-		blackberry.ui.menu.addMenuItem(menuItem_save);
-		blackberry.ui.menu.addMenuItem(menuItem_cancel);
+		writeLog('addMenuOptions Starting');
+		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
+		var menuItemSeparator1 = new blackberry.ui.menu.MenuItem(true, 1);
+		var menuItemSave = new blackberry.ui.menu.MenuItem(false, 2,"Save", saveOptions);
+		var menuItemCancel = new blackberry.ui.menu.MenuItem(false, 3,"Cancel", cancelOptions);		
+		blackberry.ui.menu.addMenuItem(menuItemSeparator1);
+		blackberry.ui.menu.addMenuItem(menuItemSave);
+		blackberry.ui.menu.addMenuItem(menuItemCancel);
+		writeLog('addMenuOptions Finished');
 	} 
 	catch (e) {
-		alert('exception (addMenus): ' + e.name + '; ' + e.message);
+		writeLog('addMenuOptions Finished - ERROR - ' + e.message);
 	}
 }
 
@@ -44,14 +53,13 @@ function buildOptions() {
 
 function cancelOptions() {
 	
-	blackberry.ui.menu.clearMenuItems();  //Clear the menu items
 	gOptionsChangeDetected = false;
-	displayScreen(gScreenNameListing);
+	displayScreen(gScreenNamePrevious);
 }
 
 function rbDateDisplayDDMMYYYY_Click() {
 	
-	gOptionsDetected = true;
+	gOptionsChangeDetected = true;
 }
 
 function rbDateDisplayMMDDYYYY_Click() {
@@ -100,21 +108,20 @@ function saveOptions(msg) {
 		errMsg = msg.substring(20);
 	}
 	else if (msg == 'DBUPDATERECORDSUCCESS') {	
-		alert ('Options information saved');
-		buildListing('', 'saveOptions');  //Build listing screen
+		displayMessage('Options information saved');
+		buildContactsListing('', 'saveOptions');  //Build listing screen
 	}
-	else if (msg.substring(0,18) == 'BUILDLISTINGERROR:') {
-		errMsg = msg.substring(18);
+	else if (msg.substring(0,26) == 'BUILDCONTACTSLISTINGERROR:') {
+		errMsg = msg.substring(26);
 	}
-	else if (msg == 'BUILDLISTINGSUCCESS') {	
+	else if (msg == 'BUILDCONTACTSLISTINGSUCCESS') {	
 		writeLog('saveOptions Finished');	
 		cancelOptions();		
 	}
 	else {
-		errMsg = 'saveOptions invalid msg: ' + msg;
+		errMsg = 'Invalid msg: ' + msg;
 	}
 	if (errMsg != '') {
-		writeLog('saveOptions Finished - Errors:' + errMsg);	
-		alert ('Error saving options information:\n' + errMsg);
+		writeLog('saveOptions Finished - ERROR - ' + errMsg);	
 	}
 }

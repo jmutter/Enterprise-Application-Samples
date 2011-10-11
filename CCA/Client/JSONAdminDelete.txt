@@ -1,0 +1,5 @@
+{"Administration":[
+  {"request":"delete"
+	,"groupname":"testting"
+	,"confirmationurl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=Decline"} 
+]}

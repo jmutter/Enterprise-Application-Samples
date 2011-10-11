@@ -1,3 +1,5 @@
 {"EmergencyNotification":[
-  {"details":"just testing.  need to test what this looks like with line returns"} 
+  {"details":"just testing.  need to test what this looks like with line returns"
+	,"accepturl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=EmergencyNotificationAccept"} 
+
 ]}

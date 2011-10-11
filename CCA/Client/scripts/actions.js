@@ -5,10 +5,18 @@
 window.onload=formLoad;
 	
 //Global variables
+var gAdminConfirmationURL = ''; 
+var gAdminDateTime = '';
+var gAdminDeleteStep = '';
+var gAdminGroupName = '';
+var gAdminContactCount;
+var gAdminRecipient = '';
+var gAdminRequest = '';
+var gAdminURL = '';
 var gAppGUID = '';
-var gApplicationBannerIcon = 'images/mccabanner.png';;
-var gApplicationIcon = 'local:///images/mcca.png';
-var gApplicationIconNew = 'local:///images/mccanew.png';
+var gApplicationBannerIcon = 'images/ccabanner.png';;
+var gApplicationIcon = 'local:///images/cca.png';
+var gApplicationIconNew = 'local:///images/ccanew.png';
 var gAppName = '';
 var gBrowserBlackBerry = 'BlackBerry';
 var gBrowserGeneric = 'Browser';
@@ -18,19 +26,258 @@ var gDelim = '(OvO)';
 var gInsertCounter = 0;
 var gParentFunctionToCall = '';
 var gScreenDisplayed = '';
+var gScreenNameAbout = 'about'
 var gScreenNameContacts = 'contacts';
 var gScreenNameEmergencyCall = 'emergencycall';
 var gScreenNameEmergencyNotification = 'emergencynotification';
+var gScreenNameGroups = 'groups';
 var gScreenNameNoContacts = 'nocontacts';
 var gScreenNameOptions = 'options';
 var gScreenNamePrevious = '';
-var gTestingMode = true;
+var gTestingMode = false;
 var gTroubleShootingMode = false;
+var gURLCounter = 0;
+var gURLID = '';
+var gURLRecords;
+var gURLToPost = '';
 //The next variables are used to hold information relative to the user information
 //table.  This allows persistent storage of data for the user
 var gUserDateDisplay = 'MM/DD/YYYY'; //MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD
 var gUserListingOrder = 'LastName';  //LastName, FirstName
+var gUserRecipient = 'jbentley@rim.com';	//Recipient address to accept emails for payloads
 var gUserRecordID = '1';
+
+function adminDeleteGroup(msg) {
+//*************************************************************
+//* This function will delete the requested group and contacts
+//* associated with it
+//* Parms:
+//*		Success/Error messages to analyze from called functions
+//* Value Returned: 
+//*		none
+//*************************************************************	
+	
+  var errMsg = '';
+  var sql;
+  var errorFound = false;
+  alert ('adminDeleteGroup msg: ' + msg);
+  if (msg == '') {
+  	writeLog('adminDeleteGroup Starting');		
+ 		writeLog('  retrieving \'' + gAdminGroupName + '\' group information');	
+		sql = 'SELECT contactrecords, recordsreceived FROM ' + gTableNameGroups + ' WHERE groupname = \'' + gAdminGroupName + '\'';
+		fn_DBGetRecord(sql, 'adminDeleteGroup');
+	}
+	else if (msg.substring(0,17) == 'DBGETRECORDERROR:') {
+		errMsg = msg.substring(17);
+	}
+	else if (msg == 'DBGETRECORDSUCCESS') {
+		if (gDBRecordRetrieved == '') {
+		 	writeLog('adminDeleteGroup Finished - NO GROUP FOUND');
+		}
+		else {
+			var array = gDBRecordRetrieved.split(gDelim);
+			gAdminContactCount = array[0];
+			gAdminDateTime = array[1];
+			gAdminDeleteStep = 'groups';
+  		writeLog('  deleting \'' + gAdminGroupName + '\' group record');
+			sql = 'DELETE FROM ' + gTableNameGroups + ' WHERE groupname = \'' + gAdminGroupName + '\'';
+			fn_DBDeleteRecord(sql, 'adminDeleteGroup');
+		}
+	}		
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
+	else if (msg == 'DBDELETERECORDSUCCESS') {
+		if (gAdminDeleteStep == 'groups') {
+			gAdminDeleteStep = 'contacts';
+  		writeLog('  deleting \'' + gAdminGroupName + '\' contact records');
+			sql = 'DELETE FROM ' + gTableNameContacts + ' WHERE groupname = \'' + gAdminGroupName + '\'';
+			fn_DBDeleteRecord(sql, 'adminDeleteGroup');	
+		}
+		else {
+			alert ('deletes worked');
+		 	var dateTime = '';
+		 	var array;
+		 	if (gUserDateDisplay == 'YYYY-MM-DD') {
+		 		array = gAdminDateTime.split('-');
+		 		if (array[1].length = 1) {
+		 			array[1] = '0' + array[1];
+		 		}
+		 		if (array[2].length = 1) {
+		 			array[2] = '0' + array[2];
+		 		}
+		 		dateTime = array[0] + array[1] + array[2];
+		 	}
+		 	else if (gUserDateDisplay == 'DD/MM/YYYY') {
+		 		if (array[0].length = 1) {
+		 			array[0] = '0' + array[0];
+		 		}
+		 		if (array[1].length = 1) {
+		 			array[1] = '0' + array[1];
+		 		}
+				dateTime = array[2] + array[1] + array[0];
+		 	}
+		 	else {
+		 		if (array[0].length = 1) {
+		 			array[0] = '0' + array[0];
+		 		}
+		 		if (array[1].length = 1) {
+		 			array[1] = '0' + array[1];
+		 		}		 		
+				dateTime = array[2] + array[0] + array[1];		 		
+		 	}		
+		 	alert('date and time to be added to url: ' + gAdminContactCount + '/n' + dateTime); 		
+			writeLog('  Saving AdminURL');
+		 	saveURL('',gAdminConfirmationURL + gDelim + gAdminContactCount + gDelim + dateTime);
+			buildGroupsListing('','adminDeleteGroup');
+		}
+	}
+	else if (msg.substring(0,24) == 'BUILDGROUPSLISTINGERROR:' ) {
+		errMsg = msg.substring(24);
+	}
+	else if (msg == 'BUILDGROUPSNOENTRIES') {
+		displayMessage('All contacts were just removed by an administrative request');
+		writeLog('  No groups remaining');
+		writeLog('adminDeleteGroup Finished');
+		displayScreen(gScreenNameNoContacts);
+	}
+	else if (msg == 'BUILDGROUPSONEENTRY') {
+		if (gGroupNameSelected.toLowerCase() != gAdminGroupName.toLowerCase()) {
+			gGroupNameSelected = gAdminGroupName;
+			buildContactsListing('','adminDeleteGroup');
+		}
+		else {
+			writeLog('adminDeleteGroup Finished');
+		}
+	}
+	else if (msg == 'BUILDGROUPSSUCCESS') {
+		writeLog('adminDeleteGroup Finished');
+	}	
+	else if (msg.substring(0,26) == 'BUILDCONTACTSLISTINGERROR:' ) {
+		errMsg = msg.substring(26);
+	}	
+	else if (msg == 'BUILDCONTACTSLISTINGSUCCESS') {
+		writeLog('adminDeleteGroup Finished');
+		if (gScreenNameDisplayed == gScreenNameContacts) {
+			displayMessage('The contacts you were viewing have been removed by an adminstrative request.');
+		  displayScreen(gScreenNameContacts);
+		}		
+	}		
+	else {
+		errMsg = 'Invalid msg: ' + msg;
+	}
+	if (errMsg != '') {
+		writeLog('adminDeleteGroup Finished - ERROR - ' + errMsg);		
+	}	
+}
+
+function adminDeleteURL(msg) {
+//*************************************************************
+//* This function will delete the requested outstanding URL
+//* Parms:
+//*		Success/Error messages to analyze from called functions
+//* Value Returned: 
+//*		none
+//*************************************************************	
+}
+
+function adminDeleteURLs(msg) {
+//*************************************************************
+//* This function will delete all outstanding URLs
+//* Parms:
+//*		Success/Error messages to analyze from called functions
+//* Value Returned: 
+//*		none
+//*************************************************************	
+}
+
+function adminProcessPayload() {
+//*************************************************************
+//* This function will process the admin request by parsing 
+//* the JSON information and calling the appropriate function
+//* Parms:
+//*		Nothing
+//* Value Returned: 
+//*		Nothing
+//*************************************************************	
+	
+  var errorFound = false;
+ 	writeLog('adminProcessPayload Starting');		
+	writeLog('  validating payload');		
+	//Validate that all required properties exist in the object and if not, make them blank.
+	if (gJSONPayload.Administration[0].request == undefined) {
+		gJSONPayload.Administration[0].request = '';
+	}	
+	if (gJSONPayload.Administration[0].groupname == undefined) {
+		gJSONPayload.Administration[0].groupname = '';
+	}	 
+	if (gJSONPayload.Administration[0].url == undefined) {
+		gJSONPayload.Administration[0].url = '';
+	}	
+	if (gJSONPayload.Administration[0].recipient == undefined) {
+		gJSONPayload.Administration[0].recipient = '';
+	}	
+	if (gJSONPayload.Administration[0].confirmationurl == undefined) {
+		gJSONPayload.Administration[0].confirmationurl = '';
+	}	
+	gAdminRequest = gJSONPayload.Administration[0].request;
+	gAdminGroupName = gJSONPayload.Administration[0].groupname;
+	gAdminURL = gJSONPayload.Administration[0].url;
+	gAdminRecipient = gJSONPayload.Administration[0].recipient;
+	gAdminConfirmationURL = gJSONPayload.Administration[0].confirmationurl; 
+	if (gAdminRequest == '') {
+		errorFound = true;
+    writeLog('  request was blank');
+	}	
+	else {
+		if (gAdminRequest != 'deletegroup' && gAdminRequest != 'deleteurl' && gAdminRequest != 'deleteurls' && gAdminRequest != 'updaterecipient') {
+			errorFound = true;
+			writeLog('  request <> deletegroup, deleteurl, deleteurls, or updaterecipient');
+		}
+		else {
+			if (gAdminRequest == 'deletegroup' && gAdminGroupName == '') {
+				alert ('no group specified');
+				errorFound = true;
+    		writeLog('  groupname was blank');
+			}					
+			else if (gAdminRequest == 'deleteurl' && gAdminURL == '') {
+				alert ('no url specified');
+				errorFound = true;
+    		writeLog('  url was blank');
+			}	
+			else if (gAdminRequest == 'updaterecipient' && gAdminRecipient == '') {
+				alert ('no recipient specified');
+				errorFound = true;
+    		writeLog('  recipient was blank');
+			}	
+		}
+	} 
+	if (gAdminConfirmationURL == '') {
+		alert ('no confirmation url');
+		errorFound = true;
+    writeLog('  confirmationurl was blank');
+	}
+	alert ('errors: ' + errorFound);
+	if (errorFound == true) {
+		writeLog('AdminProcessPayload Finished - ERROR - Invalid JSON payload value(s)');	
+	}
+	else {
+		alert ('calling: ' + gAdminRequest);
+		writeLog('AdminProcessPayload Finished');	
+		if (gAdminRequest == 'deletegroup') {
+			adminDeleteGroup('');
+		}
+		else if (gAdminRequest == 'deleteurl') {
+			adminDeleteURL('');
+		}
+		else if (gAdminRequest == 'deleteurls') {
+			adminDeleteURLs('');
+		}
+		else if (gAdminRequest == 'updaterecipient') {
+			adminUpdateRecipient('');
+		}
+	}
+}
 
 function browserDetection() {
 //*************************************************************
@@ -58,9 +305,11 @@ function browserDetection() {
 
 function checkForOutstandingURLs(msg) {
 //*************************************************************
-//* This function will check for an outstanding URL and if found
+//* This function will check for an outstanding URLs and if found
 //* call the postURL function to attempt to complete the 
 //* notification of an accept or decline from the user.
+//* Once the post has been successful, postURLConfirmation will call
+//* this function to get the next URL (if any).
 //* Parms:
 //*		Success/Error messages to analyze from called functions
 //* Value Returned: 
@@ -68,25 +317,52 @@ function checkForOutstandingURLs(msg) {
 //*************************************************************		
 	
 	var errMsg = '';
-	if (msg == '') {
-		var	sql = 'SELECT outstandingurl FROM ' + gTableNameUser + ' WHERE recordid = \'' + gUserRecordID + '\'';
-		fn_DBGetRecord(sql, 'checkForOutstandingURLs');
+	if (msg == '' || msg == undefined) {
+		writeLog('checkForOutstandingURLs Starting');
+		var	sql = 'SELECT urlid, url FROM ' + gTableNameOutstandingURLs;
+		fn_DBGetRecords(sql, 'checkForOutstandingURLs');
 	}
-	else if (msg.substring(0,17) == 'DBGETRECORDERROR:') {
-		errMsg = msg.substring(17);
+	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
+		errMsg = msg.substring(18);
 	}
-	else if (msg == 'DBGETRECORDSUCCESS') {
-		if (gDBRecordRetrieved != '') {
-			gUserOutstandingURL = gDBRecordRetrieved;
-		  postURL('');
+	else if (msg == 'DBGETRECORDSSUCCESS') {
+		gURLRecords = gDBRecordsRetrieved;
+		writeLog('  ' + gURLRecords.length + ' outstanding URLs');
+		gURLCounter == 0;		//Initialize the counter
+		checkForOutstandingURLs('PROCESSURLS');		//Call this function with our needed msg for processing
+	}
+	else if (msg == 'PROCESSURLS') {
+		if (gURLCounter < gURLRecords.length) {
+			writeLog('  processing outstanding URL # ' + gURLCounter);
+			var array = gURLRecords[gURLCounter].split(gDelim);		
+			gURLID = array[0];
+			gURLToPost = array[1];
+			gURLCounter ++;
+		  postURL();			
+		}
+		else {
+			writeLog('checkForOutstandingURLs Finished');
 		}
 	}
 	else { 
-		errMsg = 'checkForOutstandingURLs received invalid msg: ' + msg;
+		errMsg = 'Invalid msg: ' + msg;
 	}
 	if (errMsg != '') {
-		alert ('Error procesing checkForOutstandingURLs:\n' + errMsg);
+		writeLog('checkForOutstandingURLs Finished - ERROR - ' + errMsg);
 	}	
+}
+
+function displayMessage(message) {
+//*************************************************************
+//* This function will display the requested message using the 
+//* appropriate method based on environment.
+//* Parms:
+//*		Message to be displayed
+//* Value Returned: 
+//*		Nothing
+//*************************************************************	
+	
+  alert (message);
 }
 
 function displayScreen(screenName) {
@@ -99,31 +375,44 @@ function displayScreen(screenName) {
 //*		Nothing
 //*************************************************************	
 	
-  writeLog('Displaying ' + screenName + ' screen'); 
+  writeLog('displayScreen Starting');
+  writeLog('  Displaying: ' + screenName); 
   gScreenNamePrevious = gScreenDisplayed;
+  document.getElementById(gScreenNameGroups).style.visibility = 'hidden';
   document.getElementById(gScreenNameNoContacts).style.visibility = 'hidden';
   document.getElementById(gScreenNameContacts).style.visibility = 'hidden';
   document.getElementById(gScreenNameOptions).style.visibility = 'hidden';
+  document.getElementById(gScreenNameAbout).style.visibility = 'hidden';
   document.getElementById(gScreenNameEmergencyCall).style.visibility = 'hidden';
   document.getElementById(gScreenNameEmergencyNotification).style.visibility = 'hidden';
-	if (screenName == gScreenNameNoContacts) {
+  blackberry.ui.menu.clearMenuItems();  //Clear the menu items	
+	if (screenName == gScreenNameGroups) {
+	  //$.mobile.changePage($('#contacts'), {transition : 'slideup'});
+  	addMenuGroups();
+  	document.getElementById(gScreenNameGroups).style.visibility = 'visible';
+	}
+	else if (screenName == gScreenNameNoContacts) {
 	  //$.mobile.changePage($('#nocontacts'), {transition : 'slideup'});
-  	addMenu_Contacts();
+  	addMenuContacts();
   	document.getElementById(gScreenNameNoContacts).style.visibility = 'visible';
 	}
 	else if (screenName == gScreenNameContacts) {
 	  //$.mobile.changePage($('#contacts'), {transition : 'slideup'});
-  	addMenu_Contacts();
+  	addMenuContacts();
   	document.getElementById(gScreenNameContacts).style.visibility = 'visible';
 	}
 	else if (screenName == gScreenNameOptions) {
 	  //$.mobile.changePage($('#options'), {transition : 'none'});	
-  	addMenu_Options(); 
+  	addMenuOptions(); 
   	document.getElementById(gScreenNameOptions).style.visibility = 'visible';	 
+	}
+	else if (screenName == gScreenNameAbout) {
+	  //$.mobile.changePage($('#about'), {transition : 'none'});	 
+  	document.getElementById(gScreenNameAbout).style.visibility = 'visible';	 
 	}
 	else if (screenName == gScreenNameEmergencyCall) {
 	  //$.mobile.changePage($('#emergencycall'), {transition : 'none'});	 	
-  	addMenu_EmergencyCall();
+  	addMenuEmergencyCall();
   	document.getElementById(gScreenNameEmergencyCall).style.visibility = 'visible';
   	if (blackberry.app.isForeground == false) {
 			blackberry.app.requestForeground(); 
@@ -131,13 +420,14 @@ function displayScreen(screenName) {
 	}	
 	else if (screenName == gScreenNameEmergencyNotification) {
 	  //$.mobile.changePage($('#emergencynotification'), {transition : 'none'});	 	
-  	addMenu_EmergencyNotification();
+  	addMenuEmergencyNotification();
   	document.getElementById(gScreenNameEmergencyNotification).style.visibility = 'visible';
   	if (blackberry.app.isForeground == false) {
 			blackberry.app.requestForeground(); 
 		} 
 	}	
 	gScreenDisplayed = screenName;
+  writeLog('displayScreen Finished');
 }
 
 function formLoad() {
@@ -166,21 +456,21 @@ function formLoad() {
 	writeLog('Application starting');
 
   if (gTestingMode == true) {
-  	//alert ('You are running in TEST mode.\nCertain pieces of code work differently based on this mode.\nEnsure you set the value appropriately prior to deployment');
-    //var answer = confirm ('Do you wish to have log messages displayed in alerts for trouble shooting?');
-		//if (answer == true) {
-    //	answer = confirm ('Are you sure?');
-		//	if (answer == true) {
-		//		gTroubleShootingMode = true;
-		//	}	
-		//}
+  	alert ('You are running in TEST mode.\nCertain pieces of code work differently based on this mode.\nEnsure you set the value appropriately prior to deployment');
+    var answer = confirm ('Do you wish to have log messages displayed in alerts for trouble shooting?');
+		if (answer == true) {
+    	answer = confirm ('Are you sure?');
+			if (answer == true) {
+				gTroubleShootingMode = true;
+			}	
+		}
   }
 	
   //Register required BlackBerry events
   registerBBEvents();
 	
 	if (gHTTPObject == false) {		
-		alert('Unable to start application:\nUnable to create HTTP object');	
+		displayMessage('Unable to start application:\nUnable to create HTTP object');	
 	}
 	else {
 		getStarted('');		
@@ -239,17 +529,13 @@ function getStarted(msg) {
 		  gUserDateDisplay = array[1];
 		}	
 		writeLog('getStarted Finished');
-		displayContactGroups('');
+		displayGroups('');
 	}
 	else {
 		errMsg ('Invalid parm for getStarted: ' + msg); 	
 	} 
 	if (errMsg != '') {
-		writeLog('getStarted Finished - ERROR: ' + errMsg);	
-		alert (errMsg);	
-		//var html = 'Unable to start application:\n' + errMsg;
-		//$('#error').html(html);
-		//displayScreen(gScreenNameError);
+		writeLog('getStarted Finished - ERROR - ' + errMsg);	
 	}
 } 
 
@@ -265,20 +551,43 @@ function handleBackKey() {
 	writeLog('handleBackKey Starting');
 	if (gScreenDisplayed == gScreenNameEmergencyCall || gScreenDisplayed == gScreenNameEmergencyNotification) {
 		//Intercept and block request from user to leave this screen without responding
-		alert ('You must choose to accept or decline this request.\nDo not close this application until you have done so.');
+		displayMessage('You must choose to accept or decline this request.\nDo not close this application until you have done so.');
 	}
 	else {
 		if (gScreenDisplayed == gScreenNameOptions) {
-			alert ('change detected: ' + gOptionsChangeDetected);
+			var answer = true;
+			if (gOptionsChangeDetected == true) {
+				if (confirm("A change was made.\nIf you continue, you will lose those changes.") == false) {
+					answer = false;
+				}
+			}
+			if (answer == true) {				
+				writeLog('handleBackKey Finished');
+				gOptionsChangeDetected = false;
+				displayScreen(gScreenNamePrevious);
+			}
+		}	
+		else if (gScreenDisplayed == gScreenNameAbout) {
+			writeLog('handleBackKey Finished');
 			displayScreen(gScreenNamePrevious);
 		}
-		else {
-			gScreenDisplayed = '';
+		else if (gScreenDisplayed == gScreenNameGroups) {
+			writeLog('handleBackKey Finished');
 			writeLog('Application going to background');
 			blackberry.app.requestBackground();
+		}
+		else {
+			if (gGroupScreenIsVisible == true) {
+				writeLog('handleBackKey Finished');				
+				displayScreen(gScreenNameGroups);
+			}
+			else {
+				writeLog('handleBackKey Finished');				
+				writeLog('Application going to background');
+				blackberry.app.requestBackground();
+			}
 		}		
 	}	
-	writeLog('handleBackKey Finished');
 }
 
 function handleCoverageChange() {
@@ -292,7 +601,7 @@ function handleCoverageChange() {
 			
 	writeLog('handleCoverage Starting');
 	if ( blackberry.system.hasDataCoverage() == true) {
-		checkForOutstandingUTL();
+		checkForOutstandingURLs('');
 	}
 	writeLog('handleCoverage Finished');
 }
@@ -308,9 +617,9 @@ function handleExit() {
 //*************************************************************		
 	
 	writeLog('handleBackground Starting');
-	if (gScreenDisplayed == gScreenNameEmergency || gScreenDisplayed == gScreenNameEmergencyNotification) {
+	if (gScreenDisplayed == gScreenNameEmergencyCall || gScreenDisplayed == gScreenNameEmergencyNotification) {
 		//Intercept and block request from user to leave this screen without responding
-		alert ('You must choose to accept or decline this request.\nDo not close this application until you have done so.');
+		displayMessage('You must choose to accept or decline this request.\nDo not close this application until you have done so.');
 	}
 	else {
 		if (gTestingMode == true || gDebugMode == true) {
@@ -410,6 +719,40 @@ function notifyUser() {
   writeLog('notifyUser Finished');
 }
 
+function saveURL(msg, urlToAdd) {
+	//*************************************************************
+//* This function will add the reqeusted URL to the outstandingurl 
+//* table.
+//* Parms:
+//*		Success/Failure message of recursive calls
+//*   URL to add
+//* Value Returned: 
+//*		Nothing
+//*************************************************************	
+
+	var errMsg = '';
+	if (msg == '') {
+		writeLog('saveURL Starting');
+		sql = 'INSERT INTO ' + gTableNameOutstandingURLs;
+		sql += '(urlid, url,datetime,lastattemptdatetime,statuscode)';
+		sql += ' VALUES(null,\'' + urlToAdd + '\',\'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\',\'\',\'\')';
+		fn_DBAddRecord(sql, 'saveURL');		
+	}
+	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
+		errMsg = msg.substring(17);
+	}
+	else if (msg == 'DBADDRECORDSUCCESS') {
+		writeLog('saveURL Finished');	
+		checkForOutstandingURLs('');
+	}
+	else {
+		errMsg = 'Invalid msg: ' + msg;
+	}	
+	if (errMsg != '') {
+		writeLog('saveURL Finished - ERROR - ' + errMsg);	
+	}
+}
+
 function registerBBEvents() {
 //*************************************************************
 //* This function will register the required BlackBerry API events
@@ -480,6 +823,6 @@ function setApplicationIcon(type) {
 		webworks.system.log.write(gAppGUID, gAppName, msg);
 	}
 	if (gTroubleShootingMode == true) {
-		alert (msg);
+		displayMessage(msg);
 	}
 }

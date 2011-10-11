@@ -15,8 +15,10 @@
 		<script type="text/javascript" src="scripts/connection.js"></script>
 		<script type="text/javascript" src="scripts/functions.js"></script>
 		<script type="text/javascript" src="scripts/contacts.js"></script>
+		<script type="text/javascript" src="scripts/groups.js"></script>
 		<script type="text/javascript" src="scripts/emergency.js"></script>
 		<script type="text/javascript" src="scripts/options.js"></script>			
+		<script type="text/javascript" src="scripts/about.js"></script>	
 		<script type="text/javascript" src="scripts/secretkey.js"></script>
  		<!-- Custom JS -->
     <script>
@@ -42,6 +44,14 @@
 		This is the JQuery Mobile implementation of a page. Here we define three sections for a header, content, and footer.
 		#listprofiles will hold our profile list.
 		-->
+		<div id="groups">
+			<label>Group listing goes here</label>
+		</div>
+
+		<div id="nocontacts">
+			No contacts to list
+		</div>
+			
 		<div id="contacts" data-role="page" class="type-interior">
 			<div data-role="header">
 				<h1>Contacts</h1>
@@ -55,26 +65,26 @@
 			</div>
 		</div>	
 
-		<div id="nocontacts">
-			<label>No Contacts to display</label>
-		</div>	
-		
 		<div id="options">
-			<label>User Options</label>
-			<label style="position: absolute; top: 30px; left: 5px;">Listing Order</label>
-			<input type="radio" style="position:absolute; top:60px; left:20px" name="listingorder" id="rbListingLastName" value="LastName" onclick="rbListingLastName_Click">
+			<label style="position:absolute; top:3px; left:5px">User Options</label>
+			<label style="position:absolute; top:30px; left:5px;">Listing Order</label>
+			<input type="radio" style="position:absolute; top:60px; left:20px" name="listingorder" id="rbListingLastName" value="LastName" onchange="rbListingLastName_Click()">
 			<label style="position:absolute; top:60px; left:50px; font-size:10pt">By Lastname</label>
-			<input type="radio" style="position:absolute; top:90px; left:20px" name="listingorder" id="rbListingFirstName" value="FirstName" onclick="rbListingFirstName_Click">
+			<input type="radio" style="position:absolute; top:90px; left:20px" name="listingorder" id="rbListingFirstName" value="FirstName" onclick="rbListingFirstName_Click()">
 			<label style="position:absolute; top:90px; left:50px; font-size:10pt">By Firstname</label>			
 			<label style="position: absolute; top: 130px; left: 5px;">Date Display</label>			
-			<input type="radio" style="position:absolute; top:160px; left:20px" name="datedisplay" id="rbDateDisplayMMDDYYYY" value="MMDDYYYY" onclick="rbDateDisplayMMDDYYYY_Click">
+			<input type="radio" style="position:absolute; top:160px; left:20px" name="datedisplay" id="rbDateDisplayMMDDYYYY" value="MMDDYYYY" onchange="rbDateDisplayMMDDYYYY_Click()">
 			<label style="position:absolute; top:160px; left:50px; font-size:10pt">MM/DD/YYYY</label>
-			<input type="radio" style="position:absolute; top:190px; left:20px" name="datedisplay" id="rbDateDisplayDDMMYYYY" value="DDMMYYYY" onclick="rbDateDisplayDDMMYYYY_Click">
+			<input type="radio" style="position:absolute; top:190px; left:20px" name="datedisplay" id="rbDateDisplayDDMMYYYY" value="DDMMYYYY" onchange="rbDateDisplayDDMMYYYY_Click()">
 			<label style="position:absolute; top:190px; left:50px; font-size:10pt">DD/MM/YYYY</label>
-			<input type="radio" style="position:absolute; top:220px; left:20px" name="datedisplay" id="rbDateDisplayYYYYMMDD" value="YYYYMMDD" onclick="rbDateDisplayYYYYMMDD_Click">
+			<input type="radio" style="position:absolute; top:220px; left:20px" name="datedisplay" id="rbDateDisplayYYYYMMDD" value="YYYYMMDD" onchange="rbDateDisplayYYYYMMDD_Click()">
 			<label style="position:absolute; top:220px; left:50px; font-size:10pt">YYYY-MM-DD</label>
 		</div>	
-		
+
+		<div id="about">
+			<label>No about info to show</label>
+		</div>	
+				
 		<div id="emergencycall">
 			<label style="position:absolute; top:5px; left:40px; font-size:20pt">Emergency Call</label>
 			<label style="position:absolute; top:70px; left:7px"; font-size:8pt>When:</label>

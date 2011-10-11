@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:rim="http://www.blackberry.com/ns/widgets" version="1.0.0.0">
-  <name>SEC Emergency Contact</name>
-  <description>This application provides emergency contact information relating the Securities and Exchance Commission.			</description>
-  <author rim:copyright="2011" href="www.sec.gov">Securities and Exchance Commission</author>
-  <license>This application adheres to the www.sec.gov standard license agreement.</license>
+  <name>Corporate Communication Application</name>
+  <description>This application provides a listing of emergency contact information relating the Securities and Exchance Commission.			</description>
+  <author rim:copyright="2011" href="www.blackberry.com/developers">Securities and Exchance Commission</author>
+  <license>This application is provided as a sample, but is fully functional.</license>
   <feature id="blackberry.app" required="true" version="1.0.0.0"/>
   <feature id="blackberry.app.event" required="true" version="1.0.0.0"/>
   <feature id="blackberry.identity" required="true" version="1.0.0.0"/>
@@ -25,7 +25,7 @@
   <feature id="blackberry.find" required="true" version="1.0.0.0"/>
   <feature id="blackberry.invoke.BrowserArguments" required="true" version="1.0.0.0"/>
   <access subdomains="true" uri="http://www.dagobahserver.com"/>
-  <icon rim:hover="false" src="images/mcca.png"/>
+  <icon rim:hover="false" src="images/cca.png"/>
   <content src="index.html"/>
   <rim:connection>
     <id>MDS</id>

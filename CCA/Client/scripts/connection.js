@@ -80,7 +80,7 @@ function handlePushData(data) {
 			}	
 			else if (gJSONPayload.Administration != undefined) {		
 		    writeLog('handlePushData Finished - Administration payload');
-				//processAdminPayload();					
+				adminProcessPayload('');					
 			}	
 			else {
 				errMsg = 'Invalid payload received';
@@ -91,8 +91,7 @@ function handlePushData(data) {
 		errMsg = 'JSON error: ' + e.message;
 	}
 	if (errMsg != '') {
-		alert (errMsg);
-		writeLog(errMsg);		
+		writeLog('handlePushData Finished - ERROR - ' + errMsg);
 	}
 }
 
@@ -103,7 +102,7 @@ function handleSIMChange() {
 	//openBESPushListener API.
 }
 
-function postURLs(msg) {	
+function postURL() {	
 //*************************************************************
 //* This function is called to post the outstanding URL back 
 //* to the server
@@ -115,18 +114,19 @@ function postURLs(msg) {
 
   try {
    	if (blackberry.system.hasDataCoverage()) {
-   		writeLog('postURL sending URL: ' + gUserOutstandingURL);
+   		writeLog('postURL Starting');   		
+   		writeLog('  Sending: ' + gURLToPost);
      	gHTTPObject.onreadystatechange = postURLConfirmation;
-     	gHTTPObject.open('get', gUserOutstandingURL, true); 
+     	gHTTPObject.open('get', gURLToPost, true); 
      	gHTTPObject.send(null);
+   		writeLog('postURL Finished');  
    	}
    	else { 
-   		writeLog('postURL doesn\'t have data coverage.  onForeground or handleDataCoverage events will take care of it');
-  	  }
+   		writeLog('postURL Finished - NO COVERAGE');
+  	}
   }	 
   catch (e) {
-   	writeLog('postURL failed - errName: ' + e.name);
-   	writeLog('postURL failed - errMessage: ' + e.message);
+   	writeLog('postURL Finished - ERROR - ' + e.message);
   }
 }
 
@@ -141,56 +141,57 @@ function postURLConfirmation(msg) {
 //*		Nothing
 //*************************************************************
 	
-	//Test for initial call since we couldn't pass anything when defining this function as the call back
-	//in postURL
+	//Test for initial call since we couldn't pass anything when defining this function as the call back in postURL
 	if (msg == undefined) {
 		msg = '';
 	}	
 	var errMsg = '';
-	var clearURL = false;
+	var deleteURL = false;
+	var sql = '';
 	if (msg == '') {
 		if (gHTTPObject.readyState == 4) {   	
+			writeLog('postURLConfirmation Starting');
+			writeLog('  Status: ' + gHTTPObject.status);
+			writeLog('  StatusText: ' + gHTTPObject.statusText);
       if (gHTTPObject.status == 200) {
-				writeLog('postURLConfirmation status: 200');
-       	alert ('post worked, need to ensure following code works');
-				clearURL = true;  //Remove URL from table 	
+				writeLog('  Requesting delete');
+      	//Need to delete the outstanding URL since it isn't needed anymore
+				sql = 'DELETE FROM ' + gTableNameOutstandingURLs + ' WHERE urlid = \'' + gURLID + '\'';
+				fn_DBDeleteRecord(sql, 'postURLConfirmation');
 			}   
-      else if (gHTTPObject.status == 408 || gHTTPObject.status == 503 || gHTTPObject.status == 504) {
+      else {
       	//408 = Request Timeout
       	//503 = Service Unavailable
       	//504 = Gateway Timeout (going through proxy)
-				writeLog('postURLConfirmation status: ' + gHTTPObject.status);
-				writeLog('postURLConfirmation delaying post');
-       	alert ('post delayed: '+ gHTTPObject.status);
       	//Will not remove URL from table to allow for later processing
-			}
-      else {
-				writeLog('HTTP post status code:' + gHTTPObject.status);
-				writeLog('HTTP post status text:' + gHTTPObject.statusText);
-				//Might want to notify user so they can call their support folks
-				clearURL = true;  //Remove URL from table to show processed (even though with error
-      }
-      if (clearURL == true) {
-       	//Need to clear out our outstanding values so they don't appear upon next restart
-				var	sql = 'UPDATE ' + gTableNameUser + ' SET outstandingurl = \'\', outstandingurldatetime = \'\' WHERE recordid = \'' + gUserRecordID + '\'';
+				writeLog('  Requesting update');
+   			sql = 'UPDATE ' + gTableNameOutstandingURLs + ' SET lastattemptdatetime = \'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\', statuscode = \'' + gHTTPObject.status + '\' WHERE urlid = \'' + gURLID + '\'';
 				fn_DBUpdateRecord(sql, 'postURLConfirmation');        	
       }
     }
   }  
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
+	else if (msg == 'DBDELETERECORDSUCCESS') {
+		writeLog('  Delete completed');
+		writeLog('postURLConfirmation Finished');
+		checkForOutstandingURLs('');	//Go look for more outstanding URLs to post
+	}
 	else if (msg.substring(0,20) == "DBUPDATERECORDERROR:") {
 		errMsg = msg.substring(20);
 	}
 	else if (msg == "DBUPDATERECORDSUCCESS") {
-		alert ('postURLConfirmation - SQL update worked');
+		writeLog('  Update completed');
 		writeLog('postURLConfirmation Finished');
-	}
+		checkForOutstandingURLs('PROCESSURLS');	//Go look for more outstanding URLs to post
+	}	
 	else {
-		errMsg = 'Invalid msg received:' + msg;
+		errMsg = 'Invalid msg:' + msg;
 	}
 	if (errMsg != '') {
 		alert ('postURLConfirmation error: ' + errMsg);
-		writeLog('postURLConfirmation error: ' + errMsg);
-		writeLog('postURLConfirmation Finished');
+		writeLog('postURLConfirmation Finished - ERROR - ' + errMsg);
 	}
 }
 

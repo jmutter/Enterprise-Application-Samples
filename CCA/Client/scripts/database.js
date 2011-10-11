@@ -11,7 +11,7 @@ var gDatabaseName = 'CCA';
 var gDatabaseTitle = 'Corporate Communication Application';
 var gDatabaseVersion = '1.0';
 var gTableNameContacts = 'Contacts';
-var gTableNameContactGroups = 'ContactGroups';
+var gTableNameGroups = 'Groups';
 var gTableNameOutstandingURLs = 'OutstandingURLs';
 var gTableNameUser = 'User';
 var gDBRecordRetrieved = '';
@@ -91,8 +91,9 @@ function fn_DBCreateTable(tableName, functionToCall) {
 		sql += ', zipcode text';		
 		sql += ', country text)';
 	}
-	else if (tableName == gTableNameContactGroups) {
+	else if (tableName == gTableNameGroups) {
 		sql += ' groupname text';  //Name of list of contacts
+		sql += ', contactrecords text';  //Number of contacts associated to this group
 		sql += ', recordsreceived text)';  //Date and time the records were received
 	}	
 	else if (tableName == gTableNameUser) {
@@ -103,9 +104,11 @@ function fn_DBCreateTable(tableName, functionToCall) {
 	}	
 	else if (tableName == gTableNameOutstandingURLs) {
 		//There will only be 1 record for this table
-		sql += ' url text';  //URL that hasn't been posted
+		sql += ' urlid integer primary key';
+		sql += ', url text';  //URL that hasn't been posted
 		sql += ', datetime text';  //Date and time the URL was put into the database
-		sql += ', lastattemptdatetime text)';  //Date and time the last post attempt was made for the URL
+		sql += ', lastattemptdatetime text';  //Date and time the last post attempt was made for the URL
+		sql += ', statuscode text)';  //Status code from last attempt if not 200
 	}	
 	else {
 		returnValue = 'DBCREATETABLEERROR:Invalid table name (' + tableName + ') requested';
@@ -357,7 +360,7 @@ function fn_DBGetRecords(sql, functionToCall) {
 						dbRow = response.rows.item(row_ctr);
 						fieldValues = '';
 						array = fields.split(",");	
-						for (var field_ctr = 0; field_ctr < array.length - 1; field_ctr++) {
+						for (var field_ctr = 0; field_ctr < array.length; field_ctr++) {
 							fieldValues = fieldValues + dbRow[myTrim(array[field_ctr])] + gDelim;						
 						}
 						//fieldValues = fieldValues + dbRow[myTrim(array[field_ctr])];  //Get last field value
@@ -409,13 +412,13 @@ function fn_DBOpenDatabase(msg, functionToCall) {
 		fn_DBCreateTable(gTableNameContacts, 'fn_DBOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameContacts) {
-		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameContactGroups);  
-		//fn_DBDropTable(gTableNameContactGroups,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameGroups);  
+		//fn_DBDropTable(gTableNameGroups,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
-	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameContactGroups) {
-		fn_DBCreateTable(gTableNameContactGroups, 'fn_DBOpenDatabase');			
+	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameGroups) {
+		fn_DBCreateTable(gTableNameGroups, 'fn_DBOpenDatabase');			
 	}
-	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameContactGroups) {
+	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameGroups) {
 		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameUser);  
 		//fn_DBDropTable(gTableNameUser,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
