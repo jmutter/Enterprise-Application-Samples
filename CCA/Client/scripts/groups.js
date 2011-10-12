@@ -51,7 +51,7 @@ function buildGroupsListing(msg, functionToCall){
 		gParentFunctionToCall = functionToCall;  //Save off function since recursive calls back here won't preserve it
 		writeLog('buildGroupsListing Starting');	
 		writeLog('  Retrieving Groups');
-		sql = 'SELECT groupname, recordsreceived FROM ' + gTableNameGroups;
+		sql = 'SELECT groupname, contactrecords FROM ' + gTableNameGroups;
 		fn_DBGetRecords(sql, 'buildGroupsListing');
 	}	
 	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {

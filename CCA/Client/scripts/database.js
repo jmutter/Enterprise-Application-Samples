@@ -100,7 +100,10 @@ function fn_DBCreateTable(tableName, functionToCall) {
 		//There will only be 1 record for this table
 		sql += ' recordid text';	//value should be set to 1 when we create the record so we always know how to reference this
 		sql += ', listingorder text';	//LastName or FirstName
-		sql += ', datedisplay text)';	//MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD
+		sql += ', contacteffect text';	//Blind, Clip, Drop, Explode
+		sql += ', emailsender text';	//Sender that is allowed to send email requests
+		sql += ', datedisplay text';	//MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD
+		sql += ', applicationactive text)';	//true, false
 	}	
 	else if (tableName == gTableNameOutstandingURLs) {
 		//There will only be 1 record for this table
@@ -405,29 +408,29 @@ function fn_DBOpenDatabase(msg, functionToCall) {
 		errMsg = msg.substring(19);
 	}
 	else if (msg == 'DATABASEOPEN') {
-		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameContacts);
-		//fn_DBDropTable(gTableNameContacts,"fn_DBOpenDatabase");  //Only use this line when testing and wanting to clear data
+		//fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameContacts);
+		fn_DBDropTable(gTableNameContacts,"fn_DBOpenDatabase");  //Only use this line when testing and wanting to clear data
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameContacts) {
 		fn_DBCreateTable(gTableNameContacts, 'fn_DBOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameContacts) {
-		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameGroups);  
-		//fn_DBDropTable(gTableNameGroups,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		//fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameGroups);  
+		fn_DBDropTable(gTableNameGroups,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameGroups) {
 		fn_DBCreateTable(gTableNameGroups, 'fn_DBOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameGroups) {
-		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameUser);  
-		//fn_DBDropTable(gTableNameUser,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		//fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameUser);  
+		fn_DBDropTable(gTableNameUser,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameUser) {
 		fn_DBCreateTable(gTableNameUser, 'fn_DBOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameUser) {
-		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameOutstandingURLs);  
-		//fn_DBDropTable(gTableNameOutstandingURLs,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		//fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameOutstandingURLs);  
+		fn_DBDropTable(gTableNameOutstandingURLs,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameOutstandingURLs) {
 		fn_DBCreateTable(gTableNameOutstandingURLs, 'fn_DBOpenDatabase');			

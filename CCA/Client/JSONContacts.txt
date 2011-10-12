@@ -1,5 +1,6 @@
 {"Contact":[
-  {"groupname":"testing"
+  {"groupname":"WAAs"
+	,"confirmationurl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=ContactsAdded"
 	,"firstname":"Jeffrey"
 	,"lastname":"Bentley" 
   	,"email":"jbentley@rim.com"
@@ -10,18 +11,28 @@
 	,"city":"Troutman"
 	,"state":"NC"
 	,"zipcode":"28166"}  	
- ,  {"groupname":"testing"
+ ,  {"groupname":"WAAs"
 	,"firstname":"Richard"
 	,"lastname":"Balsewich" 
   	,"email":"rbalsewich@rim.com"
   	,"workphone":"202-999-9999"
   	,"pin":"87654321"
   	,"address":""}   
- ,  {"groupname":"testing"
+ ,  {"groupname":"WAAs"
 	,"firstname":"Maurice"
 	,"lastname":"White" 
   	,"email":"mauwhite@rim.com"
   	,"workphone":"312-999-9999"
   	,"pin":"4567123"
   	,"address":""}  
+ ,  {"groupname":"WAAs"
+	,"firstname":"Brent"
+	,"lastname":"Thornton" 
+  	,"email":"bthornton@rim.com"
+  	,"workphone":"519-999-9999"} 
+ ,  {"groupname":"Management"
+	,"firstname":"John"
+	,"lastname":"Mutter" 
+  	,"email":"jmutter@rim.com"
+  	,"workphone":"843-999-9999"} 
 ]}

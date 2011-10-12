@@ -6,13 +6,12 @@ window.onload=formLoad;
 	
 //Global variables
 var gAdminConfirmationURL = ''; 
-var gAdminDateTime = '';
 var gAdminDeleteStep = '';
+var gAdminEmailSender = '';
 var gAdminGroupName = '';
-var gAdminContactCount;
-var gAdminRecipient = '';
 var gAdminRequest = '';
 var gAdminURL = '';
+var gAdminWipeStep = '';
 var gAppGUID = '';
 var gApplicationBannerIcon = 'images/ccabanner.png';;
 var gApplicationIcon = 'local:///images/cca.png';
@@ -42,9 +41,11 @@ var gURLRecords;
 var gURLToPost = '';
 //The next variables are used to hold information relative to the user information
 //table.  This allows persistent storage of data for the user
+var gUserContactEffect = 'Explode';
 var gUserDateDisplay = 'MM/DD/YYYY'; //MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD
+var gUserEmailSender = 'jbentley@rim.com';	//Recipient address to accept emails for payloads
+var gUserEmailSenderDefault = 'jbentley@rim.com';	//Backup sender email address to allow email payloads
 var gUserListingOrder = 'LastName';  //LastName, FirstName
-var gUserRecipient = 'jbentley@rim.com';	//Recipient address to accept emails for payloads
 var gUserRecordID = '1';
 
 function adminDeleteGroup(msg) {
@@ -60,76 +61,27 @@ function adminDeleteGroup(msg) {
   var errMsg = '';
   var sql;
   var errorFound = false;
-  alert ('adminDeleteGroup msg: ' + msg);
   if (msg == '') {
   	writeLog('adminDeleteGroup Starting');		
- 		writeLog('  retrieving \'' + gAdminGroupName + '\' group information');	
-		sql = 'SELECT contactrecords, recordsreceived FROM ' + gTableNameGroups + ' WHERE groupname = \'' + gAdminGroupName + '\'';
-		fn_DBGetRecord(sql, 'adminDeleteGroup');
-	}
-	else if (msg.substring(0,17) == 'DBGETRECORDERROR:') {
-		errMsg = msg.substring(17);
-	}
-	else if (msg == 'DBGETRECORDSUCCESS') {
-		if (gDBRecordRetrieved == '') {
-		 	writeLog('adminDeleteGroup Finished - NO GROUP FOUND');
-		}
-		else {
-			var array = gDBRecordRetrieved.split(gDelim);
-			gAdminContactCount = array[0];
-			gAdminDateTime = array[1];
-			gAdminDeleteStep = 'groups';
-  		writeLog('  deleting \'' + gAdminGroupName + '\' group record');
-			sql = 'DELETE FROM ' + gTableNameGroups + ' WHERE groupname = \'' + gAdminGroupName + '\'';
-			fn_DBDeleteRecord(sql, 'adminDeleteGroup');
-		}
+		gAdminDeleteStep = 'contacts';
+  	writeLog('  Deleting \'' + gAdminGroupName + '\' contact records');
+		sql = 'DELETE FROM ' + gTableNameContacts + ' WHERE groupname = \'' + gAdminGroupName + '\'';
+		fn_DBDeleteRecord(sql, 'adminDeleteGroup');	
 	}		
 	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
 		errMsg = msg.substring(20);
 	}
 	else if (msg == 'DBDELETERECORDSUCCESS') {
-		if (gAdminDeleteStep == 'groups') {
-			gAdminDeleteStep = 'contacts';
-  		writeLog('  deleting \'' + gAdminGroupName + '\' contact records');
-			sql = 'DELETE FROM ' + gTableNameContacts + ' WHERE groupname = \'' + gAdminGroupName + '\'';
-			fn_DBDeleteRecord(sql, 'adminDeleteGroup');	
+		if (gAdminDeleteStep == 'contacts') {
+			gAdminDeleteStep = 'groups';
+  		writeLog('  Deleting \'' + gAdminGroupName + '\' group record');
+			sql = 'DELETE FROM ' + gTableNameGroups + ' WHERE groupname = \'' + gAdminGroupName + '\'';
+			fn_DBDeleteRecord(sql, 'adminDeleteGroup');
 		}
 		else {
-			alert ('deletes worked');
-		 	var dateTime = '';
-		 	var array;
-		 	if (gUserDateDisplay == 'YYYY-MM-DD') {
-		 		array = gAdminDateTime.split('-');
-		 		if (array[1].length = 1) {
-		 			array[1] = '0' + array[1];
-		 		}
-		 		if (array[2].length = 1) {
-		 			array[2] = '0' + array[2];
-		 		}
-		 		dateTime = array[0] + array[1] + array[2];
-		 	}
-		 	else if (gUserDateDisplay == 'DD/MM/YYYY') {
-		 		if (array[0].length = 1) {
-		 			array[0] = '0' + array[0];
-		 		}
-		 		if (array[1].length = 1) {
-		 			array[1] = '0' + array[1];
-		 		}
-				dateTime = array[2] + array[1] + array[0];
-		 	}
-		 	else {
-		 		if (array[0].length = 1) {
-		 			array[0] = '0' + array[0];
-		 		}
-		 		if (array[1].length = 1) {
-		 			array[1] = '0' + array[1];
-		 		}		 		
-				dateTime = array[2] + array[0] + array[1];		 		
-		 	}		
-		 	alert('date and time to be added to url: ' + gAdminContactCount + '/n' + dateTime); 		
-			writeLog('  Saving AdminURL');
-		 	saveURL('',gAdminConfirmationURL + gDelim + gAdminContactCount + gDelim + dateTime);
-			buildGroupsListing('','adminDeleteGroup');
+		 	saveURL('',gAdminConfirmationURL);
+		 	alert ('deletions worked');
+			//buildGroupsListing('','adminDeleteGroup');
 		}
 	}
 	else if (msg.substring(0,24) == 'BUILDGROUPSLISTINGERROR:' ) {
@@ -179,6 +131,29 @@ function adminDeleteURL(msg) {
 //* Value Returned: 
 //*		none
 //*************************************************************	
+
+  var errMsg = '';
+  var sql;
+  var errorFound = false;
+  if (msg == '') {
+  	writeLog('adminDeleteURL Starting');		
+  	writeLog('  Deleting URL: ' + gAdminURL);
+		sql = 'DELETE FROM ' + gTableNameOutstandingURLs + ' WHERE url = \'' + gAdminURL + '\'';
+		fn_DBDeleteRecord(sql, 'adminDeleteURL');	
+	}		
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
+	else if (msg == 'DBDELETERECORDSUCCESS') {
+		saveURL('',gAdminConfirmationURL);
+		writeLog('adminDeleteURL Finished');
+	}
+	else {
+		errMsg = 'Invalid msg: ' + msg;
+	}
+	if (errMsg != '') {
+		writeLog('adminDeleteURL Finished - ERROR - ' + errMsg);		
+	}	
 }
 
 function adminDeleteURLs(msg) {
@@ -189,6 +164,29 @@ function adminDeleteURLs(msg) {
 //* Value Returned: 
 //*		none
 //*************************************************************	
+	
+  var errMsg = '';
+  var sql;
+  var errorFound = false;
+  if (msg == '') {
+  	writeLog('adminDeleteURLs Starting');		
+  	writeLog('  Deleting URLs');
+		sql = 'DELETE FROM ' + gTableNameOutstandingURLs;
+		fn_DBDeleteRecord(sql, 'adminDeleteURLs');	
+	}		
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
+	else if (msg == 'DBDELETERECORDSUCCESS') {
+		saveURL('',gAdminConfirmationURL);
+		writeLog('adminDeleteURLs Finished');
+	}
+	else {
+		errMsg = 'Invalid msg: ' + msg;
+	}
+	if (errMsg != '') {
+		writeLog('adminDeleteURLs Finished - ERROR - ' + errMsg);		
+	}	
 }
 
 function adminProcessPayload() {
@@ -203,7 +201,7 @@ function adminProcessPayload() {
 	
   var errorFound = false;
  	writeLog('adminProcessPayload Starting');		
-	writeLog('  validating payload');		
+	writeLog('  Validating payload');		
 	//Validate that all required properties exist in the object and if not, make them blank.
 	if (gJSONPayload.Administration[0].request == undefined) {
 		gJSONPayload.Administration[0].request = '';
@@ -214,8 +212,8 @@ function adminProcessPayload() {
 	if (gJSONPayload.Administration[0].url == undefined) {
 		gJSONPayload.Administration[0].url = '';
 	}	
-	if (gJSONPayload.Administration[0].recipient == undefined) {
-		gJSONPayload.Administration[0].recipient = '';
+	if (gJSONPayload.Administration[0].emailsender == undefined) {
+		gJSONPayload.Administration[0].emailsender = '';
 	}	
 	if (gJSONPayload.Administration[0].confirmationurl == undefined) {
 		gJSONPayload.Administration[0].confirmationurl = '';
@@ -223,46 +221,37 @@ function adminProcessPayload() {
 	gAdminRequest = gJSONPayload.Administration[0].request;
 	gAdminGroupName = gJSONPayload.Administration[0].groupname;
 	gAdminURL = gJSONPayload.Administration[0].url;
-	gAdminRecipient = gJSONPayload.Administration[0].recipient;
+	gAdminEmailSender = gJSONPayload.Administration[0].emailsender;
 	gAdminConfirmationURL = gJSONPayload.Administration[0].confirmationurl; 
+
 	if (gAdminRequest == '') {
 		errorFound = true;
     writeLog('  request was blank');
 	}	
 	else {
-		if (gAdminRequest != 'deletegroup' && gAdminRequest != 'deleteurl' && gAdminRequest != 'deleteurls' && gAdminRequest != 'updaterecipient') {
+		if (gAdminRequest != 'deletegroup' && gAdminRequest != 'deleteurl' && gAdminRequest != 'deleteurls' && gAdminRequest != 'wipe' && gAdminRequest != 'updateemailsender') {
 			errorFound = true;
-			writeLog('  request <> deletegroup, deleteurl, deleteurls, or updaterecipient');
+			writeLog('  request <> deletegroup, deleteurl, deleteurls, wipe, or updateemailsender');
 		}
 		else {
 			if (gAdminRequest == 'deletegroup' && gAdminGroupName == '') {
-				alert ('no group specified');
 				errorFound = true;
     		writeLog('  groupname was blank');
 			}					
 			else if (gAdminRequest == 'deleteurl' && gAdminURL == '') {
-				alert ('no url specified');
 				errorFound = true;
     		writeLog('  url was blank');
 			}	
-			else if (gAdminRequest == 'updaterecipient' && gAdminRecipient == '') {
-				alert ('no recipient specified');
+			else if (gAdminRequest == 'updateemailsender' && gAdminEmailSender == '') {
 				errorFound = true;
-    		writeLog('  recipient was blank');
+    		writeLog('  email sender was blank');
 			}	
 		}
 	} 
-	if (gAdminConfirmationURL == '') {
-		alert ('no confirmation url');
-		errorFound = true;
-    writeLog('  confirmationurl was blank');
-	}
-	alert ('errors: ' + errorFound);
 	if (errorFound == true) {
 		writeLog('AdminProcessPayload Finished - ERROR - Invalid JSON payload value(s)');	
 	}
 	else {
-		alert ('calling: ' + gAdminRequest);
 		writeLog('AdminProcessPayload Finished');	
 		if (gAdminRequest == 'deletegroup') {
 			adminDeleteGroup('');
@@ -273,10 +262,102 @@ function adminProcessPayload() {
 		else if (gAdminRequest == 'deleteurls') {
 			adminDeleteURLs('');
 		}
-		else if (gAdminRequest == 'updaterecipient') {
-			adminUpdateRecipient('');
+		else if (gAdminRequest == 'wipe') {
+			adminWipe('');
+		}
+		else if (gAdminRequest == 'updateemailsender') {
+			adminUpdateEmailSender('');
 		}
 	}
+}
+
+function adminUpdateEmailSender(msg) {
+//*************************************************************
+//* This function will update the email sender address in the 
+//* user table
+//* Parms:
+//*		Success/Error messages to analyze from called functions
+//* Value Returned: 
+//*		none
+//*************************************************************	
+	
+  var errMsg = '';
+  alert ('update email msg: ' + msg);
+  if (msg == '') {
+  	writeLog('adminUpdateEmailSender Starting');		
+		var	sql = 'UPDATE ' + gTableNameUser + ' SET emailsender = \'' + gAdminEmailSender + '\' WHERE recordid = \'' + gUserRecordID + '\'';
+		fn_DBUpdateRecord(sql, 'adminUpdateEmailSender'); 	
+	}
+	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
+	else if (msg == 'DBUPDATERECORDSUCCESS') {
+		saveURL('',gAdminConfirmationURL);
+  	writeLog('adminUpdateEmailSender Finished');	
+	}		
+	else {
+		errMsg = 'Invalid msg: ' + msg;
+	}
+	if (errMsg != '') {
+		writeLog('adminUpdateEmailSender Finished - ERROR - ' + errMsg);		
+	}	
+}
+
+function adminWipe(msg) {
+//*************************************************************
+//* This function will delete all data from the tables
+//* Parms:
+//*		Success/Error messages to analyze from called functions
+//* Value Returned: 
+//*		none
+//*************************************************************	
+	
+  var errMsg = '';
+  var sql;
+  if (msg == '') {
+  	writeLog('adminWipe Starting');		
+		gAdminWipeStep = 'contacts';
+  	writeLog('  Deleting contacts');
+		sql = 'DELETE FROM ' + gTableNameContacts;
+		fn_DBDeleteRecord(sql, 'adminWipe');	
+	}		
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
+	else if (msg == 'DBDELETERECORDSUCCESS') {
+		if (gAdminWipeStep == 'contacts') {
+			gAdminWipeStep = 'groups';
+  		writeLog('  Deleting groups');
+			sql = 'DELETE FROM ' + gTableNameGroups;
+			fn_DBDeleteRecord(sql, 'adminWipe');
+		}
+		else if (gAdminWipeStep == 'groups') {
+			gAdminWipeStep = 'urls';
+  		writeLog('  Deleting urls');
+			sql = 'DELETE FROM ' + gTableNameOutstandingURLs;
+			fn_DBDeleteRecord(sql, 'adminWipe');
+		}		
+		else if (gAdminWipeStep == 'urls') {
+			sql = 'UPDATE ' + gTableNameUser + ' SET applicationactive = \'false\' WHERE recordid = \'' + gUserRecordID + '\'';
+			fn_DBUpdateRecord(sql, 'adminWipe'); 	
+		}
+	}
+	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
+	else if (msg == 'DBUPDATERECORDSUCCESS') {
+		saveURL('','adminWipe');
+  	writeLog('adminWipe Finished');	
+  	if (gBrowserType == gBrowserBlackBerry) {
+  		blackberry.app.exit();	
+  	}
+	}		
+	else {
+		errMsg = 'Invalid msg: ' + msg;
+	}
+	if (errMsg != '') {
+		writeLog('adminWipe Finished - ERROR - ' + errMsg);		
+	}	
 }
 
 function browserDetection() {
@@ -501,7 +582,7 @@ function getStarted(msg) {
 		errMsg = msg.substring(18);
 	}
 	else if (msg == 'DATABASEOKAY') {
-		sql = 'SELECT listingorder, datedisplay FROM ' + gTableNameUser + ' WHERE recordid = \'' + gUserRecordID + '\'';
+		sql = 'SELECT listingorder, contacteffect, emailsender, datedisplay, applicationactive FROM ' + gTableNameUser + ' WHERE recordid = \'' + gUserRecordID + '\'';
 		fn_DBGetRecord(sql, 'getStarted');
 	}
 	else if (msg.substring(0,17) == 'DBGETRECORDERROR:') {
@@ -510,8 +591,8 @@ function getStarted(msg) {
 	else if (msg == 'DBGETRECORDSUCCESS') {
 		if (gDBRecordRetrieved == '') {		
 		  sql = 'INSERT INTO ' + gTableNameUser;
-		  sql += '(recordid,listingorder,datedisplay)';
-		  sql += ' VALUES(\'' + gUserRecordID + '\',\'' + gUserListingOrder + '\',\'' + gUserDateDisplay + '\')';
+		  sql += '(recordid, listingorder, contacteffect, emailsender, datedisplay, applicationactive)';
+		  sql += ' VALUES(\'' + gUserRecordID + '\',\'' + gUserListingOrder + '\',\'' + gUserContactEffect + '\',\'' + gUserEmailSender + '\',\'' + gUserDateDisplay + '\',\'false\')';
 		  fn_DBAddRecord(sql, 'getStarted');		
 		}
 		else {
@@ -526,7 +607,15 @@ function getStarted(msg) {
 		if (gDBRecordRetrieved != '' ) {
 		  var array = gDBRecordRetrieved.split(gDelim);
 		  gUserListingOrder = array[0];
-		  gUserDateDisplay = array[1];
+		  gUserContactEffect = array[1];
+		  gUserEmailSender = array[2];
+		  gUserDateDisplay = array[3];
+		  //if (array[4] == false) {
+		  //	displayMessage('This application has been disabled.  Until it has been reset it cannot be used');
+		  //	if (gBrowserType == gBrowserBlackBerry) {
+  		//		blackberry.app.exit();	
+  		//	}		  	
+		  //}
 		}	
 		writeLog('getStarted Finished');
 		displayGroups('');
@@ -733,10 +822,16 @@ function saveURL(msg, urlToAdd) {
 	var errMsg = '';
 	if (msg == '') {
 		writeLog('saveURL Starting');
+		if (urlToAdd == '') {
+			writeLog('  No URL to save');
+			writeLog('saveURL Finished');	
+		}
+		else {
 		sql = 'INSERT INTO ' + gTableNameOutstandingURLs;
 		sql += '(urlid, url,datetime,lastattemptdatetime,statuscode)';
 		sql += ' VALUES(null,\'' + urlToAdd + '\',\'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\',\'\',\'\')';
-		fn_DBAddRecord(sql, 'saveURL');		
+		fn_DBAddRecord(sql, 'saveURL');	
+		}	
 	}
 	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
 		errMsg = msg.substring(17);

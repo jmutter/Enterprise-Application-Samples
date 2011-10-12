@@ -172,13 +172,7 @@ function displayEmergencyCall(msg) {
 	}		
 	if (gEmergencyCallDetails == '') {
 			gEmergencyCallDetails = 'MissingValue';
-	}			
-	if (gEmergencyCallAcceptURL == '') {
-			gEmergencyCallAcceptURL = 'MissingValue';
-	}	
-	if (gEmergencyCallDeclineURL == '') {
-			gEmergencyCallDeclineURL = 'MissingValue';
-	}			
+	}				
 	
 	//Apply values to fields on form
 	document.getElementById('emergencycalldatetime').value = gEmergencyCallDateTime;
@@ -213,10 +207,7 @@ function displayEmergencyNotification(msg) {
 	//Validate to ensure there are values for all fields	
 	if (details == '') {
 			details = 'MissingValue';
-	}			
-	if (gEmergencyNotificationAcceptURL == '') {
-			gEmergencyNotificationAcceptURL = 'MissingValue';
-	}			
+	}					
 	
 	//Apply values to fields on form
 	document.getElementById('emergencynotificationdetails').value = details;	

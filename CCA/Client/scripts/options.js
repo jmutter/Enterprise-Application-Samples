@@ -47,6 +47,18 @@ function buildOptions() {
 	}
 	else {
 		rbDateDisplayMMDDYYYY.checked = true;		
+	}
+	if (gUserContactEffect == 'Blind') {
+		rbContactEffectBlind.checked = true;
+	}
+	else if (gUserContactEffect == 'Clip') {
+		rbContactEffectClip.checked = true;
+	}
+	else if (gUserContactEffect == 'Drop') {
+		rbContactEffectDrop.checked = true;		
+	}
+	else {
+		rbContactEffectExplode.checked = true;		
 	}	
 	displayScreen (gScreenNameOptions);
 }
@@ -55,6 +67,26 @@ function cancelOptions() {
 	
 	gOptionsChangeDetected = false;
 	displayScreen(gScreenNamePrevious);
+}
+
+function rbContactEffectBlind_Click() {
+	
+	gOptionsChangeDetected = true;
+}
+
+function rbContactEffectClip_Click() {
+	
+	gOptionsChangeDetected = true;
+}
+
+function rbContactEffectDrop_Click() {
+	
+	gOptionsChangeDetected = true;
+}
+
+function rbContactEffectExplode_Click() {
+	
+	gOptionsChangeDetected = true;
 }
 
 function rbDateDisplayDDMMYYYY_Click() {
@@ -101,7 +133,19 @@ function saveOptions(msg) {
 		else {
 			gUserDateDisplay = 'MMDDYYYY';
 		}
-		var	sql = 'UPDATE ' + gTableNameUser + ' SET listingorder = \'' + gUserListingOrder + '\', datedisplay = \'' + gUserDateDisplay + '\' WHERE recordid = \'' + gUserRecordID + '\'';
+		if (rbContactEffectBlind.checked == true) {
+			gUserContactEffect = 'Blind';
+		}
+		else if (rbContactEffectClip.checked == true) {
+			gUserContactEffect = 'Clip';
+		}
+		else if (rbContactEffectDrop.checked == true) {
+			gUserContactEffect = 'Drop';			
+		}
+		else {
+			gUserContactEffect = 'Explode';			
+		}		
+		var	sql = 'UPDATE ' + gTableNameUser + ' SET listingorder = \'' + gUserListingOrder + '\', contacteffect = \'' + gUserContactEffect + '\', datedisplay = \'' + gUserDateDisplay + '\' WHERE recordid = \'' + gUserRecordID + '\'';
 		fn_DBUpdateRecord(sql, 'saveOptions'); 	
 	}
 	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {

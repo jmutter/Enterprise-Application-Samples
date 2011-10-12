@@ -187,6 +187,7 @@ function buildContactsListing(msg, functionToCall){
 			var panel = '';
 			var array;
 			var counter;
+			$('#listprofiles').empty();
 			for (counter = 0; counter < gDBRecordsRetrieved.length; ++counter) {
 				//Our main listitem that display's the user's name
 				array = gDBRecordsRetrieved[counter].split(gDelim);	
@@ -437,8 +438,8 @@ function processContactsPayload(msg) {
 			}	
 			//Look for groupname to see if we already have this	
 			groupName = gJSONPayload.Contact[counter].groupname;
-			if (groupsFound.indexOf(groupName.toLowerCase() + gDelim) == -1) {
-				groupsFound += groupName.toLowerCase() + gDelim
+			if (groupsFound.toLowerCase().indexOf(groupName.toLowerCase() + gDelim) == -1) {
+				groupsFound += groupName + gDelim
 			}
   	}
 	}
@@ -460,9 +461,7 @@ function processContactsPayload(msg) {
   	}
   	else {
   		gContactPayloadGroups[gGroupPayloadCounter - 1] =gContactPayloadGroups[gGroupPayloadCounter - 1] + gDelim + gContactPayloadAddedCounter.toString() + gDelim + getDate(gUserDateDisplay) + ' @ ' + getTime();
-  		if (gContactPayloadURL != '') {
-  			saveURL('', gContactPayloadURL);
-  		}
+  		saveURL('', gContactPayloadURL);
 		  writeLog('processContactPayload Finished');
   		updateGroups('');  		
   	}

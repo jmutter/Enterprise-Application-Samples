@@ -44,7 +44,7 @@ Dim WinHttpReq               'Object establish connection to BES MDS-CS server
   sApplicationPort = "3333"
   sBESPort = "8080"
   'sBESPort = "28080"
-  sApplicationDataFile = sCurrentFolder & "/jsonadmindelete.txt"
+  sApplicationDataFile = sCurrentFolder & "/jsonadmindeleteurl.txt"
 
   sFailureReason = ""
   

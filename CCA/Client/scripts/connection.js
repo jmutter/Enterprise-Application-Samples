@@ -184,7 +184,7 @@ function postURLConfirmation(msg) {
 	else if (msg == "DBUPDATERECORDSUCCESS") {
 		writeLog('  Update completed');
 		writeLog('postURLConfirmation Finished');
-		checkForOutstandingURLs('PROCESSURLS');	//Go look for more outstanding URLs to post
+		checkForOutstandingURLs('PROCESSURLS');	 //Go look for more outstanding URLs to post
 	}	
 	else {
 		errMsg = 'Invalid msg:' + msg;
