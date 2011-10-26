@@ -11,27 +11,64 @@ function addMenuOptions() {
 //* This function will add the appropriate menu items for the 
 //* Options screen
 //* Parms:
-//*		Success/Failure message of recursive calls
+//*		Nothing
 //* Value Returned: 
 //*		Nothing
 //*************************************************************		
-	try {
-		writeLog('addMenuOptions Starting');
+	writeLog('addMenuOptions Starting');
+	if (gBrowserType == gBrowserBlackBerry || gBrowserType == gBrowserRippleBlackBerry) {	
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItemSeparator1 = new blackberry.ui.menu.MenuItem(true, 1);
-		var menuItemSave = new blackberry.ui.menu.MenuItem(false, 2,"Save", saveOptions);
-		var menuItemCancel = new blackberry.ui.menu.MenuItem(false, 3,"Cancel", cancelOptions);		
 		blackberry.ui.menu.addMenuItem(menuItemSeparator1);
+		var menuItemSave = new blackberry.ui.menu.MenuItem(false, 2,"Save", saveOptions);
 		blackberry.ui.menu.addMenuItem(menuItemSave);
+		var menuItemCancel = new blackberry.ui.menu.MenuItem(false, 3,"Cancel", cancelOptions);		
 		blackberry.ui.menu.addMenuItem(menuItemCancel);
-		writeLog('addMenuOptions Finished');
-	} 
-	catch (e) {
-		writeLog('addMenuOptions Finished - ERROR - ' + e.message);
+		writeLog('  menu built');		
 	}
+	else {
+		writeLog('  invalid environment for menu');
+	}
+	writeLog('addMenuOptions Finished');
 }
 
-function buildOptions() {
+function cbShowAllGroup_Change() {
+	
+	gOptionsChangeDetected = true;
+}
+
+function cbShowCompanyOnContactBar_Change() {
+	
+	gOptionsChangeDetected = true;
+}
+
+function cbShowContactDividers_Change() {
+	
+	gOptionsChangeDetected = true;
+}
+
+function cbShowTitleOnContactBar_Change() {
+	
+	gOptionsChangeDetected = true;
+}
+
+function displayOptions() {
+//*************************************************************
+//* This function will setup and display the options screen.
+//* Parms:
+//*		Nothing
+//* Value Returned: 
+//*		Nothing
+//*************************************************************		
+	
+	document.getElementById(gScreenNameOptions).style.backgroundImage = "url(images/background-options.jpg)";
+	document.getElementById(gScreenNameOptions).style.width = screen.availWidth + "px";
+	document.getElementById(gScreenNameOptions).style.height = screen.availHeight + "px";
+	document.getElementById(gScreenNameOptions).style.backgroundRepeat = "repeat";
+	//Set the checkboxes and readio buttons according to values from database
+	if (gUserShowAllGroup == 'True') {
+		cbShowAllGroup.checked = true 
+	}
 	
 	if (gUserListingOrder == 'FirstName') {
 		rbListingFirstName.checked = true;
@@ -39,6 +76,19 @@ function buildOptions() {
 	else {
 		rbListingLastName.checked = true;
 	}
+	
+	if (gUserShowContactDividers == 'True') {
+		cbShowContactDividers.checked = true 
+	}	
+	
+	if (gUserShowTitleOnContactBar == 'True') {
+		cbShowTitleOnContactBar.checked = true 
+	}
+	
+	if (gUserShowCompanyOnContactBar == 'True') {
+		cbShowCompanyOnContactBar.checked = true 
+	}
+
 	if (gUserDateDisplay == 'YYYY-MM-DD') {
 		rbDateDisplayYYYYMMDD.checked = true;		
 	}
@@ -48,82 +98,87 @@ function buildOptions() {
 	else {
 		rbDateDisplayMMDDYYYY.checked = true;		
 	}
-	if (gUserContactEffect == 'Blind') {
-		rbContactEffectBlind.checked = true;
-	}
-	else if (gUserContactEffect == 'Clip') {
-		rbContactEffectClip.checked = true;
-	}
-	else if (gUserContactEffect == 'Drop') {
-		rbContactEffectDrop.checked = true;		
-	}
-	else {
-		rbContactEffectExplode.checked = true;		
-	}	
 	displayScreen (gScreenNameOptions);
 }
 
 function cancelOptions() {
 	
 	gOptionsChangeDetected = false;
-	displayScreen(gScreenNamePrevious);
+	displayScreen(gScreenNameGroups);
 }
 
-function rbContactEffectBlind_Click() {
+function rbDateDisplayDDMMYYYY_Change() {
 	
 	gOptionsChangeDetected = true;
 }
 
-function rbContactEffectClip_Click() {
+function rbDateDisplayMMDDYYYY_Change() {
 	
 	gOptionsChangeDetected = true;
 }
 
-function rbContactEffectDrop_Click() {
+function rbDateDisplayYYYYMMDD_Change() {
 	
 	gOptionsChangeDetected = true;
 }
 
-function rbContactEffectExplode_Click() {
+function rbListingFirstName_Change() {
 	
 	gOptionsChangeDetected = true;
 }
 
-function rbDateDisplayDDMMYYYY_Click() {
-	
-	gOptionsChangeDetected = true;
-}
-
-function rbDateDisplayMMDDYYYY_Click() {
-	
-	gOptionsChangeDetected = true;
-}
-
-function rbDateDisplayYYYYMMDD_Click() {
-	
-	gOptionsChangeDetected = true;
-}
-
-function rbListingFirstName_Click() {
-	
-	gOptionsChangeDetected = true;
-}
-
-function rbListingLastName_Click() {
+function rbListingLastName_Change() {
 	
 	gOptionsChangeDetected = true;
 }
 
 function saveOptions(msg) {
+//*************************************************************
+//* This function is called when the user clicks on the Save 
+//* menu option
+//* Parms:
+//*		Nothing
+//* Value Returned: 
+//*		Nothing
+//*************************************************************		
 	
 	var errMsg = '';
 	if (msg == undefined) {
-		if (rbListingFirstName.checked == true) {
-			gUserListingOrder = "FirstName";
+		if (cbShowAllGroup.checked == true) {
+			gUserShowAllGroup = 'True';
 		}
 		else {
-			gUserListingOrder = "LastName";
+			gUserShowAllGroup = 'False';
 		}
+	
+		if (rbListingFirstName.checked == true) {
+			gUserListingOrder = 'FirstName';
+		}
+		else {
+			gUserListingOrder = 'LastName';
+		}
+		
+		if (cbShowContactDividers.checked == true) {
+			gUserShowContactDividers = 'True';
+		}
+		else {
+			gUserShowContactDividers = 'False';
+		}
+		
+		if (cbShowTitleOnContactBar.checked == true) {
+			gUserShowTitleOnContactBar = 'True';
+		}
+		else {
+			gUserShowTitleOnContactBar = 'False';
+		}
+
+		if (cbShowCompanyOnContactBar.checked == true) {
+			gUserShowCompanyOnContactBar = 'True';
+		}
+		else {
+			gUserShowCompanyOnContactBar = 'False';
+		}
+
 		if (rbDateDisplayYYYYMMDD.checked == true) {
 			gUserDateDisplay = 'YYYYMMDD';
 		}
@@ -133,34 +188,27 @@ function saveOptions(msg) {
 		else {
 			gUserDateDisplay = 'MMDDYYYY';
 		}
-		if (rbContactEffectBlind.checked == true) {
-			gUserContactEffect = 'Blind';
-		}
-		else if (rbContactEffectClip.checked == true) {
-			gUserContactEffect = 'Clip';
-		}
-		else if (rbContactEffectDrop.checked == true) {
-			gUserContactEffect = 'Drop';			
-		}
-		else {
-			gUserContactEffect = 'Explode';			
-		}		
-		var	sql = 'UPDATE ' + gTableNameUser + ' SET listingorder = \'' + gUserListingOrder + '\', contacteffect = \'' + gUserContactEffect + '\', datedisplay = \'' + gUserDateDisplay + '\' WHERE recordid = \'' + gUserRecordID + '\'';
+
+		var	sql = 'UPDATE ' + gTableNameUser + ' SET showallgroup = \'' + gUserShowAllGroup + '\', listingorder = \'' + gUserListingOrder + '\'';
+		sql += ', showcontactdividers = \'' + gUserShowContactDividers + '\', showtitleoncontactbar = \'' + gUserShowTitleOnContactBar + '\'';
+		sql += ', showcompanyoncontactbar = \'' + gUserShowCompanyOnContactBar + '\', datedisplay = \'' + gUserDateDisplay + '\'';
+		sql += ' WHERE recordid = \'' + gUserRecordID + '\'';
 		fn_DBUpdateRecord(sql, 'saveOptions'); 	
 	}
 	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
 		errMsg = msg.substring(20);
 	}
 	else if (msg == 'DBUPDATERECORDSUCCESS') {	
+		gOptionsChangeDetected = false;			
 		displayMessage('Options information saved');
-		buildContactsListing('', 'saveOptions');  //Build listing screen
-	}
-	else if (msg.substring(0,26) == 'BUILDCONTACTSLISTINGERROR:') {
-		errMsg = msg.substring(26);
-	}
-	else if (msg == 'BUILDCONTACTSLISTINGSUCCESS') {	
+		getRecords('','saveOptions');
+	}	
+	else if (msg == 'GETRECORDSSUCCESS') {
 		writeLog('saveOptions Finished');	
-		cancelOptions();		
+		displayGroups();
+	}
+	else if (msg.substring(0,16) == 'GETRECORDSERROR:' ) {
+		errMsg = msg.substring(16);
 	}
 	else {
 		errMsg = 'Invalid msg: ' + msg;

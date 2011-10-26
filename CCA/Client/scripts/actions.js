@@ -3,17 +3,18 @@
 //* that are action based for the application
 //*************************************************************	
 window.onload=formLoad;
+window.onorientationchange = function(){orientationChangeDetected();};
 	
 //Global variables
 var gAdminConfirmationURL = ''; 
 var gAdminDeleteStep = '';
+var gAdminDisableStep = '';
 var gAdminEmailSender = '';
 var gAdminGroupName = '';
 var gAdminRequest = '';
 var gAdminURL = '';
-var gAdminWipeStep = '';
 var gAppGUID = '';
-var gApplicationBannerIcon = 'images/ccabanner.png';;
+var gApplicationBannerIcon = 'images/ccabanner.png';
 var gApplicationIcon = 'local:///images/cca.png';
 var gApplicationIconNew = 'local:///images/ccanew.png';
 var gAppName = '';
@@ -25,7 +26,7 @@ var gDelim = '(OvO)';
 var gInsertCounter = 0;
 var gParentFunctionToCall = '';
 var gScreenDisplayed = '';
-var gScreenNameAbout = 'about'
+var gScreenNameAbout = 'about';
 var gScreenNameContacts = 'contacts';
 var gScreenNameEmergencyCall = 'emergencycall';
 var gScreenNameEmergencyNotification = 'emergencynotification';
@@ -41,12 +42,17 @@ var gURLRecords;
 var gURLToPost = '';
 //The next variables are used to hold information relative to the user information
 //table.  This allows persistent storage of data for the user
-var gUserContactEffect = 'Explode';
 var gUserDateDisplay = 'MM/DD/YYYY'; //MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD
-var gUserEmailSender = 'jbentley@rim.com';	//Recipient address to accept emails for payloads
-var gUserEmailSenderDefault = 'jbentley@rim.com';	//Backup sender email address to allow email payloads
 var gUserListingOrder = 'LastName';  //LastName, FirstName
+var gUserShowAllGroup = 'False';
+var gUserShowCompanyOnContactBar = 'True';
+var gUserShowContactDividers = 'True';
+var gUserShowTitleOnContactBar = 'True';
+//The next variables will hold information for user information but are not changeable by the user
 var gUserRecordID = '1';
+var gUserEmailSender = 'jbentley@rim.com';	//Recipient address to accept emails for payloads
+var gUserEmailSenderDefault = 'jbentley@rim.com';	//Default sender email address to allow email payloads if email sender gets deleted
+var gUserApplicationStatus = 'enabled';
 
 function adminDeleteGroup(msg) {
 //*************************************************************
@@ -68,9 +74,6 @@ function adminDeleteGroup(msg) {
 		sql = 'DELETE FROM ' + gTableNameContacts + ' WHERE groupname = \'' + gAdminGroupName + '\'';
 		fn_DBDeleteRecord(sql, 'adminDeleteGroup');	
 	}		
-	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
-		errMsg = msg.substring(20);
-	}
 	else if (msg == 'DBDELETERECORDSUCCESS') {
 		if (gAdminDeleteStep == 'contacts') {
 			gAdminDeleteStep = 'groups';
@@ -80,41 +83,13 @@ function adminDeleteGroup(msg) {
 		}
 		else {
 		 	saveURL('',gAdminConfirmationURL);
-		 	alert ('deletions worked');
-			//buildGroupsListing('','adminDeleteGroup');
+  		writeLog('adminDeleteGroup Finished');	
+  		resetListings('');
 		}
 	}
-	else if (msg.substring(0,24) == 'BUILDGROUPSLISTINGERROR:' ) {
-		errMsg = msg.substring(24);
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
+		errMsg = msg.substring(20);
 	}
-	else if (msg == 'BUILDGROUPSNOENTRIES') {
-		displayMessage('All contacts were just removed by an administrative request');
-		writeLog('  No groups remaining');
-		writeLog('adminDeleteGroup Finished');
-		displayScreen(gScreenNameNoContacts);
-	}
-	else if (msg == 'BUILDGROUPSONEENTRY') {
-		if (gGroupNameSelected.toLowerCase() != gAdminGroupName.toLowerCase()) {
-			gGroupNameSelected = gAdminGroupName;
-			buildContactsListing('','adminDeleteGroup');
-		}
-		else {
-			writeLog('adminDeleteGroup Finished');
-		}
-	}
-	else if (msg == 'BUILDGROUPSSUCCESS') {
-		writeLog('adminDeleteGroup Finished');
-	}	
-	else if (msg.substring(0,26) == 'BUILDCONTACTSLISTINGERROR:' ) {
-		errMsg = msg.substring(26);
-	}	
-	else if (msg == 'BUILDCONTACTSLISTINGSUCCESS') {
-		writeLog('adminDeleteGroup Finished');
-		if (gScreenNameDisplayed == gScreenNameContacts) {
-			displayMessage('The contacts you were viewing have been removed by an adminstrative request.');
-		  displayScreen(gScreenNameContacts);
-		}		
-	}		
 	else {
 		errMsg = 'Invalid msg: ' + msg;
 	}
@@ -141,12 +116,12 @@ function adminDeleteURL(msg) {
 		sql = 'DELETE FROM ' + gTableNameOutstandingURLs + ' WHERE url = \'' + gAdminURL + '\'';
 		fn_DBDeleteRecord(sql, 'adminDeleteURL');	
 	}		
-	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
-		errMsg = msg.substring(20);
-	}
 	else if (msg == 'DBDELETERECORDSUCCESS') {
 		saveURL('',gAdminConfirmationURL);
 		writeLog('adminDeleteURL Finished');
+	}
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
+		errMsg = msg.substring(20);
 	}
 	else {
 		errMsg = 'Invalid msg: ' + msg;
@@ -174,18 +149,110 @@ function adminDeleteURLs(msg) {
 		sql = 'DELETE FROM ' + gTableNameOutstandingURLs;
 		fn_DBDeleteRecord(sql, 'adminDeleteURLs');	
 	}		
-	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
-		errMsg = msg.substring(20);
-	}
 	else if (msg == 'DBDELETERECORDSUCCESS') {
 		saveURL('',gAdminConfirmationURL);
 		writeLog('adminDeleteURLs Finished');
+	}
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
+		errMsg = msg.substring(20);
 	}
 	else {
 		errMsg = 'Invalid msg: ' + msg;
 	}
 	if (errMsg != '') {
 		writeLog('adminDeleteURLs Finished - ERROR - ' + errMsg);		
+	}	
+}
+
+function adminDisableApplication(msg) {
+//*************************************************************
+//* This function will delete all data from the tables and disable
+//* the application from running again
+//* Parms:
+//*		Success/Error messages to analyze from called functions
+//* Value Returned: 
+//*		none
+//*************************************************************	
+	
+  var errMsg = '';
+  var sql;
+  if (msg == '') {
+  	writeLog('adminDisableApplication Starting');		
+		gAdminDisableStep = 'contacts';
+  	writeLog('  Deleting contacts');
+		sql = 'DELETE FROM ' + gTableNameContacts;
+		fn_DBDeleteRecord(sql, 'adminDisableApplication');	
+	}		
+	else if (msg == 'DBDELETERECORDSUCCESS') {
+		if (gAdminDisableStep == 'contacts') {
+			gAdminDisableStep = 'groups';
+  		writeLog('  Deleting groups');
+			sql = 'DELETE FROM ' + gTableNameGroups;
+			fn_DBDeleteRecord(sql, 'adminDisableApplication');
+		}
+		else if (gAdminDisableStep == 'groups') {
+			gAdminDisableStep = 'urls';
+  		writeLog('  Deleting urls');
+			sql = 'DELETE FROM ' + gTableNameOutstandingURLs;
+			fn_DBDeleteRecord(sql, 'adminDisableApplication');
+		}		
+		else if (gAdminDisableStep == 'urls') {
+  		writeLog('  Setting disabled status');
+			sql = 'UPDATE ' + gTableNameUser + ' SET applicationstatus = \'disabled\' WHERE recordid = \'' + gUserRecordID + '\'';
+			fn_DBUpdateRecord(sql, 'adminDisableApplication'); 	
+		}
+	}
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
+	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
+	else if (msg == 'DBUPDATERECORDSUCCESS') {
+		saveURL('',gAdminConfirmationURL);
+  	writeLog('adminDisableApplication Finished');	
+  	if (gBrowserType == gBrowserBlackBerry) {
+  		blackberry.app.exit();	
+  	}
+	}		
+	else {
+		errMsg = 'Invalid msg: ' + msg;
+	}
+	if (errMsg != '') {
+		writeLog('adminDisableApplication Finished - ERROR - ' + errMsg);		
+	}	
+}
+
+function adminEnableApplicationStatus(msg) {
+//*************************************************************
+//* This function will update user table to allow the application
+//* to function again
+//* Parms:
+//*		Success/Error messages to analyze from called functions
+//* Value Returned: 
+//*		none
+//*************************************************************	
+	
+  var errMsg = '';
+  if (msg == '') {
+  	writeLog('adminEnableApplicationStatus Starting');		
+		var	sql = 'UPDATE ' + gTableNameUser + ' SET applicationstatus = \'enabled\' WHERE recordid = \'' + gUserRecordID + '\'';
+		fn_DBUpdateRecord(sql, 'adminEnableApplicationStatus'); 	
+	}
+	else if (msg == 'DBUPDATERECORDSUCCESS') {
+		saveURL('',gAdminConfirmationURL);
+		displayMessage('Application has been enabled');
+		gUserApplicationStatus = 'enabled';
+  	writeLog('adminEnableApplicationStatus Finished');	
+	}		
+	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
+	else {
+		errMsg = 'Invalid msg: ' + msg;
+	}
+	if (errMsg != '') {
+		writeLog('adminEnableApplicationStatus - ERROR - ' + errMsg);		
 	}	
 }
 
@@ -229,9 +296,9 @@ function adminProcessPayload() {
     writeLog('  request was blank');
 	}	
 	else {
-		if (gAdminRequest != 'deletegroup' && gAdminRequest != 'deleteurl' && gAdminRequest != 'deleteurls' && gAdminRequest != 'wipe' && gAdminRequest != 'updateemailsender') {
+		if (gAdminRequest != 'deletegroup' && gAdminRequest != 'deleteurl' && gAdminRequest != 'deleteurls' && gAdminRequest != 'disableapplication' && gAdminRequest != 'enableapplication' && gAdminRequest != 'updateemailsender') {
 			errorFound = true;
-			writeLog('  request <> deletegroup, deleteurl, deleteurls, wipe, or updateemailsender');
+			writeLog('  request <> deletegroup, deleteurl, deleteurls, updateemailsender, disableapplication, or enableapplication');
 		}
 		else {
 			if (gAdminRequest == 'deletegroup' && gAdminGroupName == '') {
@@ -253,20 +320,33 @@ function adminProcessPayload() {
 	}
 	else {
 		writeLog('AdminProcessPayload Finished');	
-		if (gAdminRequest == 'deletegroup') {
-			adminDeleteGroup('');
-		}
-		else if (gAdminRequest == 'deleteurl') {
-			adminDeleteURL('');
-		}
-		else if (gAdminRequest == 'deleteurls') {
-			adminDeleteURLs('');
-		}
-		else if (gAdminRequest == 'wipe') {
-			adminWipe('');
-		}
-		else if (gAdminRequest == 'updateemailsender') {
-			adminUpdateEmailSender('');
+		if (gUserApplicationStatus == 'enabled') {	
+			if (gAdminRequest == 'deletegroup') {
+				adminDeleteGroup('');
+			}
+			else if (gAdminRequest == 'deleteurl') {
+				adminDeleteURL('');
+			}
+			else if (gAdminRequest == 'deleteurls') {
+				adminDeleteURLs('');
+			}
+			else if (gAdminRequest == 'disableapplication') {
+				adminDisableApplication('');
+			}
+			else if (gAdminRequest == 'updateemailsender') {
+				adminUpdateEmailSender('');
+			}
+		}	
+		else {
+			if (gAdminRequest == 'enableapplication') {
+				adminEnableApplicationStatus('');
+			}
+			else {
+		  	var tempCode = gDebugMode;		
+		  	gDebugMode = true;		
+				writeLog('ApplicatIon is disabled, cannot process administration request');
+				gDebugMode = tempCode;
+			}
 		}
 	}
 }
@@ -282,81 +362,23 @@ function adminUpdateEmailSender(msg) {
 //*************************************************************	
 	
   var errMsg = '';
-  alert ('update email msg: ' + msg);
   if (msg == '') {
   	writeLog('adminUpdateEmailSender Starting');		
-		var	sql = 'UPDATE ' + gTableNameUser + ' SET emailsender = \'' + gAdminEmailSender + '\' WHERE recordid = \'' + gUserRecordID + '\'';
+		var	sql = 'UPDATE ' + gTableNameUser + ' SET emailsender = \'' + fieldPrepare(gAdminEmailSender) + '\' WHERE recordid = \'' + gUserRecordID + '\'';
 		fn_DBUpdateRecord(sql, 'adminUpdateEmailSender'); 	
-	}
-	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
-		errMsg = msg.substring(20);
 	}
 	else if (msg == 'DBUPDATERECORDSUCCESS') {
 		saveURL('',gAdminConfirmationURL);
   	writeLog('adminUpdateEmailSender Finished');	
 	}		
+	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
 	else {
 		errMsg = 'Invalid msg: ' + msg;
 	}
 	if (errMsg != '') {
 		writeLog('adminUpdateEmailSender Finished - ERROR - ' + errMsg);		
-	}	
-}
-
-function adminWipe(msg) {
-//*************************************************************
-//* This function will delete all data from the tables
-//* Parms:
-//*		Success/Error messages to analyze from called functions
-//* Value Returned: 
-//*		none
-//*************************************************************	
-	
-  var errMsg = '';
-  var sql;
-  if (msg == '') {
-  	writeLog('adminWipe Starting');		
-		gAdminWipeStep = 'contacts';
-  	writeLog('  Deleting contacts');
-		sql = 'DELETE FROM ' + gTableNameContacts;
-		fn_DBDeleteRecord(sql, 'adminWipe');	
-	}		
-	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
-		errMsg = msg.substring(20);
-	}
-	else if (msg == 'DBDELETERECORDSUCCESS') {
-		if (gAdminWipeStep == 'contacts') {
-			gAdminWipeStep = 'groups';
-  		writeLog('  Deleting groups');
-			sql = 'DELETE FROM ' + gTableNameGroups;
-			fn_DBDeleteRecord(sql, 'adminWipe');
-		}
-		else if (gAdminWipeStep == 'groups') {
-			gAdminWipeStep = 'urls';
-  		writeLog('  Deleting urls');
-			sql = 'DELETE FROM ' + gTableNameOutstandingURLs;
-			fn_DBDeleteRecord(sql, 'adminWipe');
-		}		
-		else if (gAdminWipeStep == 'urls') {
-			sql = 'UPDATE ' + gTableNameUser + ' SET applicationactive = \'false\' WHERE recordid = \'' + gUserRecordID + '\'';
-			fn_DBUpdateRecord(sql, 'adminWipe'); 	
-		}
-	}
-	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
-		errMsg = msg.substring(20);
-	}
-	else if (msg == 'DBUPDATERECORDSUCCESS') {
-		saveURL('','adminWipe');
-  	writeLog('adminWipe Finished');	
-  	if (gBrowserType == gBrowserBlackBerry) {
-  		blackberry.app.exit();	
-  	}
-	}		
-	else {
-		errMsg = 'Invalid msg: ' + msg;
-	}
-	if (errMsg != '') {
-		writeLog('adminWipe Finished - ERROR - ' + errMsg);		
 	}	
 }
 
@@ -403,9 +425,6 @@ function checkForOutstandingURLs(msg) {
 		var	sql = 'SELECT urlid, url FROM ' + gTableNameOutstandingURLs;
 		fn_DBGetRecords(sql, 'checkForOutstandingURLs');
 	}
-	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
-		errMsg = msg.substring(18);
-	}
 	else if (msg == 'DBGETRECORDSSUCCESS') {
 		gURLRecords = gDBRecordsRetrieved;
 		writeLog('  ' + gURLRecords.length + ' outstanding URLs');
@@ -424,6 +443,9 @@ function checkForOutstandingURLs(msg) {
 		else {
 			writeLog('checkForOutstandingURLs Finished');
 		}
+	}
+	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
+		errMsg = msg.substring(18);
 	}
 	else { 
 		errMsg = 'Invalid msg: ' + msg;
@@ -457,55 +479,53 @@ function displayScreen(screenName) {
 //*************************************************************	
 	
   writeLog('displayScreen Starting');
-  writeLog('  Displaying: ' + screenName); 
   gScreenNamePrevious = gScreenDisplayed;
-  document.getElementById(gScreenNameGroups).style.visibility = 'hidden';
-  document.getElementById(gScreenNameNoContacts).style.visibility = 'hidden';
-  document.getElementById(gScreenNameContacts).style.visibility = 'hidden';
-  document.getElementById(gScreenNameOptions).style.visibility = 'hidden';
-  document.getElementById(gScreenNameAbout).style.visibility = 'hidden';
-  document.getElementById(gScreenNameEmergencyCall).style.visibility = 'hidden';
-  document.getElementById(gScreenNameEmergencyNotification).style.visibility = 'hidden';
-  blackberry.ui.menu.clearMenuItems();  //Clear the menu items	
+	if (gScreenDisplayed == '') {
+  	$('#listing').hide();  
+  	$('#' + gScreenNameNoContacts).hide();
+  	$('#' + gScreenNameOptions).hide();
+  	$('#' + gScreenNameAbout).hide();
+  	$('#' + gScreenNameEmergencyCall).hide();
+  	$('#' + gScreenNameEmergencyNotification).hide();
+	}
+	else {
+		if ((gScreenDisplayed == gScreenNameGroups || gScreenDisplayed == gScreenNameContacts) && screenName != gScreenNameGroups) {
+			$('#listing').hide(1000);
+		}
+		else {
+ 			$('#' + gScreenDisplayed).fadeOut('slow');
+		}
+	}
+
 	if (screenName == gScreenNameGroups) {
-	  //$.mobile.changePage($('#contacts'), {transition : 'slideup'});
-  	addMenuGroups();
-  	document.getElementById(gScreenNameGroups).style.visibility = 'visible';
+	  if (gScreenDisplayed != gScreenNameContacts) {
+	  	$('#listing').show('slow');
+	  }
 	}
 	else if (screenName == gScreenNameNoContacts) {
-	  //$.mobile.changePage($('#nocontacts'), {transition : 'slideup'});
-  	addMenuContacts();
-  	document.getElementById(gScreenNameNoContacts).style.visibility = 'visible';
 	}
 	else if (screenName == gScreenNameContacts) {
-	  //$.mobile.changePage($('#contacts'), {transition : 'slideup'});
-  	addMenuContacts();
-  	document.getElementById(gScreenNameContacts).style.visibility = 'visible';
+	  if (gScreenDisplayed != gScreenNameGroups) {
+	  	$('#listing').show('slow');
+	  }
 	}
 	else if (screenName == gScreenNameOptions) {
-	  //$.mobile.changePage($('#options'), {transition : 'none'});	
-  	addMenuOptions(); 
-  	document.getElementById(gScreenNameOptions).style.visibility = 'visible';	 
+		$('#' + gScreenNameOptions).fadeIn(1500);
 	}
 	else if (screenName == gScreenNameAbout) {
-	  //$.mobile.changePage($('#about'), {transition : 'none'});	 
-  	document.getElementById(gScreenNameAbout).style.visibility = 'visible';	 
+		$('#' + gScreenNameAbout).fadeIn(1500);
 	}
 	else if (screenName == gScreenNameEmergencyCall) {
-	  //$.mobile.changePage($('#emergencycall'), {transition : 'none'});	 	
-  	addMenuEmergencyCall();
-  	document.getElementById(gScreenNameEmergencyCall).style.visibility = 'visible';
   	if (blackberry.app.isForeground == false) {
 			blackberry.app.requestForeground(); 
-		}  	
+		}  
+		$('#' + gScreenNameEmergencyCall).show();	
 	}	
-	else if (screenName == gScreenNameEmergencyNotification) {
-	  //$.mobile.changePage($('#emergencynotification'), {transition : 'none'});	 	
-  	addMenuEmergencyNotification();
-  	document.getElementById(gScreenNameEmergencyNotification).style.visibility = 'visible';
+	else if (screenName == gScreenNameEmergencyNotification) {	
   	if (blackberry.app.isForeground == false) {
 			blackberry.app.requestForeground(); 
 		} 
+		$('#' + gScreenNameEmergencyNotification).show();
 	}	
 	gScreenDisplayed = screenName;
   writeLog('displayScreen Finished');
@@ -532,21 +552,21 @@ function formLoad() {
 		gAppName = blackberry.app.name;
 	}
 	gHTTPObject = getHTTPObject();	
-	
-  //gDebugMode = true;
-	writeLog('Application starting');
+		
+ 	//gDebugMode = true;
+	writeLog('Application starting');		
 
   if (gTestingMode == true) {
-  	alert ('You are running in TEST mode.\nCertain pieces of code work differently based on this mode.\nEnsure you set the value appropriately prior to deployment');
-    var answer = confirm ('Do you wish to have log messages displayed in alerts for trouble shooting?');
+ 	 	displayMessage ('You are running in TEST mode.\nCertain pieces of code work differently based on this mode.\nEnsure you set the value appropriately prior to deployment');
+ 	  var answer = confirm ('Do you wish to have log messages displayed in alerts for trouble shooting?');
 		if (answer == true) {
-    	answer = confirm ('Are you sure?');
+   		answer = confirm ('Are you sure?');
 			if (answer == true) {
 				gTroubleShootingMode = true;
 			}	
 		}
-  }
-	
+ 	}
+
   //Register required BlackBerry events
   registerBBEvents();
 	
@@ -556,7 +576,68 @@ function formLoad() {
 	else {
 		getStarted('');		
 	}
+}
+
+function getRecords(msg, functionToCall){
+//*************************************************************
+//* This function will retrieve records from the database and
+//* build the group listing screen
+//* Parms:
+//*		Success/Failure message from called functions (from callbacks)
+//*		Function name to call when we are done (success or failure)
+//* Value Returned: 
+//*		Nothing
+//*************************************************************
 	
+	var errMsg = '';
+	var sql = '';
+	if (msg == '') {		
+		gParentFunctionToCall = functionToCall;  //Save off function since recursive calls back here won't preserve it
+		writeLog('getRecords Starting');	
+		writeLog('  Retrieving Contacts');
+		sql = 'SELECT contactid, groupname, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts;
+		if (gUserListingOrder == 'FirstName') {
+			sql += ' ORDER BY firstname, lastname';
+		}	
+		else {
+			sql += ' ORDER BY lastname, firstname';
+		}
+		gRetrievalStep = 'contacts';
+		fn_DBGetRecords(sql, 'getRecords');
+	}	
+	else if (msg == 'DBGETRECORDSSUCCESS') {	
+		var counter = 0;
+		if (gRetrievalStep == 'contacts') {
+			writeLog('  Processing ' + gDBRecordsRetrieved.length + ' contacts');
+			gContactRecords.length = 0;
+	  	for (counter = 0; counter < gDBRecordsRetrieved.length; ++counter) {
+     		gContactRecords[counter] = gDBRecordsRetrieved[counter];
+			}
+			writeLog('  Retrieving Groups');
+			sql = 'SELECT groupname, contactrecords, recordsreceived FROM ' + gTableNameGroups + ' ORDER BY groupname';
+			gRetrievalStep = 'groups';
+			fn_DBGetRecords(sql, 'getRecords');
+		}
+		else {
+			writeLog('  Processing ' + gDBRecordsRetrieved.length + ' groups');
+			gGroupRecords.length = 0;
+	  	for (counter = 0; counter < gDBRecordsRetrieved.length; ++counter) {
+     		gGroupRecords[counter] = gDBRecordsRetrieved[counter];
+			}			
+			writeLog('getRecords Finished');	
+			window[gParentFunctionToCall]('GETRECORDSSUCCESS');
+		}
+	}
+	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
+		errMsg = msg.substring(18);
+	}
+	else {
+		errMsg = 'Invalid msg: ' + msg;
+	}
+	if (errMsg != '') {
+		writeLog('getRecords Finished - ERROR - ' + errMsg);
+		window[gParentFunctionToCall]('GETRECORDSERROR:' + errMsg);
+	}
 }
 
 function getStarted(msg) {
@@ -578,50 +659,56 @@ function getStarted(msg) {
 		writeLog('  Opening database');		
 		fn_DBOpenDatabase('', 'getStarted');  //Call function to open database and create tables
 	}
-	else if (msg.substring(0,18) == 'DATABASEOPENERROR:') {
-		errMsg = msg.substring(18);
-	}
 	else if (msg == 'DATABASEOKAY') {
-		sql = 'SELECT listingorder, contacteffect, emailsender, datedisplay, applicationactive FROM ' + gTableNameUser + ' WHERE recordid = \'' + gUserRecordID + '\'';
+		sql = 'SELECT showallgroup, listingorder, showcontactdividers, showtitleoncontactbar, showcompanyoncontactbar, datedisplay, emailsender, applicationstatus FROM ' + gTableNameUser + ' WHERE recordid = \'' + gUserRecordID + '\'';
 		fn_DBGetRecord(sql, 'getStarted');
-	}
-	else if (msg.substring(0,17) == 'DBGETRECORDERROR:') {
-		errMsg = msg.substring(17);
 	}
 	else if (msg == 'DBGETRECORDSUCCESS') {
 		if (gDBRecordRetrieved == '') {		
 		  sql = 'INSERT INTO ' + gTableNameUser;
-		  sql += '(recordid, listingorder, contacteffect, emailsender, datedisplay, applicationactive)';
-		  sql += ' VALUES(\'' + gUserRecordID + '\',\'' + gUserListingOrder + '\',\'' + gUserContactEffect + '\',\'' + gUserEmailSender + '\',\'' + gUserDateDisplay + '\',\'false\')';
+		  sql += '(recordid, showallgroup, listingorder, showcontactdividers, showtitleoncontactbar, showcompanyoncontactbar, datedisplay, emailsender, applicationstatus)';
+		  sql += ' VALUES(\'' + gUserRecordID + '\',\'' + gUserShowAllGroup + '\',\'' + gUserListingOrder + '\',\'' + gUserShowContactDividers + '\',\'';
+		  sql += gUserShowTitleOnContactBar + '\',\'' + gUserShowCompanyOnContactBar + '\',\'' + gUserDateDisplay + '\',\'' 
+		  sql += gUserEmailSender + '\',\'' + gUserApplicationStatus + '\')';		  
 		  fn_DBAddRecord(sql, 'getStarted');		
 		}
 		else {
 			getStarted('DBADDRECORDSUCCESS');
 		}
 	}
-	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
-		errMsg = msg.substring(17);
-	}
 	else if (msg == 'DBADDRECORDSUCCESS') {
 		writeLog('  Parsing user information');
 		if (gDBRecordRetrieved != '' ) {
 		  var array = gDBRecordRetrieved.split(gDelim);
-		  gUserListingOrder = array[0];
-		  gUserContactEffect = array[1];
-		  gUserEmailSender = array[2];
-		  gUserDateDisplay = array[3];
-		  //if (array[4] == false) {
-		  //	displayMessage('This application has been disabled.  Until it has been reset it cannot be used');
-		  //	if (gBrowserType == gBrowserBlackBerry) {
-  		//		blackberry.app.exit();	
-  		//	}		  	
-		  //}
+		  gUserShowAllGroup = array[0];
+		  gUserListingOrder = array[1];
+		  gUserShowContactDividers = array[2];
+		  gUserShowTitleOnContactBar = array[3];
+		  gUserShowCompanyOnContactBar = array[4];
+		  gUserDateDisplay = array[5];
+		  gUserEmailSender = array[6];
+		  gUserApplicationStatus = array[7];
 		}	
+		getRecords('','getStarted');
+	}
+	else if (msg == 'GETRECORDSSUCCESS') {
 		writeLog('getStarted Finished');
-		displayGroups('');
+		displayGroups();
+	}
+	else if (msg.substring(0,18) == 'DATABASEOPENERROR:') {
+		errMsg = msg.substring(18);
+	}
+	else if (msg.substring(0,17) == 'DBGETRECORDERROR:') {
+		errMsg = msg.substring(17);
+	}
+	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
+		errMsg = msg.substring(17);
+	}
+	else if (msg.substring(0,16) == 'GETRECORDSERROR:' ) {
+		errMsg = msg.substring(16);
 	}
 	else {
-		errMsg ('Invalid parm for getStarted: ' + msg); 	
+		errMsg ('Invalid msg: ' + msg); 	
 	} 
 	if (errMsg != '') {
 		writeLog('getStarted Finished - ERROR - ' + errMsg);	
@@ -653,7 +740,8 @@ function handleBackKey() {
 			if (answer == true) {				
 				writeLog('handleBackKey Finished');
 				gOptionsChangeDetected = false;
-				displayScreen(gScreenNamePrevious);
+				//At this time Options can only be invoked from the Groups screen and no changes were detected so simply display the screen
+				displayScreen(gScreenNameGroups);
 			}
 		}	
 		else if (gScreenDisplayed == gScreenNameAbout) {
@@ -666,15 +754,8 @@ function handleBackKey() {
 			blackberry.app.requestBackground();
 		}
 		else {
-			if (gGroupScreenIsVisible == true) {
-				writeLog('handleBackKey Finished');				
-				displayScreen(gScreenNameGroups);
-			}
-			else {
-				writeLog('handleBackKey Finished');				
-				writeLog('Application going to background');
-				blackberry.app.requestBackground();
-			}
+			writeLog('handleBackKey Finished');				
+			displayGroups();
 		}		
 	}	
 }
@@ -808,44 +889,20 @@ function notifyUser() {
   writeLog('notifyUser Finished');
 }
 
-function saveURL(msg, urlToAdd) {
-	//*************************************************************
-//* This function will add the reqeusted URL to the outstandingurl 
-//* table.
-//* Parms:
-//*		Success/Failure message of recursive calls
-//*   URL to add
-//* Value Returned: 
-//*		Nothing
-//*************************************************************	
-
-	var errMsg = '';
-	if (msg == '') {
-		writeLog('saveURL Starting');
-		if (urlToAdd == '') {
-			writeLog('  No URL to save');
-			writeLog('saveURL Finished');	
-		}
-		else {
-		sql = 'INSERT INTO ' + gTableNameOutstandingURLs;
-		sql += '(urlid, url,datetime,lastattemptdatetime,statuscode)';
-		sql += ' VALUES(null,\'' + urlToAdd + '\',\'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\',\'\',\'\')';
-		fn_DBAddRecord(sql, 'saveURL');	
-		}	
+function orientationChangeDetected() {
+	var orientation = window.orientation;
+	if (gScreenDisplayed == gScreenNameOptions) {
+		//alert ('rebuilding option screen');
+		//buildOptions();
 	}
-	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
-		errMsg = msg.substring(17);
-	}
-	else if (msg == 'DBADDRECORDSUCCESS') {
-		writeLog('saveURL Finished');	
-		checkForOutstandingURLs('');
-	}
-	else {
-		errMsg = 'Invalid msg: ' + msg;
-	}	
-	if (errMsg != '') {
-		writeLog('saveURL Finished - ERROR - ' + errMsg);	
-	}
+	switch(orientation) {
+   	case 0:
+   		//Top side up.
+  	case -90:
+   		//Left side up (turned 90 degrees to the right)
+   	case 90: 
+   		//Right side up (turned 90 degrees to the left)
+  }
 }
 
 function registerBBEvents() {
@@ -884,6 +941,80 @@ function registerBBEvents() {
   writeLog('registerBBEvents Finished');
 }
 
+function resetListings(msg) {
+//*************************************************************
+//* This function will reset the listings as a result of a 
+//* push being received.  All data will have been stored in the
+//* database before this function is called
+//* Parms:
+//*		Success/Failure message of recursive calls
+//* Value Returned: 
+//*		Nothing
+//*************************************************************	
+
+	var errMsg = '';
+	if (msg == '') {
+		writeLog('resetListing Starting');
+		getRecords('','resetListings');
+	}
+  else if (msg == 'GETRECORDSSUCCESS') {
+		writeLog('resetListings Finished');
+  	if (blackberry.app.isForeground == true) {
+	 	 	displayMessage ('An administrative request was received and processed.\nIt has changed the data on your device, so you will be shown the group listing screen when you click OK');
+		} 		
+		displayGroups();
+	}
+	else if (msg.substring(0,16) == 'GETRECORDSERROR:' ) {
+		errMsg = msg.substring(16);
+	}
+	else {
+		errMsg = 'Invalid msg: ' + msg;
+	}
+	if (errMsg != '') {
+		writeLog('resetListings Finished - ERROR - ' + errMsg);
+	}
+}
+
+function saveURL(msg, urlToAdd) {
+//*************************************************************
+//* This function will add the reqeusted URL to the outstandingurl 
+//* table.
+//* Parms:
+//*		Success/Failure message of recursive calls
+//*   URL to add
+//* Value Returned: 
+//*		Nothing
+//*************************************************************	
+
+	var errMsg = '';
+	if (msg == '') {
+		writeLog('saveURL Starting');
+		if (urlToAdd == '') {
+			writeLog('  No URL to save');
+			writeLog('saveURL Finished');	
+		}
+		else {
+		sql = 'INSERT INTO ' + gTableNameOutstandingURLs;
+		sql += '(urlid, url, datetime, lastattemptdatetime, statuscode)';
+		sql += ' VALUES(null,\'' + fieldPrepare(urlToAdd) + '\',\'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\',\'\',\'\')';
+		fn_DBAddRecord(sql, 'saveURL');	
+		}	
+	}
+	else if (msg == 'DBADDRECORDSUCCESS') {
+		writeLog('saveURL Finished');	
+		checkForOutstandingURLs('');
+	}
+	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
+		errMsg = msg.substring(17);
+	}
+	else {
+		errMsg = 'Invalid msg: ' + msg;
+	}	
+	if (errMsg != '') {
+		writeLog('saveURL Finished - ERROR - ' + errMsg);	
+	}
+}
+
 function setApplicationIcon(type) {
 //*************************************************************
 //* This function will set the application icon to the requested
@@ -902,6 +1033,32 @@ function setApplicationIcon(type) {
 		blackberry.app.setHomeScreenIcon(gApplicationIcon, false);
 	}
 	writeLog('setApplicationIcon Finished');
+}
+
+function toggleSection(parentId, targetId) {
+	var parentEle = document.getElementById(parentId);
+	var targetEle = document.getElementById(targetId);
+	if (targetEle && parentEle) {
+		//Remove the existing icon
+		var newIcon = '';
+		var image = parentEle.getElementsByTagName("img")[0];
+		if (image.src.indexOf('minus.png') == -1) {
+			newIcon = 'images/minus.png';
+			//Expand the contents
+			targetEle.style.display = '';
+		}
+		else {
+			newIcon = 'images/plus.png';
+			//Collapse the contents
+		  targetEle.style.display = 'none';
+		}
+		parentEle.removeChild(image);
+
+		//Add the new icon
+		var icon = new Image();
+		icon.src = newIcon;
+		parentEle.appendChild(icon);
+	}
 }
 
  function writeLog(msg) {

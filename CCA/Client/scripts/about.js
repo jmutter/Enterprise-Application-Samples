@@ -19,10 +19,14 @@ function displayAbout(msg) {
 	if (msg == undefined) {
 		msg = '';
 	}	
-	alert('displayAbout msg: ' + msg);
 	
-  if (msg = '') {
+  if (msg == '') {
   	writeLog('displayAbout Starting');
+  	document.getElementById(gScreenNameAbout).style.backgroundImage = "url(images/background-about.jpg)";
+		document.getElementById(gScreenNameAbout).style.width = screen.availWidth + "px";
+		document.getElementById(gScreenNameAbout).style.height = screen.availHeight + "px";
+		document.getElementById(gScreenNameAbout).style.backgroundRepeat = "repeat";
+		displayScreen (gScreenNameAbout);
   }
   else {
   	errMsg = 'Invalid msg: ' + msg;

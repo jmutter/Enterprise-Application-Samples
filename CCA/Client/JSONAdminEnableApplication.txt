@@ -1,0 +1,4 @@
+{"Administration":[
+  {"request":"enableapplication"
+	,"confirmationurl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=EnableWorked"} 
+]}

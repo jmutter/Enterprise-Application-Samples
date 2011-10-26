@@ -66,17 +66,42 @@ function handlePushData(data) {
 				jsonData = receivedData.substr(index, size);				
 			}			
 			gJSONPayload = JSON.parse(jsonData);
-			if (gJSONPayload.Contact != undefined) {		
-		    writeLog('handlePushData Finished - Notification payload');
-				processContactsPayload('');					
+			var tempMode;
+			if (gJSONPayload.Contact != undefined) {	
+				if (gUserApplicationStatus = 'enabled') {	
+					writeLog('handlePushData Finished - Contact payload');
+					processContactsPayload('');					
+				}
+				else {
+					tempMode = gDebugMode;
+					gDebugMode = true;
+					writeLog('Contact payload ignored since application is disabled');
+					gDebugMode = tempMode;
+				}
 			}	
 			else if (gJSONPayload.EmergencyCall != undefined) {
-		    writeLog('handlePushData Finished - EmergencyCall payload');
-		    displayEmergencyCall();
+				if (gApplicationStatus = 'enabled') {	
+		    	writeLog('handlePushData Finished - EmergencyCall payload');
+		    	displayEmergencyCall();
+				}
+				else {
+					tempMode = gDebugMode;
+					gDebugMode = true;
+					writeLog('EmergencyCall payload ignored since application is disabled');
+					gDebugMode = tempMode;
+				}
 			}
 			else if (gJSONPayload.EmergencyNotification != undefined) {		
-		    writeLog('handlePushData Finished - EmergencyNotification payload');
-				displayEmergencyNotification();					
+		    if (gApplicationStatus = 'enabled') {	
+		    	writeLog('handlePushData Finished - EmergencyNotification payload');
+					displayEmergencyNotification();	
+				}				
+				else {
+					tempMode = gDebugMode;
+					gDebugMode = true;
+					writeLog('EmergencyNotification payload ignored since application is disabled');
+					gDebugMode = tempMode;
+				}			
 			}	
 			else if (gJSONPayload.Administration != undefined) {		
 		    writeLog('handlePushData Finished - Administration payload');
@@ -102,7 +127,7 @@ function handleSIMChange() {
 	//openBESPushListener API.
 }
 
-function postURL() {	
+function postURL(msg) {	
 //*************************************************************
 //* This function is called to post the outstanding URL back 
 //* to the server
@@ -112,22 +137,39 @@ function postURL() {
 //*		Nothing
 //*************************************************************
 
-  try {
-   	if (blackberry.system.hasDataCoverage()) {
-   		writeLog('postURL Starting');   		
-   		writeLog('  Sending: ' + gURLToPost);
-     	gHTTPObject.onreadystatechange = postURLConfirmation;
-     	gHTTPObject.open('get', gURLToPost, true); 
-     	gHTTPObject.send(null);
-   		writeLog('postURL Finished');  
-   	}
-   	else { 
-   		writeLog('postURL Finished - NO COVERAGE');
+	var errMsg = '';
+	if (msg == undefined) {
+  	try {
+   		if (blackberry.system.hasDataCoverage()) {
+   			writeLog('postURL Starting');   		
+   			writeLog('  Sending: ' + gURLToPost);
+     		gHTTPObject.onreadystatechange = postURLConfirmation;
+     		gHTTPObject.open('get', gURLToPost, true); 
+     		gHTTPObject.send(null);
+   			writeLog('postURL Finished');  
+   		}
+   		else { 
+				writeLog('  Updating table entry with No Coverage status');
+   			sql = 'UPDATE ' + gTableNameOutstandingURLs + ' SET lastattemptdatetime = \'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\', statuscode = \'NoCoverage\'' + gURLID + '\'';
+				fn_DBUpdateRecord(sql, 'postURL'); 
+  		}
+  	}	 
+  	catch (e) {
+   		writeLog('postURL Finished - ERROR - ' + e.message);
   	}
-  }	 
-  catch (e) {
-   	writeLog('postURL Finished - ERROR - ' + e.message);
-  }
+	}
+	else if (msg == "DBUPDATERECORDSUCCESS") {
+   	writeLog('postURL Finished');
+	}	
+	else if (msg.substring(0,20) == "DBUPDATERECORDERROR:") {
+		errMsg = msg.substring(20);
+	}
+	else {
+		errMsg = 'Invalid msg:' + msg;
+	}
+	if (errMsg != '') {
+		writeLog('postURL Finished - ERROR - ' + errMsg);
+	}	
 }
 
 function postURLConfirmation(msg) {
@@ -142,13 +184,13 @@ function postURLConfirmation(msg) {
 //*************************************************************
 	
 	//Test for initial call since we couldn't pass anything when defining this function as the call back in postURL
-	if (msg == undefined) {
-		msg = '';
-	}	
+	//if (msg == undefined) {
+		//msg = '';
+	//}	
 	var errMsg = '';
 	var deleteURL = false;
 	var sql = '';
-	if (msg == '') {
+	if (msg == '' || msg == undefined) {
 		if (gHTTPObject.readyState == 4) {   	
 			writeLog('postURLConfirmation Starting');
 			writeLog('  Status: ' + gHTTPObject.status);
@@ -164,33 +206,32 @@ function postURLConfirmation(msg) {
       	//503 = Service Unavailable
       	//504 = Gateway Timeout (going through proxy)
       	//Will not remove URL from table to allow for later processing
-				writeLog('  Requesting update');
+				writeLog('  Updating table entry with status');
    			sql = 'UPDATE ' + gTableNameOutstandingURLs + ' SET lastattemptdatetime = \'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\', statuscode = \'' + gHTTPObject.status + '\' WHERE urlid = \'' + gURLID + '\'';
 				fn_DBUpdateRecord(sql, 'postURLConfirmation');        	
       }
     }
   }  
-	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
-		errMsg = msg.substring(20);
-	}
 	else if (msg == 'DBDELETERECORDSUCCESS') {
 		writeLog('  Delete completed');
 		writeLog('postURLConfirmation Finished');
-		checkForOutstandingURLs('');	//Go look for more outstanding URLs to post
-	}
-	else if (msg.substring(0,20) == "DBUPDATERECORDERROR:") {
-		errMsg = msg.substring(20);
+		checkForOutstandingURLs('PROCESSURLS');	//Go look for more outstanding URLs to post
 	}
 	else if (msg == "DBUPDATERECORDSUCCESS") {
 		writeLog('  Update completed');
 		writeLog('postURLConfirmation Finished');
 		checkForOutstandingURLs('PROCESSURLS');	 //Go look for more outstanding URLs to post
 	}	
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
+	else if (msg.substring(0,20) == "DBUPDATERECORDERROR:") {
+		errMsg = msg.substring(20);
+	}
 	else {
 		errMsg = 'Invalid msg:' + msg;
 	}
 	if (errMsg != '') {
-		alert ('postURLConfirmation error: ' + errMsg);
 		writeLog('postURLConfirmation Finished - ERROR - ' + errMsg);
 	}
 }

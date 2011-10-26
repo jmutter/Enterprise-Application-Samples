@@ -1,0 +1,4 @@
+{"Administration":[
+  {"request":"disableapplication"
+	,"confirmationurl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=DisableWorked"} 
+]}

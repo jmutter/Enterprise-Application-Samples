@@ -22,11 +22,20 @@ function getDate(format) {
 	var month = currentTime.getMonth() + 1
 	var day = currentTime.getDate()
 	var year = currentTime.getFullYear()
+	if (month.length == 1) {
+		month = '0' + month;
+	}	
+	if (day.length == 1) {
+		day = '0' + day;
+	}	
 	if (format == 'DD/MM/YYYY') {
 		returnvalue = day + '/' + month + '/' + year;
 	}
 	else if (format == 'YYYY-MM-DD') {
 		returnValue = year + '-' + month + '-' + day;
+	}
+	else if (format == 'YYYYMMDD') {	
+		returnValue = year + month + day;
 	}
 	else {
 		returnValue = month + '/' + day + '/' + year;

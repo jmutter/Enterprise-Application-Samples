@@ -5,12 +5,11 @@
 
 //Global Variables
 var gEmergencyCallAcceptURL = '';
-var gEmergencyCallDateTime = '';
+var gEmergencyCallMilliseconds = '';
 var gEmergencyCallDeclineURL = '';
 var gEmergencyCallDetails = '';
 var gEmergencyCallPhoneNumber = '';
 var gEmergencyNotificationAcceptURL = '';
-var gEmergencyRequestType = '';
 
 function acceptEmergencyCall() {
 //*************************************************************
@@ -31,6 +30,7 @@ function acceptEmergencyCall() {
 	newAppt.freeBusy = blackberry.pim.Appointment.BUSY;
 
 	//Create our hour time slot
+	var start = new Date(parseInt(gEmergencyCallMilliseconds));
 	var start = new Date();
 	newAppt.start = start;
 	var end = start.setHours(start.getHours() + 1);
@@ -75,20 +75,21 @@ function addMenuEmergencyCall() {
 //*		Nothing
 //*************************************************************	
 
-	try {
-		writeLog('addMenuEmergencyCall Starting');
+	writeLog('addMenuEmergencyCall Starting');
+	if (gBrowserType == gBrowserBlackBerry || gBrowserType == gBrowserRippleBlackBerry) {		
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItem_topSeperator1 = new blackberry.ui.menu.MenuItem(true, 1);
-		var menuItem_accept = new blackberry.ui.menu.MenuItem(false, 2,"Accept", acceptEmergencyCall);
-		var menuItem_decline = new blackberry.ui.menu.MenuItem(false, 3,"Decline", declineEmergencyCall);
 		blackberry.ui.menu.addMenuItem(menuItem_topSeperator1);
+		var menuItem_accept = new blackberry.ui.menu.MenuItem(false, 2,"Accept", acceptEmergencyCall);
 		blackberry.ui.menu.addMenuItem(menuItem_accept);
+		var menuItem_decline = new blackberry.ui.menu.MenuItem(false, 3,"Decline", declineEmergencyCall);
 		blackberry.ui.menu.addMenuItem(menuItem_decline);
-		writeLog('addMenuEmergencyCall Finished');
-	} 
-	catch (e) {
-		writeLog('addMenuEmergencyCall Finished - ERROR - '+ e.message);
+		writeLog('  menu built');		
 	}
+	else {
+		writeLog('  invalid environment for menu');
+	}
+	writeLog('addMenuEmergencyCall Finished');
 }
 
 function addMenuEmergencyNotification() {
@@ -101,18 +102,20 @@ function addMenuEmergencyNotification() {
 //*		Nothing
 //*************************************************************	
 
-	try {
-		writeLog('addMenuEmergencyNotification Starting');
+
+	writeLog('addMenuEmergencyNotification Starting');
+	if (gBrowserType == gBrowserBlackBerry || gBrowserType == gBrowserRippleBlackBerry) {	
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItem_topSeperator1 = new blackberry.ui.menu.MenuItem(true, 1);
-		var menuItem_accept = new blackberry.ui.menu.MenuItem(false, 2,"Accept", acceptEmergencyNotification);
 		blackberry.ui.menu.addMenuItem(menuItem_topSeperator1);
+		var menuItem_accept = new blackberry.ui.menu.MenuItem(false, 2,"Accept", acceptEmergencyNotification);
 		blackberry.ui.menu.addMenuItem(menuItem_accept);
-		writeLog('addMenuEmergencyNotification Finished');
-	} 
-	catch (e) {
-		writeLog('addMenuEmergencyCall Finished - ERROR - ' + e.message);
+		writeLog('  menu built');		
 	}
+	else {
+		writeLog('  invalid environment for menu');
+	}
+	writeLog('addMenuEmergencyNotification Finished');
 }
 
 function declineEmergencyCall() {
@@ -142,8 +145,8 @@ function displayEmergencyCall(msg) {
 	
 	writeLog('dsplayEmergencyCall Starting');
 	//Validate to ensure we don't have any undefined properties
-	if (gJSONPayload.EmergencyCall[0].datetime == undefined) {
-			gJSONPayload.EmergencyCall[0].datetime = '';
+	if (gJSONPayload.EmergencyCall[0].milliseconds == undefined) {
+			gJSONPayload.EmergencyCall[0].milliseconds = '';
 	}	
 	if (gJSONPayload.EmergencyCall[0].phonenumber == undefined) {
 			gJSONPayload.EmergencyCall[0].phonenumber = '';
@@ -158,15 +161,12 @@ function displayEmergencyCall(msg) {
 			gJSONPayload.EmergencyCall[0].declineurl = '';
 	}
 	//Assign to global variables
-	gEmergencyCallDateTime = gJSONPayload.EmergencyCall[0].datetime;
+	gEmergencyCallMilliseconds = gJSONPayload.EmergencyCall[0].milliseconds;
 	gEmergencyCallPhoneNumber = gJSONPayload.EmergencyCall[0].phonenumber;
 	gEmergencyCallDetails = gJSONPayload.EmergencyCall[0].details;
 	gEmergencyCallAcceptURL = gJSONPayload.EmergencyCall[0].accepturl;
 	gEmergencyCallDeclineURL = gJSONPayload.EmergencyCall[0].declineurl;						
 	//Validate to ensure there are values for all fields
-	if (gEmergencyCallDateTime == '') {
-			gEmergencyCallDateTime = 'MissingValue';
-	}	
 	if (gEmergencyCallPhoneNumber == '') {
 			gEmergencyCallPhoneNumber = 'MissingValue';
 	}		
@@ -174,12 +174,50 @@ function displayEmergencyCall(msg) {
 			gEmergencyCallDetails = 'MissingValue';
 	}				
 	
-	//Apply values to fields on form
-	document.getElementById('emergencycalldatetime').value = gEmergencyCallDateTime;
+	var displayDateTime = '';
+	if (gEmergencyCallMilliseconds == '') {
+		displayDateTime = 'MissingValue';		
+	}
+	else {		
+		var milliseconds = new Date(parseInt(gEmergencyCallMilliseconds));
+		var day = milliseconds.getUTCDate();
+		var month = milliseconds.getUTCMonth(); 
+		var year = milliseconds.getUTCFullYear();
+		var displayDate = '';
+		if (gUserDateDisplay == 'mMM/DD/YYYY') {
+			displayDate = month + '/' + day + '/' + year;
+		}
+		else if (gUserDateDisplay == 'mDD/MM/YYYY') {
+			displayDate = day + '/' + month + '/' + year;
+		}
+		else {
+			if (day.toString().length == 1) {
+				day = '0' + day;
+			} 
+			if (month.toString().length == 1) {
+				month = '0' + month;
+			} 		
+			displayDate = year + '-' + month + '-' + day;
+		}
+		var hours = milliseconds.getUTCHours();
+		var timeIndicator = "am";
+		if (hours > 11) {
+			timeIndicator = "pm";
+	  	if (hours > 12) {
+			  hours = hours - 12;
+			}
+		}
+		var minutes = milliseconds.getUTCMinutes();
+		var seconds = milliseconds.getUTCSeconds();
+		var displayTime = hours + ':' + minutes + ' ' + timeIndicator;
+		displayDateTime = displayDate + ' @ ' + displayTime;
+	}
+	
+	document.getElementById('emergencycalldatetime').value = displayDateTime;
 	document.getElementById('emergencycallphonenumber').value = gEmergencyCallPhoneNumber;
 	document.getElementById('emergencycalldetails').value = gEmergencyCallDetails;	
+	addMenuEmergencyCall();
 	writeLog('displayEmergencyCall Finished');
-	gEmergencyRequestType = 'call';
 	displayScreen(gScreenNameEmergencyCall);
 }
 
@@ -211,7 +249,7 @@ function displayEmergencyNotification(msg) {
 	
 	//Apply values to fields on form
 	document.getElementById('emergencynotificationdetails').value = details;	
+	addMenuEmergencyNotification();
 	writeLog('displayEmergencyNotification Finished');
-	gEmergencyRequestType = 'notification';
 	displayScreen(gScreenNameEmergencyNotification);
 }
