@@ -6,7 +6,7 @@
 //Global Variables
 var gOptionsChangeDetected = false;
 
-function addMenuOptions() {
+function addOptionsMenu() {
 //*************************************************************
 //* This function will add the appropriate menu items for the 
 //* Options screen
@@ -15,7 +15,7 @@ function addMenuOptions() {
 //* Value Returned: 
 //*		Nothing
 //*************************************************************		
-	writeLog('addMenuOptions Starting');
+	writeLog('addOptionsMenu Starting');
 	if (gBrowserType == gBrowserBlackBerry || gBrowserType == gBrowserRippleBlackBerry) {	
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItemSeparator1 = new blackberry.ui.menu.MenuItem(true, 1);
@@ -29,7 +29,24 @@ function addMenuOptions() {
 	else {
 		writeLog('  invalid environment for menu');
 	}
-	writeLog('addMenuOptions Finished');
+	writeLog('addOptionsMenu Finished');
+}
+
+function buildOptionsScreen() {
+//*************************************************************
+//* This function will setup the options screen for appropriate
+//* display based on orientation
+//* Parms:
+//*		Nothing
+//* Value Returned: 
+//*		Nothing
+//*************************************************************		
+	
+	document.getElementById(gScreenNameOptions).style.backgroundImage = "url(images/background-options.jpg)";
+	document.getElementById(gScreenNameOptions).style.width = screen.availWidth + "px";
+	document.getElementById(gScreenNameOptions).style.height = screen.availHeight + "px";
+	document.getElementById(gScreenNameOptions).style.backgroundRepeat = "repeat";
+	//Might put code here to realign data elements based on orientation
 }
 
 function cbShowAllGroup_Change() {
@@ -61,10 +78,7 @@ function displayOptions() {
 //*		Nothing
 //*************************************************************		
 	
-	document.getElementById(gScreenNameOptions).style.backgroundImage = "url(images/background-options.jpg)";
-	document.getElementById(gScreenNameOptions).style.width = screen.availWidth + "px";
-	document.getElementById(gScreenNameOptions).style.height = screen.availHeight + "px";
-	document.getElementById(gScreenNameOptions).style.backgroundRepeat = "repeat";
+	buildOptionsScreen();
 	//Set the checkboxes and readio buttons according to values from database
 	if (gUserShowAllGroup == 'True') {
 		cbShowAllGroup.checked = true 

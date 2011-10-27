@@ -8,7 +8,7 @@ var gGroupCounter;
 var gGroupRecords = new Array();
 var gRetrievalStep = '';
 
-function addMenuGroups() {
+function addGroupsMenu() {
 //*************************************************************
 //* This function will add the appropriate menu items for the 
 //* Groups screen
@@ -18,7 +18,7 @@ function addMenuGroups() {
 //*		Nothing
 //*************************************************************	
 	
-	writeLog('addMenuGroups Starting');	
+	writeLog('addGroupsMenu Starting');	
 	if (gBrowserType == gBrowserBlackBerry || gBrowserType == gBrowserRippleBlackBerry) {	
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItemSeparator1 = new blackberry.ui.menu.MenuItem(true, 1);
@@ -32,7 +32,7 @@ function addMenuGroups() {
 	else {
 		writeLog('  invalid environment for menu');
 	}	
-	writeLog('addMenuGroups Finished');
+	writeLog('addGroupsMenu Finished');
 }
 
 function buildGroupsListing(){
@@ -78,7 +78,6 @@ function displayGroups() {
 //*************************************************************	
 	
 	writeLog('displayGroups Starting');	
-	addMenuGroups();
 	if (gGroupRecords.length == 0) {
 		writeLog('displayGroups Finished - No Contacts');
 		displayScreen(gScreenNameNoContacts);

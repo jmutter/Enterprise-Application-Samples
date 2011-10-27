@@ -88,7 +88,7 @@ function addContact(msg, email){
 
 } 
 
-function addMenuContacts() {
+function addContactsMenu() {
 //*************************************************************
 //* This function will add the appropriate menu items for the 
 //* Contacts screen
@@ -98,7 +98,7 @@ function addMenuContacts() {
 //*		Nothing
 //*************************************************************	
 	
-	writeLog('addMenuContacts Starting');
+	writeLog('addContactsMenu Starting');
 	if (gBrowserType == gBrowserBlackBerry || gBrowserType == gBrowserRippleBlackBerry) {
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItemSeparator1 = new blackberry.ui.menu.MenuItem(true, 1);
@@ -110,7 +110,7 @@ function addMenuContacts() {
 	else {
 		writeLog('  invalid environment for menu');
 	}
-	writeLog('addMenuContacts Finished');		
+	writeLog('addContactsMenu Finished');		
 }
 
 function buildContactPanel(contactid, group, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country) {	
@@ -294,10 +294,10 @@ function displayContacts(groupName) {
 //*************************************************************	
 	
 	writeLog('displayContacts Starting');
-	addMenuContacts();
 	gGroupNameSelected = groupName;			
 	buildContactsListing(groupName);	
 	gScreenDisplayed = gScreenNameContacts;	
+	addContactsMenu();
 	writeLog('displayContacts Finished');
 }
 

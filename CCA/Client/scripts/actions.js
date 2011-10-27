@@ -42,17 +42,17 @@ var gURLRecords;
 var gURLToPost = '';
 //The next variables are used to hold information relative to the user information
 //table.  This allows persistent storage of data for the user
-var gUserDateDisplay = 'MM/DD/YYYY'; //MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD
-var gUserListingOrder = 'LastName';  //LastName, FirstName
-var gUserShowAllGroup = 'False';
-var gUserShowCompanyOnContactBar = 'True';
-var gUserShowContactDividers = 'True';
-var gUserShowTitleOnContactBar = 'True';
+var gUserDateDisplay = 'MM/DD/YYYY'; //MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD for displaying dates
+var gUserListingOrder = 'LastName';  //LastName or FirstName for ordering the display of contacts
+var gUserShowAllGroup = 'False';  //True or False for adding the All group to the group listing
+var gUserShowCompanyOnContactBar = 'False';  //True or False for adding the company name (if supplied) on the contact name bar
+var gUserShowContactDividers = 'True';  //True or False for creating dividers to separate alphabetic differences between names
+var gUserShowTitleOnContactBar = 'False';  //True or False for adding the persons title (if supplied) on the contact name bar
 //The next variables will hold information for user information but are not changeable by the user
 var gUserRecordID = '1';
 var gUserEmailSender = 'jbentley@rim.com';	//Recipient address to accept emails for payloads
 var gUserEmailSenderDefault = 'jbentley@rim.com';	//Default sender email address to allow email payloads if email sender gets deleted
-var gUserApplicationStatus = 'enabled';
+var gUserApplicationStatus = 'enabled';  //enabled or disabled and tells application how to process requests and user interaction
 
 function adminDeleteGroup(msg) {
 //*************************************************************
@@ -498,30 +498,37 @@ function displayScreen(screenName) {
 	}
 
 	if (screenName == gScreenNameGroups) {
+		addGroupsMenu();
 	  if (gScreenDisplayed != gScreenNameContacts) {
 	  	$('#listing').show('slow');
 	  }
 	}
 	else if (screenName == gScreenNameNoContacts) {
+		addNoContactsMenu();
 	}
 	else if (screenName == gScreenNameContacts) {
+		addContactsMenu();
 	  if (gScreenDisplayed != gScreenNameGroups) {
 	  	$('#listing').show('slow');
 	  }
 	}
 	else if (screenName == gScreenNameOptions) {
+		addOptionsMenu();		
 		$('#' + gScreenNameOptions).fadeIn(1500);
 	}
 	else if (screenName == gScreenNameAbout) {
+		addAboutMenu();		
 		$('#' + gScreenNameAbout).fadeIn(1500);
 	}
 	else if (screenName == gScreenNameEmergencyCall) {
+		addEmergencyCallMenu();		
   	if (blackberry.app.isForeground == false) {
 			blackberry.app.requestForeground(); 
 		}  
 		$('#' + gScreenNameEmergencyCall).show();	
 	}	
 	else if (screenName == gScreenNameEmergencyNotification) {	
+		addEmergencyNotificationMenu();	
   	if (blackberry.app.isForeground == false) {
 			blackberry.app.requestForeground(); 
 		} 
@@ -892,8 +899,10 @@ function notifyUser() {
 function orientationChangeDetected() {
 	var orientation = window.orientation;
 	if (gScreenDisplayed == gScreenNameOptions) {
-		//alert ('rebuilding option screen');
-		//buildOptions();
+		buildOptionsScreen();
+	}
+	else if (gScreenDisplayed == gScreenNameAbout) {
+		buildAboutScreen();
 	}
 	switch(orientation) {
    	case 0:
@@ -1035,29 +1044,42 @@ function setApplicationIcon(type) {
 	writeLog('setApplicationIcon Finished');
 }
 
-function toggleSection(parentId, targetId) {
-	var parentEle = document.getElementById(parentId);
-	var targetEle = document.getElementById(targetId);
-	if (targetEle && parentEle) {
+function toggleSection(headerId, contentId) {
+//*************************************************************
+//* This function will control how a header and content get 
+//* displayed and hidden using the header as a toggle
+//* Parms:
+//*		name of header id tag
+//*		name of content id tag
+//* Value Returned: 
+//*		Nothing
+//*************************************************************		
+	var header = document.getElementById(headerId);
+	var content = document.getElementById(contentId);
+	if (header && content) {
 		//Remove the existing icon
 		var newIcon = '';
-		var image = parentEle.getElementsByTagName("img")[0];
+		var image = header.getElementsByTagName("img")[0];
 		if (image.src.indexOf('minus.png') == -1) {
 			newIcon = 'images/minus.png';
 			//Expand the contents
-			targetEle.style.display = '';
+	    document.getElementById(headerId).style.borderBottomLeftRadius = '0em';
+  	  document.getElementById(headerId).style.borderBottomRightRadius = '0em';
+			content.style.display = '';
 		}
 		else {
 			newIcon = 'images/plus.png';
+	    document.getElementById(headerId).style.borderBottomLeftRadius = '1em';
+  	  document.getElementById(headerId).style.borderBottomRightRadius = '1em';
 			//Collapse the contents
-		  targetEle.style.display = 'none';
+		  content.style.display = 'none';
 		}
-		parentEle.removeChild(image);
+		header.removeChild(image);
 
 		//Add the new icon
 		var icon = new Image();
 		icon.src = newIcon;
-		parentEle.appendChild(icon);
+		header.appendChild(icon);
 	}
 }
 

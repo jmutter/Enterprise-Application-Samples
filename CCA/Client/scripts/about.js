@@ -5,6 +5,26 @@
 
 //Global Variables
 
+function addAboutMenu() {
+//*************************************************************
+//* This function will add the appropriate menu items for the 
+//* Options screen
+//* Parms:
+//*		Nothing
+//* Value Returned: 
+//*		Nothing
+//*************************************************************		
+	writeLog('addAboutMenu Starting');
+	if (gBrowserType == gBrowserBlackBerry || gBrowserType == gBrowserRippleBlackBerry) {	
+		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
+		writeLog('  menu built');		
+	}
+	else {
+		writeLog('  invalid environment for menu');
+	}
+	writeLog('addAboutMenu Finished');
+}
+
 function displayAbout(msg) {	
 //*************************************************************
 //* This function will display the about screen with the appropriate

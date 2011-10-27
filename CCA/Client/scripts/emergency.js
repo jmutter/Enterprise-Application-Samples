@@ -65,7 +65,7 @@ function acceptEmergencyNotification() {
 	displayScreen(gScreenNamePrevious);	
 }
 
-function addMenuEmergencyCall() {
+function addEmergencyCallMenu() {
 //*************************************************************
 //* This function will create the necessary menu items for the
 //* emergency call screen.
@@ -75,7 +75,7 @@ function addMenuEmergencyCall() {
 //*		Nothing
 //*************************************************************	
 
-	writeLog('addMenuEmergencyCall Starting');
+	writeLog('addEmergencyCallMenu Starting');
 	if (gBrowserType == gBrowserBlackBerry || gBrowserType == gBrowserRippleBlackBerry) {		
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItem_topSeperator1 = new blackberry.ui.menu.MenuItem(true, 1);
@@ -89,10 +89,10 @@ function addMenuEmergencyCall() {
 	else {
 		writeLog('  invalid environment for menu');
 	}
-	writeLog('addMenuEmergencyCall Finished');
+	writeLog('addEmergencyCallMenu Finished');
 }
 
-function addMenuEmergencyNotification() {
+function addEmergencyNotificationMenu() {
 //*************************************************************
 //* This function will create the necessary menu items for the
 //* emergency notification screen.
@@ -103,7 +103,7 @@ function addMenuEmergencyNotification() {
 //*************************************************************	
 
 
-	writeLog('addMenuEmergencyNotification Starting');
+	writeLog('addEmergencyNotificationMenu Starting');
 	if (gBrowserType == gBrowserBlackBerry || gBrowserType == gBrowserRippleBlackBerry) {	
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItem_topSeperator1 = new blackberry.ui.menu.MenuItem(true, 1);
@@ -115,7 +115,7 @@ function addMenuEmergencyNotification() {
 	else {
 		writeLog('  invalid environment for menu');
 	}
-	writeLog('addMenuEmergencyNotification Finished');
+	writeLog('addEmergencyNotificationMenu Finished');
 }
 
 function declineEmergencyCall() {
@@ -130,7 +130,7 @@ function declineEmergencyCall() {
 
 	writeLog('User clicked EmergencyCall Decline');
 	saveURL('', gEmergencyCallDeclineURL);
-	displayScreen(gScreenNamePrevious);
+	displayScreen(gScreenNamePrevious );
 }
 
 function displayEmergencyCall(msg) {
@@ -216,7 +216,6 @@ function displayEmergencyCall(msg) {
 	document.getElementById('emergencycalldatetime').value = displayDateTime;
 	document.getElementById('emergencycallphonenumber').value = gEmergencyCallPhoneNumber;
 	document.getElementById('emergencycalldetails').value = gEmergencyCallDetails;	
-	addMenuEmergencyCall();
 	writeLog('displayEmergencyCall Finished');
 	displayScreen(gScreenNameEmergencyCall);
 }
@@ -249,7 +248,6 @@ function displayEmergencyNotification(msg) {
 	
 	//Apply values to fields on form
 	document.getElementById('emergencynotificationdetails').value = details;	
-	addMenuEmergencyNotification();
 	writeLog('displayEmergencyNotification Finished');
 	displayScreen(gScreenNameEmergencyNotification);
 }
