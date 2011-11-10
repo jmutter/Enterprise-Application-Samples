@@ -1,0 +1,11 @@
+<loader version="1.0" >
+<application id="BarCodeLite">
+<name>BarCodeLite</name>
+<description>DemoBarCode demonstrates using native barcode libraries within BlackBerry Application.</description>
+<version>1.0.0.0</version>
+<fileset Java="1.45">
+<directory></directory>
+<files>BarCodeLite.cod</files>
+</fileset>
+</application>
+</loader>

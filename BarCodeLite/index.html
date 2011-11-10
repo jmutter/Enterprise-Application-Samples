@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" id="viewport" content="height=device-height,width=device-width,initial-scale=1,user-scalable=yes" />
+
+		<title>BlackBerry Sample Project</title>
+		<meta http-equiv="content-type" content="application/xhtml+xml" />
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+		<link rel="blackberry-touch-icon" href="images/icon.png" />
+		
+		<!--CSS-->
+		<link href="css/style.css" rel="stylesheet" type="text/css" />
+	    <!-- RIM fun stuff libraries -->
+	    <!-- removed for lite version -->	
+	    <!-- Third party libraries -->
+	    <script type="text/javascript" src="js/thirdparty/vector.js"></script>		
+		<!-- Custom JS -->
+		<script type="text/javascript" src="js/functions.js"></script>
+		<script type="text/javascript" src="js/screens.js"></script>
+		
+		
+	</head>
+	<body>
+		<div class="wrapper">
+		
+		<!--Top page (logo and search button)-->
+			<div id="top" class="home">
+				<div id="header">
+					<div id="content_header">
+						<img id="backButton" src="images/back.png" alt="Go back" class="butt_black left" onclick="backScreen()"/>
+						<img src="images/logo.png" alt="BlackBerry Sample" class="butt_black right" onclick="displayMainScreen()" />
+					</div>
+				</div>
+			</div>
+		<!--Top page Ends-->
+
+		<!--Main Screen contents-->
+				<div id="main_screen_container" >
+				<div class="box_center" id="menu_index">
+					<ul>
+						<li><img src="images/barcode_button.png" alt="Scan BarCode" onclick="displayBarCodeScreen()"/></li>
+					</ul>
+				</div>
+				<br />&nbsp;
+				
+				</div>
+		<!--Main Screen contents Ends-->
+
+		<!--BarCode Screen contents-->
+		<div class="box_center" id="barcodeScreen">
+		<div class="separator"></div>
+<!--		<div class="shadow" style="float: left"><img src="images/datamatrix_button.png" alt="Scan IUID Barcode"  onclick="doScan('IUID')" /></div>-->
+		<div class="shadow" style="float: left"><img src="images/2D_button.png" alt="Scan 2D Barcode"  onclick="doScan('2D')" /></div>	
+		<div class="shadow" style="float: left"><img src="images/1D_button.png" alt="Scan 1D Barcode"  onclick="doScan('1D')" /></div>
+		
+			
+			<div id="returnContainer">
+				<ul class="articles" >
+				<li>
+						
+					<div id="Main"></div>
+						 
+					<div id="decodedString"></div>
+				</li>
+				
+				</ul>
+			</div>
+		</div>
+<!--BarCode Screen contents Ends-->
+
+	<!-- end id=wrapper for screen distribution -->
+	</div>
+
+
+	<!--Footer-->
+	<div id="footer">
+		<div id="content_footer">
+			<!--Your copyright-->
+			<div id="copyright">
+				BlackBerry Sample BarCode Project 2011
+			</div>
+			<!--Your copyright Ends-->
+			
+		</div>
+	</div>
+	<!--Footer Ends-->
+</body>
+</html>

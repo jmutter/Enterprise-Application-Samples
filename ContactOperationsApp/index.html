@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" id="viewport" content="height=device-height,width=device-width,initial-scale=1,user-scalable=yes" />
+
+		<title>BlackBerry Sample Project</title>
+		<meta http-equiv="content-type" content="application/xhtml+xml" />
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+		<link rel="blackberry-touch-icon" href="images/icon.png" />
+		
+		<!--CSS-->
+		<link href="css/style.css" rel="stylesheet" type="text/css" />
+	    <!-- RIM fun stuff libraries -->
+	    <!-- removed for lite version -->	
+	    <!-- Third party libraries -->
+	    <script type="text/javascript" src="js/thirdparty/vector.js"></script>		
+		<!-- Custom JS -->
+		<script type="text/javascript" src="js/functions.js"></script>
+		<script type="text/javascript" src="js/screens.js"></script>
+		
+		
+	</head>
+	<body>
+		<div class="wrapper">
+		
+		<!--Top page (logo and search button)-->
+			<div id="top" class="home">
+				<div id="header">
+					<div id="content_header">
+						<img id="backButton" src="images/back.png" alt="Go back" class="butt_black left" onclick="backScreen()"/>
+						<img src="images/logo.png" alt="BlackBerry Sample" class="butt_black right" onclick="displayMainScreen()" />
+					</div>
+				</div>
+			</div>
+		<!--Top page Ends-->
+
+		<!--Main Screen contents-->
+				<div id="main_screen_container" >
+				<div class="box_center" id="menu_index">
+					<ul>
+						<li><img src="images/Contact.png" alt="Call Operations" onclick="callOps()"/></li>
+						<li><img src="images/Edit.png" alt="Text Operations" onclick="textOps()"/></li>
+						<li><img src="images/email.png" alt="Email Operations" onclick="emailOps()"/></li>
+						<li><img src="images/Pictures.png" alt="Send Photo to Operations" onclick="photoOps()"/></li>
+					</ul>
+				</div>
+				<br />&nbsp;
+				
+				</div>
+		<!--Main Screen contents Ends-->
+
+
+	<!-- end id=wrapper for screen distribution -->
+	</div>
+
+
+	<!--Footer-->
+	<div id="footer">
+		<div id="content_footer">
+			<!--Your copyright-->
+			<div id="copyright">
+				BlackBerry Sample Project 2011
+			</div>
+			<!--Your copyright Ends-->
+			
+		</div>
+	</div>
+	<!--Footer Ends-->
+</body>
+</html>

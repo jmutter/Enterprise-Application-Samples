@@ -1,0 +1,29 @@
+Manifest-Version: 1.0
+MIDlet-Version: 1.0.0.0
+MIDlet-Jar-Size: 646648
+RIM-COD-URL-4: BarCodeLite-4.cod
+RIM-COD-SHA1-4: ae 26 73 e0 e4 4d 8d 3f 84 6c 00 ec 8d e7 ef f6 ea 73 a0 01
+RIM-COD-URL-3: BarCodeLite-3.cod
+RIM-COD-SHA1-3: 64 ef ce f5 e3 e0 e0 1e a6 3a c2 be ec 2b 2b 23 a3 c2 1d 4a
+RIM-COD-URL-2: BarCodeLite-2.cod
+MicroEdition-Configuration: CLDC-1.1
+MIDlet-Jar-URL: BarCodeLite.jar
+RIM-COD-Module-Dependencies: net_rim_cldc,net_rim_pdap,net_rim_bb_web_jse_api,net_rim_xml_org,net_rim_bb_browser_field2_api,net_rim_os,net_rim_bbapi_mailv2,net_rim_bbapi_phone,net_rim_bbapi_invoke,net_rim_bbapi_browser,net_rim_bbapi_push,net_rim_bbapi_messagelist,net_rim_networkapi,net_rim_bb_browser_field_api,net_rim_barcodelib,net_rim_amms,net_rim_xml
+RIM-COD-SHA1-2: 23 71 76 4b a7 38 1e 92 ac 0c 5a c5 8e 0b e5 95 0f 31 64 46
+RIM-COD-URL-1: BarCodeLite-1.cod
+RIM-COD-Size-4: 62120
+RIM-COD-SHA1-1: 8f 48 19 e6 56 46 78 83 d4 95 52 3a fd 76 4f 9a cd 27 a4 cb
+RIM-COD-Size-3: 56724
+RIM-COD-Size-2: 39392
+RIM-MIDlet-Flags-1: 0
+RIM-COD-Size-1: 72372
+RIM-COD-Module-Name: BarCodeLite
+MIDlet-Name: BarCodeLite
+RIM-COD-Size: 67484
+RIM-COD-Creation-Time: 1320680237
+MIDlet-1: BarCodeLite,images/icon.png,rim:foreground;WIDGET;
+RIM-COD-URL: BarCodeLite.cod
+MIDlet-Description: DemoBarCode demonstrates using native barcode libraries within BlackBerry Application.
+RIM-COD-SHA1: d6 05 f7 45 a9 e5 ed 25 95 c3 4f f7 1b 09 cd fb 77 0d d2 6e
+MicroEdition-Profile: MIDP-2.0
+MIDlet-Vendor: Unknown

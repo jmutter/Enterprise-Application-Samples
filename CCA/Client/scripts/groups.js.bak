@@ -76,10 +76,14 @@ function buildGroupsListing(msg, functionToCall){
 			var counter;
 			var html = '';
 			//Add JQueryMobile ListView with Numbers
+			//html += '<ul data-role="listview" class="ui-listview">';
 			html += '<ul data-role="listview" data-inset="true" data-filter="true" data-theme="a" data-dividertheme="e" class="ui-listview ui-listview-inset ui-corner-all ui-shadow">';
 			for (counter = 0; counter < gGroupRecords.length; ++counter) {
 				array = gGroupRecords[counter].split(gDelim);	
+				//html += '<li data-theme="c" class="ui-btn ui-btn-up-c ui-btn-icon-right ui-li-has-arrow ui-li ui-li-has-count ui-li-has-icon">';
+				//html += '<div class="panelTitle ui-header ui-bar-a expIco" data-role="header" data-position="inline">';
 				html += '<div class="panelTitle ui-header ui-bar-a expIco" data-role="header" data-position="inline">';
+				
 				html += '<div class="ui-btn-inner ui-li" aria-hidden="true"><div class="ui-btn-text">';
 				html += '<label onclick="showContactsFromSelectedGroup(\'\',\'' + array[0] + '\');">' +  array[0] + '<span class="ui-li-count ui-btn-up-c ui-btn-corner-all">' + array[1] + '</span></label>';
 				html += '<br>';

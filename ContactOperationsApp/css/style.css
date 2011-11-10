@@ -1,0 +1,252 @@
+/********* STRUCTURE *********/
+/****************************/
+
+/*
+1. GENERAL TYPOGRAPHY:
+	1. Reset CSS
+	2. Body & html
+	3. Headings
+	4. Lists styles
+	5. Links
+	6. Text (paragraphs and colors)
+	7. Buttons
+
+
+2. GENERAL LAYOUT:
+	1. General
+	2. Header (including navigation, logo)
+	3. Middle
+	4. Footer
+
+3. SPECIFIC PAGES OR ELEMENTS:
+	1. Box search
+	2. Home page
+	3. Blog
+	4. Portfolio
+*/
+
+/************************ 1. GENERAL TYPOGRAPHY ****************************/
+/***************************************************************************/
+
+	/* 1. Reset CSS
+	------------------------------------------------------*/
+
+	ul,ol,li,h1,h2,h3,h4,h5,h6,form,p,a,img{ margin: 0; padding: 0; border: 0; }
+	ul,li{ list-style-type: none; }
+
+	/* 2. Body & html
+	------------------------------------------------------*/
+
+/*	body{ margin: 0; padding: 0; font-family: Arial, Verdana, Helvetica, sans-serif; font-size: 12px; line-height: 16px; color: #848393; background-color: #dcdce1; overflow:visible;} */
+/*	html{ width: 100%; height: 100%; overflow-x: hidden; overflow-y: hidden; } */
+/*	html{ width: 100%; height: 100%;  } */ 
+	body, html {
+	padding:0;
+	margin:0;
+	font-family: BBAlpha Sans;
+	font-size: 13pt;
+	color: #848393; 
+	background-color: #dcdce1; 
+	overflow:visible;
+}
+	
+	
+	/* 3. Headings
+	------------------------------------------------------*/
+
+	h1,h2,h3,h4,h5,h6{ letter-spacing: 0; padding: 10px 10px 3px 0; font-weight: normal; line-height: 0.2em; color: #5e636d; }
+
+	h1{ height: 26px; font-size: 20px; }
+	h2{ height: 24px; font-size: 18px; }
+	h3{ height: 22px; font-size: 16px; }	h4{ height: 18px; font-size: 14px; }
+	h5{ height: 16px; font-size: 12px; } 
+	h6{ height: 14px; font-size: 11px; }
+
+	/* 4. Lists styles
+	------------------------------------------------------*/
+
+	/* 5. Links
+	------------------------------------------------------*/
+
+	a:link, a:visited, a:hover{ text-decoration: none; }
+
+	/* 6. Text
+	------------------------------------------------------*/
+
+	.shadow{ text-shadow: 0px 1px 0px #e9e9ed;}
+	.text_normal{ padding: 0px 0 15px 0; font-size: 11px; color: #565961; text-shadow: 0px 1px 0px #e9e9ed; }
+	.text_center{ text-align: center; }
+	.text_form{ width: 60px; float: left; padding: 0; font-size: 11px; line-height: 43px; color: #565961; text-shadow: 0px 1px 0px #e9e9ed; }
+	.title_article{ height: 18px; font-size: 14px; letter-spacing: 0; font-weight: normal; line-height: 0.4em; color: #5e636d; }
+	.text_article{ padding: 12px 0 2px 0; text-shadow: 0px 1px 0px #e9e9ed; }
+	.title_item{ height: 18px; font-size: 14px; letter-spacing: 0; font-weight: normal; line-height: 0.2em; color: #5e636d; }
+	.text_item{ padding: 4px 0 4px 0; text-shadow: 0px 1px 0px #e9e9ed; }
+
+	/* 7. Buttons
+	------------------------------------------------------*/
+
+	.search{ margin: 9px 20px 0 0; float: right; }
+	.butt_black{ margin: 8px 20px 0 0px; }
+	.butt_black:hover{	color:White; 	}
+	.butt_black.right{ float: right; }
+	.butt_black.left{ float: left; }
+	.buttons{ width: 208px; margin: 0 auto; position: relative; }
+	.prev_next{ width: 100%; position: relative; }
+	.butt_right{ float: right; position: relative; }
+	.button{ font-size: 12px; font-weight: bold; line-height: 34px; display: block; position: relative; padding: 0; height: 34px; color: #9f9eac; text-shadow: 0 1px 0 #e0e0e3; background-image: url(../images/button_gray.png); }
+	a.button{ cursor: pointer; }
+	a.button:hover{ color: #4D4D4D; }
+	.before, .after{ background-image: url(../images/button_black.png); display: block; position: absolute; top: 0; width: 21px; height: 34px; }
+	.button .before{ background: url(../images/before_gray.png) no-repeat; left: -21px; }
+	.button .after{ background: url(../images/after_gray.png) no-repeat; right: -21px; }
+	.button.search_button{ float: right; margin: 10px 22px 10px 32px; }
+	.button.right_top{ float: right; margin: -3px 21px 20px 0; }
+	.button.left{ float: left; margin: 12px 0 20px 21px;  }
+	.button.right{ float: right; margin: 12px 21px 20px 0;  }
+	.button.submit{ float: left; margin: 10px 0 22px 91px; }
+
+
+/************************** 2. GENERAL LAYOUT ******************************/
+/***************************************************************************/
+
+	/* 1. General
+	------------------------------------------------------*/
+
+/*	#content_header, #content_navigation, #content_footer{ width: 320px; margin: 0 auto; }
+*/
+	/* 2. Header
+	------------------------------------------------------*/
+
+	#top{ width: 100%; height: 54px; background: url(../images/bg_header.png) repeat-x; }
+/*	#navigation{ width: 100%; height: 49px; border-bottom: 1px solid #f1f1f3; background: url(../images/bg_navigation.png) repeat-x; } */
+	#header{ width: 100%; min-height: 54px; background: url(../images/bg_header_center.png) center no-repeat; }
+/*	#categories-dropdown{ z-index: 100; width: 300px; height: 163px; position: absolute; margin: 0 auto; top: 96px; display: none; } */
+	.home{ border-bottom: 1px solid #f6f6f7; }
+	.page_x{ border-bottom: 1px solid #5e5d63; }
+
+	/* 3. Middle
+	------------------------------------------------------*/
+	.wrapper {
+		min-height: 100%;
+		height: auto !important;
+		height: 100%;
+		margin: 0 auto 0em;
+	}
+	.box_center{ margin: 0 auto; }
+	.box_center::hover{ background-color:#2175F7;
+	border-bottom: solid 1px Silver;
+	padding-top: 20px;
+	padding-bottom: 5px;	
+	padding-left: 5px;
+ overflow: visible;
+	}
+	#page_x{ width: 280px; padding: 20px 0 0 0; }
+
+	/* 4. Footer
+	------------------------------------------------------*/
+
+	#footer, .push{ clear: left; width: 100%; height: 6em; margin: 6px 0 0 0; border-top: 2px solid #f1f1f3; font-size: 16px; color: #dcdce1; background-color: #1d1c20; }
+	#footer a{ color: #dcdce1; }
+	#footer a:hover{ color: #ffffff; }
+	#copyright{ float: left; margin: 12px 0 0  20px;  }
+	#back_to_top{ float: right; margin: 11px 20px; }
+	#back_to_top img, #back_to_top span{ vertical-align: middle; }
+	
+	.afixBottom, .push {
+	height: 4em;
+	}
+
+/************************** 3. SPECIFIC PAGES ******************************/
+/***************************************************************************/
+
+	/* 1. Box search
+	------------------------------------------------------*/
+
+	#box{ width: 100%; height: 145px; position: absolute; top: -400px; margin: 0 auto; padding: 20px 0 0 0; z-index:999999; text-align: center; background: url(../images/search_box.png) center no-repeat; }
+
+	/* 2. Home
+	------------------------------------------------------*/
+
+	#menu_index{ width: 100%; padding: 27px 0; text-align: center; }
+	#menu_index ul{ padding: 0px; margin: 0px; list-style: none; display: inline-block; }
+	#menu_index ul li{ padding: 0px; margin: 10px 2px 0 4px; display: inline-block; }
+	#menu_index img{ float: left; }
+
+	/* 3. Blog
+	------------------------------------------------------*/
+
+	.article{ padding: 5px 0; }
+	.articles li{ clear: left; padding: 14px 0 4px 0; }
+	.articles li img{ float: left; }
+	.articles a:link, .articles a:visited{ color:#565961; font-weight: bold }
+	.articles a:hover{ color: #6b6e76; }
+	.img_left{ float: left; margin: 0 16px 12px 0; }
+	.separator{ width: 100%; height: 8px; clear: left; margin: 8px 0 0 0; background: url(../images/separator.png) left repeat-x; }
+
+
+	/* 4.  BarCode stuff */
+	.listing
+	{
+		border-top: solid 2px Silver;
+		padding-top: 2px;
+		padding-bottom: 2px;	
+		padding-left: 1px;
+	}
+	.listing:hover
+	{
+		color:White;
+	}
+	.listItem:hover
+	{
+		color:White;
+	}
+	
+	
+	.from
+	{
+		margin-left: 8px;
+		display:inline;
+		font-size: 12pt;
+	}
+	
+	.barcodeString
+	{
+		margin-left: 8px;
+		display:inline;
+		font-size: 12pt;
+		color:Green;
+	}
+	
+	.typeName
+	{
+		margin-left: 2px;
+		display:inline;
+		color:Blue;
+		font-size: 12pt;
+		font-weight:Bold;
+	}
+	
+	.dateTime
+	{
+		position:relative;
+		float:right;	
+		font-size:12pt;
+		margin-right: 1px;
+		color:#696969;
+	}
+	
+	.inboxList
+	{
+		margin:0px;
+		padding:0px;	
+	}
+	
+	.details
+	{
+		margin-top: 10px;
+		margin-left: 10px;
+		color:#7B7D7B;
+		font-size: 12pt;
+		overflow:hidden;
+	}
+	

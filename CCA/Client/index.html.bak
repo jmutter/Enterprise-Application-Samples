@@ -44,12 +44,12 @@
 		This is the JQuery Mobile implementation of a page. Here we define three sections for a header, content, and footer.
 		#listprofiles will hold our profile list.
 		-->
-		
+		<ul data-role="listview" class="ui-listview">
 
 		<div id="groups">
 			<label>Group listing goes here</label>
 		</div>
-		
+	</ul>
 		<div id="nocontacts">
 			No contacts to list
 		</div>
