@@ -11,27 +11,13 @@ var gDatabaseName = 'CCA';
 var gDatabaseTitle = 'Corporate Communication Application';
 var gDatabaseVersion = '1.0';
 var gTableNameContacts = 'Contacts';
+var gTableNameEmergency = 'Emergency';
 var gTableNameGroups = 'Groups';
 var gTableNameOutstandingURLs = 'OutstandingURLs';
 var gTableNameUser = 'User';
 var gDBRecordRetrieved = '';
-var gDBRecordsRetrieved = new Array(); 
-var gDBRecords = null;
 
-function fieldPrepare(value) {
-//*************************************************************
-//* This function will ensure any apostrophe is set appropriately
-//* to ensure successful insert into a table
-//* Parms:
-//*		Value to prepare
-//* Value Returned: 
-//*		Success or error message to the function that called 
-//*************************************************************	
-	
-	return value.replace("'","''");
-}
-
-function fn_DBAddRecord(sql, functionToCall) {
+function dbAddRecord(sql, functionToCall) {
 //*************************************************************
 //* This function will add a record to a table as specified by  
 //* the supplied SQL statement
@@ -59,7 +45,7 @@ function fn_DBAddRecord(sql, functionToCall) {
 					window[functionToCall](returnValue);
 				}
 				,function(err) { //Failure Callback - called when the transaction fails
-					returnValue = 'DBADDRECORDERROR:SQL call failed with update:' + '\n  Msg: ' + err.message + '\n  SQL: ' + sql;
+					returnValue = 'DBADDRECORDERROR:SQL call failed: ' + err.message;;
 					window[functionToCall](returnValue);
 				}		
 				);			
@@ -72,7 +58,7 @@ function fn_DBAddRecord(sql, functionToCall) {
 	}
 }
 
-function fn_DBCreateTable(tableName, functionToCall) {
+function dbCreateTable(tableName, functionToCall) {
 //*************************************************************
 //* This function will create the requested table with the  
 //* necessary fields
@@ -106,6 +92,7 @@ function fn_DBCreateTable(tableName, functionToCall) {
 	}
 	else if (tableName == gTableNameGroups) {
 		sql += ' groupname text';  //Name of list of contacts
+		sql += ', machinename text';  //Name of machine the contacts were sent from
 		sql += ', contactrecords text';  //Number of contacts associated to this group
 		sql += ', recordsreceived text)';  //Date and time the records were received
 	}	
@@ -119,16 +106,26 @@ function fn_DBCreateTable(tableName, functionToCall) {
 		sql += ', showcompanyoncontactbar text';	//True or False		
 		sql += ', datedisplay text';	//MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD
 		sql += ', emailsender text';	//Sender that is allowed to send email requests
-		sql += ', applicationstatus text)';	//true, false
+		sql += ', applicationstatus text)';	//enabled, disabled
 	}	
 	else if (tableName == gTableNameOutstandingURLs) {
-		//There will only be 1 record for this table
 		sql += ' urlid integer primary key';
 		sql += ', url text';  //URL that hasn't been posted
 		sql += ', datetime text';  //Date and time the URL was put into the database
 		sql += ', lastattemptdatetime text';  //Date and time the last post attempt was made for the URL
 		sql += ', statuscode text)';  //Status code from last attempt if not 200
 	}	
+	else if (tableName == gTableNameEmergency) {
+		sql += ' emergencyid integer primary key';
+		sql += ', type text';  //Call or Notification
+		sql += ', machinename text';  //Name of machine the contacts were sent from
+		sql += ', receiveddatetime text';  //Date and time the emergency was received by device
+		sql += ', milliseconds text';  //Milliseconds representing date and time for the emergency (call only)
+		sql += ', phonenumber text';  //Phone number to call (only applicable with Call)
+		sql += ', details text';  //Details of the emergency
+		sql += ', accepturl text';  //URL to post if user accepts the emergency
+		sql += ', declineurl text)';  //URL to post if user declines the emergency (only applicable with Call)
+	}
 	else {
 		returnValue = 'DBCREATETABLEERROR:Invalid table name (' + tableName + ') requested';
 		window[functionToCall](returnValue);
@@ -155,7 +152,7 @@ function fn_DBCreateTable(tableName, functionToCall) {
 	}	
 }
 
-function fn_DBDeleteRecord(sql, functionToCall) {
+function dbDeleteRecord(sql, functionToCall) {
 //*************************************************************
 //* This function will delete a record to a table as specified by  
 //* the supplied SQL statement
@@ -194,7 +191,7 @@ function fn_DBDeleteRecord(sql, functionToCall) {
 	}
 }
 
-function fn_DBDropTable(tableName, functionToCall) {
+function dbDropTable(tableName, functionToCall) {
 //*************************************************************
 //* This function will drop the requested table
 //* Parms:
@@ -225,7 +222,7 @@ function fn_DBDropTable(tableName, functionToCall) {
 	}
 }
 
-function fn_DBGetField(sql, functionToCall) {
+function dbGetField(sql, functionToCall) {
 //*************************************************************
 //* This function will get the value from a field as specified by  
 //* the supplied SQL statement
@@ -280,7 +277,7 @@ function fn_DBGetField(sql, functionToCall) {
 	}
 }
 
-function fn_DBGetRecord(sql, functionToCall) {
+function dbGetRecord(sql, functionToCall) {
 //*************************************************************
 //* This function will retrieve a record as specified by  
 //* the supplied SQL statement
@@ -342,67 +339,97 @@ function fn_DBGetRecord(sql, functionToCall) {
 	}
 }
 
-function fn_DBGetRecords(sql, functionToCall) {
+function dbGetRecords(sql, table, functionToCall) {
 //*************************************************************
 //* This function will retrieve many records as specified by  
 //* the supplied SQL statement
 //* Parms:
 //*		SQL statement to execute
-//*     Function to call when complete
+//*   Function to call when complete
 //* Value Returned: 
 //*		Success (records are placed in global array variable) or error message to the function that called 
 //*************************************************************	
 
-	var returnValue = "";
-	gDBRecordsRetrieved.length = 0;
-	sql = myTrim(sql);
-	if (sql.substring(0,7) != 'SELECT ' || sql.indexOf(' FROM ') == -1) {
-		returnValue = 'DBGETRECORDERROR:Invalid formatted SQL string:\n  SQL: ' + sql;
-		window[functionToCall](returnValue);
-	}
-	else if (sql.substring(0,8) == 'SELECT *') {
-		//This validation can be removed once we are working with an object
-		returnValue = 'DBGETRECORDERROR:Invalid formatted SQL string:\n  SQL: ' + sql;
-		window[functionToCall](returnValue);
+	var returnValue = '';
+	table = table.toLowerCase();
+	if (table != 'contacts' && table != 'groups' && table != 'urls' && table != 'emergency') {
+		returnValue = 'DBGETRECORDSERROR:Invalid table requested: ' + table;
+		window[functionToCall](returnValue);			
 	}
 	else {
-		try	{
-			gDatabase.transaction(function(tx) {
-				tx.executeSql(sql, []
-				,function(tx, response) {  //Pass Callback - called when the transaction works 
-					var dbRow;
-					var fieldValues = '';
-					var array;
-					var fields = sql.substring(0,sql.indexOf(' FROM '));	
-					fields = myTrim(fields.substring(7));  //Move past the SELECT value
-					for (var row_ctr = 0; row_ctr < response.rows.length; row_ctr++) {
-						dbRow = response.rows.item(row_ctr);
-						fieldValues = '';
-						array = fields.split(",");	
-						for (var field_ctr = 0; field_ctr < array.length - 1; field_ctr++) {
-							fieldValues = fieldValues + dbRow[myTrim(array[field_ctr])] + gDelim;						
+		if (table.toLowerCase() == 'contacts') {
+			gContactRecords.length = 0;
+		}
+		else if (table.toLowerCase() == 'groups') {
+			gGroupRecords.length = 0;
+		}
+		else if (table.toLowerCase() == 'urls') {
+			gURLRecords.length = 0;
+		}
+		else if (table.toLowerCase() == 'emergency') {
+			gEmergencyRecords.length = 0;
+		}
+		sql = myTrim(sql);
+		if (sql.substring(0,7) != 'SELECT ' || sql.indexOf(' FROM ') == -1) {
+			returnValue = 'DBGETRECORDSERROR:Invalid formatted SQL string:\n  SQL: ' + sql;
+			window[functionToCall](returnValue);				
+		}
+		else if (sql.substring(0,8) == 'SELECT *') {
+			//This validation can be removed once we are working with an object
+			returnValue = 'DBGETRECORDSERROR:Invalid formatted SQL string:\n  SQL: ' + sql;
+			window[functionToCall](returnValue);				
+		}
+		else {
+			try	{
+				gDatabase.transaction(function(tx) {
+					tx.executeSql(sql, []
+					,function(tx, response) {  //Pass Callback - called when the transaction works 
+						var dbRow;
+						var fieldValues = '';
+						var array;
+						var fields = sql.substring(0,sql.indexOf(' FROM '));	
+						fields = myTrim(fields.substring(7));  //Move past the 'SELECT ' value
+						for (var row_ctr = 0; row_ctr < response.rows.length; row_ctr++) {
+							dbRow = response.rows.item(row_ctr);
+							fieldValues = '';
+							array = fields.split(",");	
+							for (var field_ctr = 0; field_ctr < array.length - 1; field_ctr++) {
+								fieldValues = fieldValues + dbRow[myTrim(array[field_ctr])] + gDelim;						
+							}
+							fieldValues = fieldValues + dbRow[myTrim(array[field_ctr])];  //Get last field value
+							if (table.toLowerCase() == 'contacts') {
+								gContactRecords[row_ctr] = fieldValues;
+							}
+							else if (table.toLowerCase() == 'groups') {
+								gGroupRecords[row_ctr] = fieldValues;
+							}
+							else if (table.toLowerCase() == 'urls') {
+								gURLRecords[row_ctr] = fieldValues;							
+							}					
+							else if (table.toLowerCase() == 'emergency') {
+								gEmergencyRecords[row_ctr] = fieldValues;							
+							}	
 						}
-						fieldValues = fieldValues + dbRow[myTrim(array[field_ctr])];  //Get last field value
-						gDBRecordsRetrieved[row_ctr] = fieldValues;						
+						returnValue = "DBGETRECORDSSUCCESS";	
+						window[functionToCall](returnValue);											
 					}
-					returnValue = "DBGETRECORDSSUCCESS";					
-					window[functionToCall](returnValue);
-				}
-				,function(err) { //Failure Callback - called when the transaction fails
-					returnValue = 'DBGETRECORDSERROR:SQL call failed retrieving record:\n  Msg: ' + err.message + '\n  SQL: ' + sql;
-					window[functionToCall](returnValue);
-				}		
-				);			
-			});
-		} 
-		catch (e) {
-			returnValue = 'DBGETRECORDSERROR:General SQL failure retrieving record:\n  Name: ' + e.name + '\n  Msg: ' + e.message + '\n  SQL: ' + sql; 
-			window[functionToCall](returnValue);
-		}	
+					,function(err) { //Failure Callback - called when the transaction fails
+						returnValue = 'DBGETRECORDSERROR:SQL call failed retrieving record:\n  Msg: ' + err.message + '\n  SQL: ' + sql;
+						window[functionToCall](returnValue);							
+					}		
+					);			
+				});
+			} 
+			catch (e) {
+				returnValue = 'DBGETRECORDSERROR:General SQL failure retrieving record:\n  Name: ' + e.name + '\n  Msg: ' + e.message + '\n  SQL: ' + sql; 
+				window[functionToCall](returnValue);	
+			}	
+		}
 	}
 }
 
-function fn_DBOpenDatabase(msg, functionToCall) {
+
+function dbOpenDatabase(msg, functionToCall) {
 //*************************************************************
 //* This function will open the database and create the necessary 
 //* tables
@@ -418,40 +445,47 @@ function fn_DBOpenDatabase(msg, functionToCall) {
 		gParentFunctionToCall = functionToCall;
 		//Open database and create it if it doesn't exist
 		gDatabase = openDatabase(gDatabaseName, gDatabaseVersion, gDatabaseTitle, 2 * 1024 * 1024);	
-		fn_DBOpenDatabase('DATABASEOPEN');
+		dbOpenDatabase('DATABASEOPEN');
 	}
 	else if (msg.substring(0,19) == 'DBCREATETABLEERROR:') {
 		errMsg = msg.substring(19);
 	}
 	else if (msg == 'DATABASEOPEN') {
-		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameContacts);
-		//fn_DBDropTable(gTableNameContacts,"fn_DBOpenDatabase");  //Only use this line when testing and wanting to clear data
+		dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameContacts);
+		//dbDropTable(gTableNameContacts,"dbOpenDatabase");  //Only use this line when testing and wanting to clear data
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameContacts) {
-		fn_DBCreateTable(gTableNameContacts, 'fn_DBOpenDatabase');			
+		dbCreateTable(gTableNameContacts, 'dbOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameContacts) {
-		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameGroups);  
-		//fn_DBDropTable(gTableNameGroups,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameGroups);  
+		//dbDropTable(gTableNameGroups,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameGroups) {
-		fn_DBCreateTable(gTableNameGroups, 'fn_DBOpenDatabase');			
+		dbCreateTable(gTableNameGroups, 'dbOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameGroups) {
-		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameUser);  
-		//fn_DBDropTable(gTableNameUser,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameUser);  
+		//dbDropTable(gTableNameUser,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameUser) {
-		fn_DBCreateTable(gTableNameUser, 'fn_DBOpenDatabase');			
+		dbCreateTable(gTableNameUser, 'dbOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameUser) {
-		fn_DBOpenDatabase('DBDROPTABLESUCCESS' + gTableNameOutstandingURLs);  
-		//fn_DBDropTable(gTableNameOutstandingURLs,'fn_DBOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		//dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameOutstandingURLs);  
+		dbDropTable(gTableNameOutstandingURLs,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameOutstandingURLs) {
-		fn_DBCreateTable(gTableNameOutstandingURLs, 'fn_DBOpenDatabase');			
+		dbCreateTable(gTableNameOutstandingURLs, 'dbOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameOutstandingURLs) {
+		dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameEmergency);  
+		//dbDropTable(gTableNameEmergency,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
+	}
+	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameEmergency) {
+		dbCreateTable(gTableNameEmergency, 'dbOpenDatabase');			
+	}
+	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameEmergency) {
 		window[gParentFunctionToCall]('DATABASEOKAY');	
 	}
 	else if (msg.substring(0,17) == 'DBDROPTABLEERROR:') {
@@ -466,7 +500,7 @@ function fn_DBOpenDatabase(msg, functionToCall) {
 	}	
 } 
 
-function fn_DBUpdateRecord(sql, functionToCall) {
+function dbUpdateRecord(sql, functionToCall) {
 //*************************************************************
 //* This function will update a record as specified by  
 //* the supplied SQL statement
@@ -503,4 +537,17 @@ function fn_DBUpdateRecord(sql, functionToCall) {
 			window[functionToCall](returnValue);
 		}			
 	}
+}
+
+function fieldPrepare(value) {
+//*************************************************************
+//* This function will ensure any apostrophe is set appropriately
+//* to ensure successful insert into a table
+//* Parms:
+//*		Value to prepare
+//* Value Returned: 
+//*		Success or error message to the function that called 
+//*************************************************************	
+	
+	return value.replace("'","''");
 }

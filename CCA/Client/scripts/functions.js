@@ -43,32 +43,43 @@ function getDate(format) {
 	return returnValue;
 }
 
-function getTime() {
+function getTime(format) {
 //*************************************************************
-//* This function retrieve the current time in a consisten format
+//* This function retrieve the current time in a consistent format
 //* Parms:
 //*		None
 //* Value Returned: 
 //*		Formatted time
 //*************************************************************	
 
-	var returnValue = ''
-	var suffix = '';
-	var currentTime = new Date()
-	var hours = currentTime.getHours()
-	var minutes = currentTime.getMinutes()
-
+	var returnValue = '';
+	var currentTime = new Date();
+	var hours = currentTime.getHours();
+	var minutes = currentTime.getMinutes();
+	var seconds = currentTime.getSeconds();
 	if (minutes < 10){
 		minutes = '0' + minutes	
 	}	
-	suffix = 'am';
-	if (hours > 11 ) {
-		suffix = 'pm';
+	if (seconds < 10){
+		seconds = '0' + seconds	
+	}	
+	if (format == 'hhmmss') {
+		if (hours < 10){
+			hours = '0' + hours	
+		}
+		returnValue = hours + minutes + seconds;
+	}		
+	else {
+		var suffix = 'am';		
+		if (hours > 11 ) {
+			suffix = 'pm';
+		}
+		if (hours > 12 ) {
+			hours = hours - 12;
+		}
+		returnValue = hours + ":" + minutes + ' ' + suffix;
 	}
-	if (hours > 12 ) {
-		hours = hours - 12;
-	}
-	returnValue = hours + ":" + minutes + ' ' + suffix;
+
 	return returnValue;
 }
 

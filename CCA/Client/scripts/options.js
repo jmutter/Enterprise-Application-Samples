@@ -20,9 +20,9 @@ function addOptionsMenu() {
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItemSeparator1 = new blackberry.ui.menu.MenuItem(true, 1);
 		blackberry.ui.menu.addMenuItem(menuItemSeparator1);
-		var menuItemSave = new blackberry.ui.menu.MenuItem(false, 2,"Save", saveOptions);
+		var menuItemSave = new blackberry.ui.menu.MenuItem(false, 2,'Save', saveOptions);
 		blackberry.ui.menu.addMenuItem(menuItemSave);
-		var menuItemCancel = new blackberry.ui.menu.MenuItem(false, 3,"Cancel", cancelOptions);		
+		var menuItemCancel = new blackberry.ui.menu.MenuItem(false, 3,'Cancel', cancelOptions);		
 		blackberry.ui.menu.addMenuItem(menuItemCancel);
 		writeLog('  menu built');		
 	}
@@ -47,6 +47,19 @@ function buildOptionsScreen() {
 	document.getElementById(gScreenNameOptions).style.height = screen.availHeight + "px";
 	document.getElementById(gScreenNameOptions).style.backgroundRepeat = "repeat";
 	//Might put code here to realign data elements based on orientation
+}
+
+function cancelOptions() {
+//*************************************************************
+//* This function is called when the user clicks on the Cancel
+//* menu item.
+//* Parms:
+//*		Nothing
+//* Value Returned: 
+//*		Nothing
+//*************************************************************			
+	gOptionsChangeDetected = false;
+	displayScreen(gScreenNameGroups);
 }
 
 function cbShowAllGroup_Change() {
@@ -79,6 +92,9 @@ function displayOptions() {
 //*************************************************************		
 	
 	buildOptionsScreen();
+	toggleSection('optionsgroupsheader','optionsgroupscontent', 'collapse'); 
+	toggleSection('optionscontactsheader','optionscontactscontent', 'collapse'); 
+	toggleSection('optionsgeneralheader', 'optionsgeneralcontent', 'collapse'); 	
 	//Set the checkboxes and readio buttons according to values from database
 	if (gUserShowAllGroup == 'True') {
 		cbShowAllGroup.checked = true 
@@ -113,12 +129,6 @@ function displayOptions() {
 		rbDateDisplayMMDDYYYY.checked = true;		
 	}
 	displayScreen (gScreenNameOptions);
-}
-
-function cancelOptions() {
-	
-	gOptionsChangeDetected = false;
-	displayScreen(gScreenNameGroups);
 }
 
 function rbDateDisplayDDMMYYYY_Change() {
@@ -207,7 +217,7 @@ function saveOptions(msg) {
 		sql += ', showcontactdividers = \'' + gUserShowContactDividers + '\', showtitleoncontactbar = \'' + gUserShowTitleOnContactBar + '\'';
 		sql += ', showcompanyoncontactbar = \'' + gUserShowCompanyOnContactBar + '\', datedisplay = \'' + gUserDateDisplay + '\'';
 		sql += ' WHERE recordid = \'' + gUserRecordID + '\'';
-		fn_DBUpdateRecord(sql, 'saveOptions'); 	
+		dbUpdateRecord(sql, 'saveOptions'); 	
 	}
 	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
 		errMsg = msg.substring(20);

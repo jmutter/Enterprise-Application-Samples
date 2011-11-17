@@ -34,11 +34,11 @@ var gScreenNameGroups = 'groups';
 var gScreenNameNoContacts = 'nocontacts';
 var gScreenNameOptions = 'options';
 var gScreenNamePrevious = '';
-var gTestingMode = false;
+var gTestingMode = true;
 var gTroubleShootingMode = false;
 var gURLCounter = 0;
 var gURLID = '';
-var gURLRecords;
+var gURLRecords = new Array();
 var gURLToPost = '';
 //The next variables are used to hold information relative to the user information
 //table.  This allows persistent storage of data for the user
@@ -71,15 +71,15 @@ function adminDeleteGroup(msg) {
   	writeLog('adminDeleteGroup Starting');		
 		gAdminDeleteStep = 'contacts';
   	writeLog('  Deleting \'' + gAdminGroupName + '\' contact records');
-		sql = 'DELETE FROM ' + gTableNameContacts + ' WHERE groupname = \'' + gAdminGroupName + '\'';
-		fn_DBDeleteRecord(sql, 'adminDeleteGroup');	
+		sql = 'DELETE FROM ' + gTableNameContacts + ' WHERE groupname LIKE \'' + gAdminGroupName + '\'';
+		dbDeleteRecord(sql, 'adminDeleteGroup');	
 	}		
 	else if (msg == 'DBDELETERECORDSUCCESS') {
 		if (gAdminDeleteStep == 'contacts') {
 			gAdminDeleteStep = 'groups';
   		writeLog('  Deleting \'' + gAdminGroupName + '\' group record');
-			sql = 'DELETE FROM ' + gTableNameGroups + ' WHERE groupname = \'' + gAdminGroupName + '\'';
-			fn_DBDeleteRecord(sql, 'adminDeleteGroup');
+			sql = 'DELETE FROM ' + gTableNameGroups + ' WHERE groupname LIKE \'' + gAdminGroupName + '\'';
+			dbDeleteRecord(sql, 'adminDeleteGroup');
 		}
 		else {
 		 	saveURL('',gAdminConfirmationURL);
@@ -114,7 +114,7 @@ function adminDeleteURL(msg) {
   	writeLog('adminDeleteURL Starting');		
   	writeLog('  Deleting URL: ' + gAdminURL);
 		sql = 'DELETE FROM ' + gTableNameOutstandingURLs + ' WHERE url = \'' + gAdminURL + '\'';
-		fn_DBDeleteRecord(sql, 'adminDeleteURL');	
+		dbDeleteRecord(sql, 'adminDeleteURL');	
 	}		
 	else if (msg == 'DBDELETERECORDSUCCESS') {
 		saveURL('',gAdminConfirmationURL);
@@ -147,7 +147,7 @@ function adminDeleteURLs(msg) {
   	writeLog('adminDeleteURLs Starting');		
   	writeLog('  Deleting URLs');
 		sql = 'DELETE FROM ' + gTableNameOutstandingURLs;
-		fn_DBDeleteRecord(sql, 'adminDeleteURLs');	
+		dbDeleteRecord(sql, 'adminDeleteURLs');	
 	}		
 	else if (msg == 'DBDELETERECORDSUCCESS') {
 		saveURL('',gAdminConfirmationURL);
@@ -181,25 +181,25 @@ function adminDisableApplication(msg) {
 		gAdminDisableStep = 'contacts';
   	writeLog('  Deleting contacts');
 		sql = 'DELETE FROM ' + gTableNameContacts;
-		fn_DBDeleteRecord(sql, 'adminDisableApplication');	
+		dbDeleteRecord(sql, 'adminDisableApplication');	
 	}		
 	else if (msg == 'DBDELETERECORDSUCCESS') {
 		if (gAdminDisableStep == 'contacts') {
 			gAdminDisableStep = 'groups';
   		writeLog('  Deleting groups');
 			sql = 'DELETE FROM ' + gTableNameGroups;
-			fn_DBDeleteRecord(sql, 'adminDisableApplication');
+			dbDeleteRecord(sql, 'adminDisableApplication');
 		}
 		else if (gAdminDisableStep == 'groups') {
 			gAdminDisableStep = 'urls';
   		writeLog('  Deleting urls');
 			sql = 'DELETE FROM ' + gTableNameOutstandingURLs;
-			fn_DBDeleteRecord(sql, 'adminDisableApplication');
+			dbDeleteRecord(sql, 'adminDisableApplication');
 		}		
 		else if (gAdminDisableStep == 'urls') {
   		writeLog('  Setting disabled status');
 			sql = 'UPDATE ' + gTableNameUser + ' SET applicationstatus = \'disabled\' WHERE recordid = \'' + gUserRecordID + '\'';
-			fn_DBUpdateRecord(sql, 'adminDisableApplication'); 	
+			dbUpdateRecord(sql, 'adminDisableApplication'); 	
 		}
 	}
 	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
@@ -237,7 +237,7 @@ function adminEnableApplicationStatus(msg) {
   if (msg == '') {
   	writeLog('adminEnableApplicationStatus Starting');		
 		var	sql = 'UPDATE ' + gTableNameUser + ' SET applicationstatus = \'enabled\' WHERE recordid = \'' + gUserRecordID + '\'';
-		fn_DBUpdateRecord(sql, 'adminEnableApplicationStatus'); 	
+		dbUpdateRecord(sql, 'adminEnableApplicationStatus'); 	
 	}
 	else if (msg == 'DBUPDATERECORDSUCCESS') {
 		saveURL('',gAdminConfirmationURL);
@@ -365,7 +365,7 @@ function adminUpdateEmailSender(msg) {
   if (msg == '') {
   	writeLog('adminUpdateEmailSender Starting');		
 		var	sql = 'UPDATE ' + gTableNameUser + ' SET emailsender = \'' + fieldPrepare(gAdminEmailSender) + '\' WHERE recordid = \'' + gUserRecordID + '\'';
-		fn_DBUpdateRecord(sql, 'adminUpdateEmailSender'); 	
+		dbUpdateRecord(sql, 'adminUpdateEmailSender'); 	
 	}
 	else if (msg == 'DBUPDATERECORDSUCCESS') {
 		saveURL('',gAdminConfirmationURL);
@@ -423,10 +423,9 @@ function checkForOutstandingURLs(msg) {
 	if (msg == '' || msg == undefined) {
 		writeLog('checkForOutstandingURLs Starting');
 		var	sql = 'SELECT urlid, url FROM ' + gTableNameOutstandingURLs;
-		fn_DBGetRecords(sql, 'checkForOutstandingURLs');
+		dbGetRecords(sql, 'urls', 'checkForOutstandingURLs');
 	}
 	else if (msg == 'DBGETRECORDSSUCCESS') {
-		gURLRecords = gDBRecordsRetrieved;
 		writeLog('  ' + gURLRecords.length + ' outstanding URLs');
 		gURLCounter == 0;		//Initialize the counter
 		checkForOutstandingURLs('PROCESSURLS');		//Call this function with our needed msg for processing
@@ -504,7 +503,12 @@ function displayScreen(screenName) {
 	  }
 	}
 	else if (screenName == gScreenNameNoContacts) {
-		addNoContactsMenu();
+		document.getElementById(gScreenNameNoContacts).style.backgroundImage = "url(images/background-nocontacts.jpg)";
+		document.getElementById(gScreenNameNoContacts).style.width = screen.availWidth + "px";
+		document.getElementById(gScreenNameNoContacts).style.height = screen.availHeight + "px";
+		document.getElementById(gScreenNameNoContacts).style.backgroundRepeat = "repeat";
+		addGroupsMenu();
+	  $('#' + gScreenNameNoContacts).show('slow');
 	}
 	else if (screenName == gScreenNameContacts) {
 		addContactsMenu();
@@ -521,14 +525,14 @@ function displayScreen(screenName) {
 		$('#' + gScreenNameAbout).fadeIn(1500);
 	}
 	else if (screenName == gScreenNameEmergencyCall) {
-		addEmergencyCallMenu();		
+		addEmergencyMenu('Call');		
   	if (blackberry.app.isForeground == false) {
 			blackberry.app.requestForeground(); 
 		}  
 		$('#' + gScreenNameEmergencyCall).show();	
 	}	
 	else if (screenName == gScreenNameEmergencyNotification) {	
-		addEmergencyNotificationMenu();	
+		addEmergencyMenu('Notification');	
   	if (blackberry.app.isForeground == false) {
 			blackberry.app.requestForeground(); 
 		} 
@@ -610,27 +614,17 @@ function getRecords(msg, functionToCall){
 			sql += ' ORDER BY lastname, firstname';
 		}
 		gRetrievalStep = 'contacts';
-		fn_DBGetRecords(sql, 'getRecords');
+		dbGetRecords(sql, 'contacts', 'getRecords');
 	}	
 	else if (msg == 'DBGETRECORDSSUCCESS') {	
 		var counter = 0;
 		if (gRetrievalStep == 'contacts') {
-			writeLog('  Processing ' + gDBRecordsRetrieved.length + ' contacts');
-			gContactRecords.length = 0;
-	  	for (counter = 0; counter < gDBRecordsRetrieved.length; ++counter) {
-     		gContactRecords[counter] = gDBRecordsRetrieved[counter];
-			}
 			writeLog('  Retrieving Groups');
-			sql = 'SELECT groupname, contactrecords, recordsreceived FROM ' + gTableNameGroups + ' ORDER BY groupname';
+			sql = 'SELECT groupname, machinename, contactrecords, recordsreceived FROM ' + gTableNameGroups + ' ORDER BY groupname';
 			gRetrievalStep = 'groups';
-			fn_DBGetRecords(sql, 'getRecords');
+			dbGetRecords(sql, 'groups', 'getRecords');
 		}
-		else {
-			writeLog('  Processing ' + gDBRecordsRetrieved.length + ' groups');
-			gGroupRecords.length = 0;
-	  	for (counter = 0; counter < gDBRecordsRetrieved.length; ++counter) {
-     		gGroupRecords[counter] = gDBRecordsRetrieved[counter];
-			}			
+		else {	
 			writeLog('getRecords Finished');	
 			window[gParentFunctionToCall]('GETRECORDSSUCCESS');
 		}
@@ -663,12 +657,12 @@ function getStarted(msg) {
 	var sql = '';
 	if (msg == '') {	
 		writeLog('getStarted Starting');
-		writeLog('  Opening database');		
-		fn_DBOpenDatabase('', 'getStarted');  //Call function to open database and create tables
+		writeLog('  Opening database');
+		dbOpenDatabase('', 'getStarted');  //Call function to open database and create tables
 	}
 	else if (msg == 'DATABASEOKAY') {
 		sql = 'SELECT showallgroup, listingorder, showcontactdividers, showtitleoncontactbar, showcompanyoncontactbar, datedisplay, emailsender, applicationstatus FROM ' + gTableNameUser + ' WHERE recordid = \'' + gUserRecordID + '\'';
-		fn_DBGetRecord(sql, 'getStarted');
+		dbGetRecord(sql, 'getStarted');
 	}
 	else if (msg == 'DBGETRECORDSUCCESS') {
 		if (gDBRecordRetrieved == '') {		
@@ -677,7 +671,7 @@ function getStarted(msg) {
 		  sql += ' VALUES(\'' + gUserRecordID + '\',\'' + gUserShowAllGroup + '\',\'' + gUserListingOrder + '\',\'' + gUserShowContactDividers + '\',\'';
 		  sql += gUserShowTitleOnContactBar + '\',\'' + gUserShowCompanyOnContactBar + '\',\'' + gUserDateDisplay + '\',\'' 
 		  sql += gUserEmailSender + '\',\'' + gUserApplicationStatus + '\')';		  
-		  fn_DBAddRecord(sql, 'getStarted');		
+		  dbAddRecord(sql, 'getStarted');		
 		}
 		else {
 			getStarted('DBADDRECORDSUCCESS');
@@ -748,7 +742,7 @@ function handleBackKey() {
 				writeLog('handleBackKey Finished');
 				gOptionsChangeDetected = false;
 				//At this time Options can only be invoked from the Groups screen and no changes were detected so simply display the screen
-				displayScreen(gScreenNameGroups);
+				displayScreen(gScreenNamePrevious);
 			}
 		}	
 		else if (gScreenDisplayed == gScreenNameAbout) {
@@ -758,6 +752,9 @@ function handleBackKey() {
 		else if (gScreenDisplayed == gScreenNameGroups) {
 			writeLog('handleBackKey Finished');
 			writeLog('Application going to background');
+			//Clear debug mode
+			gCurrentKeySequence = '';
+			gDebugMode = false;	
 			blackberry.app.requestBackground();
 		}
 		else {
@@ -898,12 +895,6 @@ function notifyUser() {
 
 function orientationChangeDetected() {
 	var orientation = window.orientation;
-	if (gScreenDisplayed == gScreenNameOptions) {
-		buildOptionsScreen();
-	}
-	else if (gScreenDisplayed == gScreenNameAbout) {
-		buildAboutScreen();
-	}
 	switch(orientation) {
    	case 0:
    		//Top side up.
@@ -912,6 +903,16 @@ function orientationChangeDetected() {
    	case 90: 
    		//Right side up (turned 90 degrees to the left)
   }
+	if (gScreenDisplayed == gScreenNameOptions) {
+		buildOptionsScreen();
+	}
+	else if (gScreenDisplayed == gScreenNameAbout) {
+		buildAboutScreen();
+	}
+	else if (gScreenDisplayed == gScreenNameNoContacts) {
+		displayScreen(gScreenNameNoContacts);
+	}
+
 }
 
 function registerBBEvents() {
@@ -1005,8 +1006,10 @@ function saveURL(msg, urlToAdd) {
 		else {
 		sql = 'INSERT INTO ' + gTableNameOutstandingURLs;
 		sql += '(urlid, url, datetime, lastattemptdatetime, statuscode)';
-		sql += ' VALUES(null,\'' + fieldPrepare(urlToAdd) + '\',\'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\',\'\',\'\')';
-		fn_DBAddRecord(sql, 'saveURL');	
+		//Add (OvO)YYYYMMDDHHMMSS to the end of the URL to allow accurate reporting on the receiving server component from 
+		//when it was processed, not when received on the server
+		sql += ' VALUES(null,\'' + fieldPrepare(urlToAdd + gDelim + getDate('yyyymmdd') + getTime('hhmmss')) + '\',\'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\',\'\',\'\')';
+		dbAddRecord(sql, 'saveURL');	
 		}	
 	}
 	else if (msg == 'DBADDRECORDSUCCESS') {
@@ -1044,7 +1047,7 @@ function setApplicationIcon(type) {
 	writeLog('setApplicationIcon Finished');
 }
 
-function toggleSection(headerId, contentId) {
+function toggleSection(headerId, contentId, direction) {
 //*************************************************************
 //* This function will control how a header and content get 
 //* displayed and hidden using the header as a toggle
@@ -1057,10 +1060,21 @@ function toggleSection(headerId, contentId) {
 	var header = document.getElementById(headerId);
 	var content = document.getElementById(contentId);
 	if (header && content) {
-		//Remove the existing icon
-		var newIcon = '';
 		var image = header.getElementsByTagName("img")[0];
-		if (image.src.indexOf('minus.png') == -1) {
+		if (direction == undefined) {
+			if (image.src.indexOf('minus.png') == -1) {
+				direction = 'expand';
+			}
+			else {
+				direction = 'collapse';
+			}
+		}
+		else {
+			direction = direction.toLowerCase();
+		}
+
+		var newIcon = '';
+		if (direction == 'expand') {
 			newIcon = 'images/minus.png';
 			//Expand the contents
 	    document.getElementById(headerId).style.borderBottomLeftRadius = '0em';
@@ -1074,11 +1088,12 @@ function toggleSection(headerId, contentId) {
 			//Collapse the contents
 		  content.style.display = 'none';
 		}
+		//Remove the existing icon
 		header.removeChild(image);
-
-		//Add the new icon
+		//Add the new icon and set the class
 		var icon = new Image();
 		icon.src = newIcon;
+		icon.className = 'sectionHeaderImage';
 		header.appendChild(icon);
 	}
 }

@@ -23,7 +23,7 @@
 		<script type="text/javascript" src="scripts/options.js"></script>			
 		<script type="text/javascript" src="scripts/about.js"></script>	
 		<script type="text/javascript" src="scripts/secretkey.js"></script>
-
+		<script type="text/javascript" src="scripts/testing.js"></script>
  		<!-- Custom JS -->
     <script>
 				$(document).ready(function(){
@@ -50,21 +50,22 @@
 			</div> 			
 			<div data-role="content" data-theme="b">				
 				<ul id="listofentries" data-role="listview" data-inset="true" data-filter="true">
+				<!--Content is dynamically created to display Groups or list of Contacts-->
   	  	</ul>
 			</div>
 		</div>	
 		
-		<div id="nocontacts" data-role="page">
-			No contacts to list
+		<div id="nocontacts">
+			<!--Content will be supplied by the code with an image to simulate a watermark-->
 		</div>			
 
 		<div id="options"> 	
-			<h2 id="optionsgroupsheader" onclick="toggleSection('optionsgroupsheader','optionsgroupscontent')">Groups<img src="images/minus.png"/></h2>
-			<ul id="optionsgroupscontent" class="section">
+			<h2 class="sectionHeaderOptions" id="optionsgroupsheader" onclick="toggleSection('optionsgroupsheader','optionsgroupscontent')">Groups<img class="sectionHeaderImage" src="images/minus.png"/></h2>
+			<ul id="optionsgroupscontent" class="sectionContentOptions">
 				<li><td><input id="cbShowAllGroup" type="checkbox" onchange="cbShowAllGroup_Change()"/> Show 'All' listing</td></li>
 			</ul>				
-			<h2 id="optionscontactsheader" onclick="toggleSection('optionscontactsheader','optionscontactscontent')">Contacts<img src="images/minus.png"/></h2>
-			<ul id="optionscontactscontent" class="section">
+			<h2 class="sectionHeaderOptions" id="optionscontactsheader" onclick="toggleSection('optionscontactsheader','optionscontactscontent')">Contacts<img class="sectionHeaderImage" src="images/minus.png"/></h2>
+			<ul id="optionscontactscontent" class="sectionContentOptions">
 				<li><td><label >Listing Order</label></td></li>
 				<li class="radiobutton"><td><input type="radio" name="listingorder" id="rbListingLastName" value="LastName" onchange="rbListingLastName_Change()"> By LastName</td></li>
 				<li class="radiobutton"><td><input type="radio" name="listingorder" id="rbListingFirstName" value="FirstName" onchange="rbListingFirstName_Change()"> By FirstName</td></li>		
@@ -72,8 +73,8 @@
 				<li><td><input id="cbShowTitleOnContactBar" type="checkbox" onchange="cbShowTitleOnContactBar_Change()"/> Show title on bar</td></li>	
 				<li><td><input id="cbShowCompanyOnContactBar" type="checkbox" onchange="cbShowCompanyOnContactBar_Change()"/> Show company on bar</td></li>		
 			</ul>	
-			<h2 id="optionsgeneralheader" onclick="toggleSection('optionsgeneralheader','optionsgeneralcontent')">General<img src="images/minus.png"/></h2>
-			<ul id="optionsgeneralcontent" class="section">
+			<h2 class="sectionHeaderOptions" id="optionsgeneralheader" onclick="toggleSection('optionsgeneralheader','optionsgeneralcontent')">General<img class="sectionHeaderImage" src="images/minus.png"/></h2>
+			<ul id="optionsgeneralcontent" class="sectionContentOptions">
 				<li><td><label >Date Display</label></td></li>
 				<li class="radiobutton"><td><input type="radio" name="datedisplay" id="rbDateDisplayMMDDYYYY" value="MMDDYYYY" onchange="rbDateDisplayMMDDYYYY_Change()"> mm/dd/yyyy</td></li>
 				<li class="radiobutton"><td><input type="radio" name="datedisplay" id="rbDateDisplayDDMMYYYY" value="DDMMYYYY" onchange="rbDateDisplayDDMMYYYY_Change()"> dd/mm/yyyy</td></li>
@@ -82,16 +83,65 @@
 		</div>
 
 		<div id="about"> 	
-			<h2 id="aboutgeneralheader" onclick="toggleSection('aboutgeneralheader','aboutgeneralcontent')">Groups<img src="images/minus.png"/></h2>
-			<ul id="aboutgeneralcontent" class="section">
-				<li><td><input id="cbAllGroup" type="checkbox" onchange="cbAllGroup_Change()"/> Nuts</td></li>
+			<h2 class="sectionHeaderAbout" id="aboutgeneralheader" onclick="toggleSection('aboutgeneralheader','aboutgeneralcontent')">General<img class="sectionHeaderImage" src="images/minus.png"/></h2>
+			<ul id="aboutgeneralcontent" class="sectionContentAbout">
+				<div class="aboutdetail auto"> 
+					<p>This application is used to display contacts, and receive alerts from a server component.</p>
+					<p></p>
+					<p>Groups:</p>
+					<p>These are the method for managing the contacts in a tidy way.  The names for the groups are supplied by the server component.</p>
+					<p>You can set an option to have an All group created.  This will show all the contacts in one listing, and removing any duplicate contacts based on unique email address.</p>
+					<p></p>
+					<p>Contacts:</p>
+					<p>These will be grouped by names as specified by the server component.</p>
+					<p>The data for the contacts are not managed by this application.  You can add a contact to your personal contacts and then update accordingly if you so desire.</p>
+					<p>Depending on the data supplied, you will be able to send an email, call the contact, or use BBM by simply clicking on the representing data element.</p>
+					<p></p>
+					<p>Alerts:</p>
+					<p>There are 2 types of alerts that can be sent to you from the server component.  Emergency Call and Emergency Notification.</p>
+					<p>Emergency Call will give you information regarding the call (date and time, details) and you must Accept or Decline the alert.  If you Accept the alert a Calendar entry will be created for reference.</p>
+					<p>Emergency Notification will give you information that you will need to Accept to acknowledge you have read it.  Nothing more is required for this alert.</p>
+				</div>
 			</ul>		
+			<h2 class="sectionHeaderAbout" id="aboutcontactsheader" onclick="toggleSection('aboutcontactsheader','aboutcontactscontent')">Contacts<img class="sectionHeaderImage" src="images/minus.png"/></h2>
+			<ul id="aboutcontactscontent" class="sectionContentAbout">
+				<div id="aboutgroupinfo">
+				</div>	
+			</ul>	
 		</div>		
+		
+		<div id="emergencycall">
+			<marquee class="marquee" direction="left" behavior="scroll" scrollamount="5">Emergency Call</marquee>
+			<br>
+			<label style="font-size:10pt;font-color:black">Request Received:</label>
+			<input type="text" disabled="disabled" id="emergencycallreceived" style="font-size:8pt" >
+			<br>
+			<label style="font-size:12pt;font-color:black"">When:</label>
+			<input type="text" disabled="disabled" id="emergencycalldatetime" style="font-size:10pt" >
+			<br>
+			<label style="font-size:12pt;font-color:black"">Number:</label>
+			<input type="text" disabled="disabled" style="font-size:10pt" id="emergencycallphonenumber">
+			<br>
+			<label style="font-size:12pt;font-color:black"">Details:</label>
+			<br>
+			<div id="emergencycalldetails" class="emergencycalldetails"> 
+			</div>
+		</div>	
 
 		<div id="emergencynotification">
-			<label style="position:absolute; top:5px; left:40px; font-size:20pt">Emergency Notification</label>
-			<label style="position:absolute; top:140px; left:7px"; font-size:8pt>Details:</label>
-			<textarea readonly="readonly" style="position:absolute; padding-top:0px padding-bottom:0px; padding-left:0px; padding-right:0px; font-family:Arial; color:#254117; top:170px; left:10px" rows="25" cols="67" id="emergencynotificationdetails"></textarea>
+			<div style="text-align:center;font-size:16pt;color:green">Emergency Notification</div>
+			<label style="font-size:10pt;font-color:black">Request Received:</label>
+			<label id="emergencynotificationreceived" style="font-size:8pt"></label> 
+			<br>
+			<label style="font-size:12pt;font-color:black"">Details:</label>
+			<br>
+			<div id="emergencynotificationdetails" class="emergencynotificationdetails"> 
+			</div>
 		</div>		
 	</body>
+	
+
+
+	
+	
 </html>

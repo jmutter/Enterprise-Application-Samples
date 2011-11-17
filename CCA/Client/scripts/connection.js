@@ -29,7 +29,7 @@ function getHTTPObject() {
    return xmlhttp;
 }
 
-function handlePushData(data) {
+function handlePushData(data, pushType) {
 //*************************************************************
 //* This function is called when the application receives data
 //* from a PUSH.
@@ -50,6 +50,9 @@ function handlePushData(data) {
 			if (gBrowserType == gBrowserRippleBlackBerry) {
 				var receivedData = data.payload;  //Use this when testing with Ripple
 			}
+			else if (pushType == 'Internal') {
+				receivedData = data;
+			}
 			else {
 				var receivedData = blackberry.utils.blobToString(data.payload);
 			}
@@ -66,9 +69,9 @@ function handlePushData(data) {
 				jsonData = receivedData.substr(index, size);				
 			}			
 			gJSONPayload = JSON.parse(jsonData);
-			var tempMode;
+			var tempMode;		
 			if (gJSONPayload.Contact != undefined) {	
-				if (gUserApplicationStatus = 'enabled') {	
+				if (gUserApplicationStatus == 'enabled') {	
 					writeLog('handlePushData Finished - Contact payload');
 					processContactsPayload('');					
 				}
@@ -82,7 +85,7 @@ function handlePushData(data) {
 			else if (gJSONPayload.EmergencyCall != undefined) {
 				if (gApplicationStatus = 'enabled') {	
 		    	writeLog('handlePushData Finished - EmergencyCall payload');
-		    	displayEmergencyCall();
+		    	processEmergencyPayload('','Call');
 				}
 				else {
 					tempMode = gDebugMode;
@@ -92,9 +95,10 @@ function handlePushData(data) {
 				}
 			}
 			else if (gJSONPayload.EmergencyNotification != undefined) {		
+				alert ('Processing Notification');				
 		    if (gApplicationStatus = 'enabled') {	
 		    	writeLog('handlePushData Finished - EmergencyNotification payload');
-					displayEmergencyNotification();	
+		    	processEmergencyPayload('','Notification');
 				}				
 				else {
 					tempMode = gDebugMode;
@@ -116,6 +120,7 @@ function handlePushData(data) {
 		errMsg = 'JSON error: ' + e.message;
 	}
 	if (errMsg != '') {
+		alert ('errMsg: ' +errMsg);
 		writeLog('handlePushData Finished - ERROR - ' + errMsg);
 	}
 }
@@ -151,7 +156,7 @@ function postURL(msg) {
    		else { 
 				writeLog('  Updating table entry with No Coverage status');
    			sql = 'UPDATE ' + gTableNameOutstandingURLs + ' SET lastattemptdatetime = \'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\', statuscode = \'NoCoverage\'' + gURLID + '\'';
-				fn_DBUpdateRecord(sql, 'postURL'); 
+				dbUpdateRecord(sql, 'postURL'); 
   		}
   	}	 
   	catch (e) {
@@ -199,7 +204,7 @@ function postURLConfirmation(msg) {
 				writeLog('  Requesting delete');
       	//Need to delete the outstanding URL since it isn't needed anymore
 				sql = 'DELETE FROM ' + gTableNameOutstandingURLs + ' WHERE urlid = \'' + gURLID + '\'';
-				fn_DBDeleteRecord(sql, 'postURLConfirmation');
+				dbDeleteRecord(sql, 'postURLConfirmation');
 			}   
       else {
       	//408 = Request Timeout
@@ -208,7 +213,7 @@ function postURLConfirmation(msg) {
       	//Will not remove URL from table to allow for later processing
 				writeLog('  Updating table entry with status');
    			sql = 'UPDATE ' + gTableNameOutstandingURLs + ' SET lastattemptdatetime = \'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\', statuscode = \'' + gHTTPObject.status + '\' WHERE urlid = \'' + gURLID + '\'';
-				fn_DBUpdateRecord(sql, 'postURLConfirmation');        	
+				dbUpdateRecord(sql, 'postURLConfirmation');        	
       }
     }
   }  
