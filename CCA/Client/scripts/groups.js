@@ -57,13 +57,18 @@ function buildGroupsListing(){
 	document.getElementById('listheader').innerHTML = '<label>Groups</label>';
 	var html = '';
 	if (gUserShowAllGroup == 'True') {
-    html = '<li data-theme="e" style="font-size:10pt"><a onclick="displayContacts(\'AllOfThem\');">' + 'All' + '</a> <span class="ui-li-count">' + gContactRecords.length + '</span>';
+		var totalUsers = 0;
+  	for (counter = 0; counter < gGroupRecords.length; ++counter) {
+    	groupArray = gGroupRecords[counter].split(gDelim);  
+			totalUsers = totalUsers + parseInt(groupArray[2]);	 	
+		}		
+    html = '<li data-theme="e" style="font-size:10pt"><a onclick="displayContacts(\'\',\'AllOfThem\');">' + 'All' + '</a> <span class="ui-li-count">' + totalUsers + '</span>';
 		html += '</li>';
 	 	$('#listofentries').append(html);
 	}
   for (counter = 0; counter < gGroupRecords.length; ++counter) {
     groupArray = gGroupRecords[counter].split(gDelim);  
-    html = '<li data-theme="e" style="font-size:10pt"><a onclick="displayContacts(\'' + groupArray[0] + '\');">' + groupArray[0] + '</a> <span class="ui-li-count">' + groupArray[2] + '</span>';
+    html = '<li data-theme="e" style="font-size:10pt"><a onclick="displayContacts(\'\',\'' + groupArray[0] + '\');">' + groupArray[0] + '</a> <span class="ui-li-count">' + groupArray[2] + '</span>';
 		html += '</li>';
 	 	$('#listofentries').append(html);
 	}
@@ -71,7 +76,7 @@ function buildGroupsListing(){
 	writeLog('buildGroupsListing Finished');	
 }
 
-function displayGroups() {
+function displayGroups(msg) {
 //*************************************************************
 //* This function will display the listing of groups
 //* Parms:
@@ -80,15 +85,31 @@ function displayGroups() {
 //*		Nothing
 //*************************************************************	
 	
-	writeLog('displayGroups Starting');	
-	if (gGroupRecords.length == 0) {
-		writeLog('displayGroups Finished - No Contacts');
-		displayScreen(gScreenNameNoContacts);
+	var errMsg = '';
+	if (msg == '') {
+		writeLog('displayGroups Starting');
+		var	sql = 'SELECT groupname, machinename, contactrecords, recordsreceived FROM ' + gTableNameGroups + ' ORDER BY groupname';
+		dbGetRecords(sql, 'groups', 'displayGroups');
 	}
+	else if (msg == 'DBGETRECORDSSUCCESS') {
+		if (gGroupRecords.length == 0) {
+			writeLog('displayGroups Finished - No Contacts');
+			displayScreen(gScreenNameNoContacts);
+		}
+		else {
+			buildGroupsListing();
+			writeLog('displayGroups Finished');
+			displayScreen(gScreenNameGroups);
+		}	
+	}
+	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
+		errMsg = msg.substring(18);
+	}	
 	else {
-		buildGroupsListing();
-		writeLog('displayGroups Finished');
-		displayScreen(gScreenNameGroups);
+  	errMsg = 'Invalid msg: ' + msg;
+	}	
+	if (errMsg != '') {
+		writeLog('displayGroups Finished - ERROR - '+ errMsg);
 	}
 }
 

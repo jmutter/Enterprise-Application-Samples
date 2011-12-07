@@ -472,8 +472,8 @@ function dbOpenDatabase(msg, functionToCall) {
 		dbCreateTable(gTableNameUser, 'dbOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameUser) {
-		//dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameOutstandingURLs);  
-		dbDropTable(gTableNameOutstandingURLs,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameOutstandingURLs);  
+		//dbDropTable(gTableNameOutstandingURLs,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameOutstandingURLs) {
 		dbCreateTable(gTableNameOutstandingURLs, 'dbOpenDatabase');			

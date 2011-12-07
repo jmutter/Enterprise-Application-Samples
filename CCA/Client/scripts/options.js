@@ -225,14 +225,7 @@ function saveOptions(msg) {
 	else if (msg == 'DBUPDATERECORDSUCCESS') {	
 		gOptionsChangeDetected = false;			
 		displayMessage('Options information saved');
-		getRecords('','saveOptions');
-	}	
-	else if (msg == 'GETRECORDSSUCCESS') {
-		writeLog('saveOptions Finished');	
-		displayGroups();
-	}
-	else if (msg.substring(0,16) == 'GETRECORDSERROR:' ) {
-		errMsg = msg.substring(16);
+		displayGroups('');
 	}
 	else {
 		errMsg = 'Invalid msg: ' + msg;

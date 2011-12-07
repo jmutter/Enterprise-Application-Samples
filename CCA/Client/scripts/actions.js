@@ -84,7 +84,7 @@ function adminDeleteGroup(msg) {
 		else {
 		 	saveURL('',gAdminConfirmationURL);
   		writeLog('adminDeleteGroup Finished');	
-  		resetListings('');
+  		adminNotifyUser();
 		}
 	}
 	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
@@ -254,6 +254,24 @@ function adminEnableApplicationStatus(msg) {
 	if (errMsg != '') {
 		writeLog('adminEnableApplicationStatus - ERROR - ' + errMsg);		
 	}	
+}
+
+function adminNotifyUser() {
+//*************************************************************
+//* This function will notify the user that an administrative
+//* request was processed.
+//* Parms:
+//*		Nothing
+//* Value Returned: 
+//*		Nothing
+//*************************************************************	
+
+	writeLog('adminNotifyUser Starting');
+ 	if (blackberry.app.isForeground == true) {
+ 	 	displayMessage ('An administrative request was received and processed.\nIt has changed the data on your device, so you will be shown the group listing screen when you click OK');
+	} 		
+	displayGroups('');
+	writeLog('adminNotifyUser Finished');
 }
 
 function adminProcessPayload() {
@@ -567,16 +585,16 @@ function formLoad() {
  	//gDebugMode = true;
 	writeLog('Application starting');		
 
-  if (gTestingMode == true) {
- 	 	displayMessage ('You are running in TEST mode.\nCertain pieces of code work differently based on this mode.\nEnsure you set the value appropriately prior to deployment');
- 	  var answer = confirm ('Do you wish to have log messages displayed in alerts for trouble shooting?');
-		if (answer == true) {
-   		answer = confirm ('Are you sure?');
-			if (answer == true) {
-				gTroubleShootingMode = true;
-			}	
-		}
- 	}
+  //if (gTestingMode == true) {
+ 	// 	displayMessage ('You are running in TEST mode.\nCertain pieces of code work differently based on this mode.\nEnsure you set the value appropriately prior to deployment');
+ 	//  var answer = confirm ('Do you wish to have log messages displayed in alerts for trouble shooting?');
+	//	if (answer == true) {
+  // 		answer = confirm ('Are you sure?');
+	//		if (answer == true) {
+	//			gTroubleShootingMode = true;
+	//		}	
+	//	}
+ 	//}
 
   //Register required BlackBerry events
   registerBBEvents();
@@ -586,58 +604,6 @@ function formLoad() {
 	}
 	else {
 		getStarted('');		
-	}
-}
-
-function getRecords(msg, functionToCall){
-//*************************************************************
-//* This function will retrieve records from the database and
-//* build the group listing screen
-//* Parms:
-//*		Success/Failure message from called functions (from callbacks)
-//*		Function name to call when we are done (success or failure)
-//* Value Returned: 
-//*		Nothing
-//*************************************************************
-	
-	var errMsg = '';
-	var sql = '';
-	if (msg == '') {		
-		gParentFunctionToCall = functionToCall;  //Save off function since recursive calls back here won't preserve it
-		writeLog('getRecords Starting');	
-		writeLog('  Retrieving Contacts');
-		sql = 'SELECT contactid, groupname, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts;
-		if (gUserListingOrder == 'FirstName') {
-			sql += ' ORDER BY firstname, lastname';
-		}	
-		else {
-			sql += ' ORDER BY lastname, firstname';
-		}
-		gRetrievalStep = 'contacts';
-		dbGetRecords(sql, 'contacts', 'getRecords');
-	}	
-	else if (msg == 'DBGETRECORDSSUCCESS') {	
-		var counter = 0;
-		if (gRetrievalStep == 'contacts') {
-			writeLog('  Retrieving Groups');
-			sql = 'SELECT groupname, machinename, contactrecords, recordsreceived FROM ' + gTableNameGroups + ' ORDER BY groupname';
-			gRetrievalStep = 'groups';
-			dbGetRecords(sql, 'groups', 'getRecords');
-		}
-		else {	
-			writeLog('getRecords Finished');	
-			window[gParentFunctionToCall]('GETRECORDSSUCCESS');
-		}
-	}
-	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
-		errMsg = msg.substring(18);
-	}
-	else {
-		errMsg = 'Invalid msg: ' + msg;
-	}
-	if (errMsg != '') {
-		writeLog('getRecords Finished - ERROR - ' + errMsg);
-		window[gParentFunctionToCall]('GETRECORDSERROR:' + errMsg);
 	}
 }
 
@@ -690,11 +656,7 @@ function getStarted(msg) {
 		  gUserEmailSender = array[6];
 		  gUserApplicationStatus = array[7];
 		}	
-		getRecords('','getStarted');
-	}
-	else if (msg == 'GETRECORDSSUCCESS') {
-		writeLog('getStarted Finished');
-		displayGroups();
+		displayGroups('');
 	}
 	else if (msg.substring(0,18) == 'DATABASEOPENERROR:') {
 		errMsg = msg.substring(18);
@@ -704,9 +666,6 @@ function getStarted(msg) {
 	}
 	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
 		errMsg = msg.substring(17);
-	}
-	else if (msg.substring(0,16) == 'GETRECORDSERROR:' ) {
-		errMsg = msg.substring(16);
 	}
 	else {
 		errMsg ('Invalid msg: ' + msg); 	
@@ -759,7 +718,7 @@ function handleBackKey() {
 		}
 		else {
 			writeLog('handleBackKey Finished');				
-			displayGroups();
+			displayGroups('');
 		}		
 	}	
 }
@@ -895,6 +854,7 @@ function notifyUser() {
 
 function orientationChangeDetected() {
 	var orientation = window.orientation;
+	//alert ('orientation: ' + orientation);
 	switch(orientation) {
    	case 0:
    		//Top side up.
@@ -949,40 +909,6 @@ function registerBBEvents() {
   writeLog('initializeSecretKey()');
   initializeKeyEvents();
   writeLog('registerBBEvents Finished');
-}
-
-function resetListings(msg) {
-//*************************************************************
-//* This function will reset the listings as a result of a 
-//* push being received.  All data will have been stored in the
-//* database before this function is called
-//* Parms:
-//*		Success/Failure message of recursive calls
-//* Value Returned: 
-//*		Nothing
-//*************************************************************	
-
-	var errMsg = '';
-	if (msg == '') {
-		writeLog('resetListing Starting');
-		getRecords('','resetListings');
-	}
-  else if (msg == 'GETRECORDSSUCCESS') {
-		writeLog('resetListings Finished');
-  	if (blackberry.app.isForeground == true) {
-	 	 	displayMessage ('An administrative request was received and processed.\nIt has changed the data on your device, so you will be shown the group listing screen when you click OK');
-		} 		
-		displayGroups();
-	}
-	else if (msg.substring(0,16) == 'GETRECORDSERROR:' ) {
-		errMsg = msg.substring(16);
-	}
-	else {
-		errMsg = 'Invalid msg: ' + msg;
-	}
-	if (errMsg != '') {
-		writeLog('resetListings Finished - ERROR - ' + errMsg);
-	}
 }
 
 function saveURL(msg, urlToAdd) {
@@ -1083,8 +1009,8 @@ function toggleSection(headerId, contentId, direction) {
 		}
 		else {
 			newIcon = 'images/plus.png';
-	    document.getElementById(headerId).style.borderBottomLeftRadius = '1em';
-  	  document.getElementById(headerId).style.borderBottomRightRadius = '1em';
+	    document.getElementById(headerId).style.borderBottomLeftRadius = '.25em';
+  	  document.getElementById(headerId).style.borderBottomRightRadius = '.25em';
 			//Collapse the contents
 		  content.style.display = 'none';
 		}

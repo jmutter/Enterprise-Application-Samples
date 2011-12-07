@@ -65,18 +65,11 @@ function testingClearTables(msg) {
 			sql = 'DELETE FROM ' + gTableNameOutstandingURLs;			
   	}
 		else {
-			sql = '';
-			getRecords('','testingClearTables');
+			displayGroups('');
 		}
 		if (sql != '') {
 			dbDeleteRecord(sql, 'testingClearTables');	
 		}			
-	}
-	else if (msg == 'GETRECORDSSUCCESS') {
-		displayGroups();
-	}
-	else if (msg.substring(0,16) == 'GETRECORDSERROR:' ) {
-		errMsg = msg.substring(16);
 	}
 	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
 		errMsg = msg.substring(20);

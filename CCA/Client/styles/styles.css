@@ -1,19 +1,20 @@
 /**
  * Global styles shared by all pages.
- */
+*/
 body {
 	font-family: Calibri, Arial;
 	font-size: 100%;
 }
 
 .sectionHeaderAbout {
-	margin: 7px 0 0 0;
-	padding: 0 1em;
+	margin: 15px 10px 0 10px;
+	padding: .25em, .25em, .25em .25em;
 	color: #EFEFEF;
 	text-shadow: 1px 1px 1px black;
+	text-indent: 20px;		
 	border: solid 1px #666;
-	border-top-left-radius: 1em;
-	border-top-right-radius: 1em;
+	border-top-left-radius: .25em;
+	border-top-right-radius: .25em;
 	border-bottom-left-radius: 0em;
 	border-bottom-right-radius: 0em;
 	background-image: 
@@ -22,13 +23,14 @@ body {
 }
 
 .sectionHeaderOptions {
-	margin: 7px 0 0 0;
-	padding: 0 1em;
+	margin: 15px 10px 0 10px;
+	padding: .25em, .25em, .25em .25em;
 	color: #EFEFEF;
 	text-shadow: 1px 1px 1px black;
+	text-indent: 20px;	
 	border: solid 1px #666;
-	border-top-left-radius: 1em;
-	border-top-right-radius: 1em;
+	border-top-left-radius: .25em;
+	border-top-right-radius: .25em;
 	border-bottom-left-radius: 0em;
 	border-bottom-right-radius: 0em;
 	background-image: -webkit-gradient(
@@ -46,14 +48,13 @@ body {
 	float: right;
 }
 
-.sectionContentAbout
-{
+.sectionContentAbout {
 	list-style: none;
-	margin: 0 0 0 0;
+	margin: 0 10px 0 10px;
 	padding: 0;
 
-	border-bottom-left-radius: 1em;
-	border-bottom-right-radius: 1em;
+	border-bottom-left-radius: .25em;
+	border-bottom-right-radius: .25em;
 	border-left: solid 1px #666;
 	border-right: solid 1px #666;
 	border-bottom: solid 1px #666;
@@ -62,14 +63,13 @@ body {
 	clear: both;
 }
 
-.sectionContentOptions
-{
+.sectionContentOptions {
 	list-style: none;
-	margin: 0 0 0 0;
+	margin: 0 10px 0 10px;
 	padding: 0;
 
-	border-bottom-left-radius: 1em;
-	border-bottom-right-radius: 1em;
+	border-bottom-left-radius: .25em;
+	border-bottom-right-radius: .25em;
 	border-left: solid 1px #666;
 	border-right: solid 1px #666;
 	border-bottom: solid 1px #666;
@@ -79,15 +79,18 @@ body {
 }
 
 .radiobutton {
-	text-indent:20px;
+	text-indent: 20px;
+}
+
+.checkbox {
+	text-indent: 10px;
 }
 
 .abouttable {
 	text-indent:10px;
-	border-bottom-left-radius: 1em;
-	border-bottom-right-radius: 1em;
+	border-bottom-left-radius: .25em;
+	border-bottom-right-radius: .25em;
 }
-
 
 ul.section li {
 	padding: 0 0.5em;
@@ -126,7 +129,7 @@ ul.section li.category h3 {
 	border : solid 2px black;
 	padding: 0 1em;
 	height : 300px;	
-	border-bottom-left-radius: 1em;
+	border-bottom-left-radius: .25em;
 }
 .auto {
 	overflow : auto; 

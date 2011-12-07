@@ -190,19 +190,19 @@ function buildContactPanel(contactid, group, firstname, lastname, title, company
 	return html;	
 }
 
-function buildContactsListing(groupName) {
+function buildContactsListing() {
 //*************************************************************
 //* This function will retrieve records from the database and
 //* build the listing screen as appropriate for display
 //* Parms:
-//* 	Name of group that user must belong to in order to display them
+//* 	Nothing
 //* Value Returned: 
 //*		Nothing
 //*************************************************************
 	
 	writeLog('buildContactsListing Starting');	
-	var header = groupName;
-	if (groupName == 'AllOfThem') {
+	var header = gGroupNameSelected;
+	if (gGroupNameSelected == 'AllOfThem') {
 		header = 'All';
 	}
 	writeLog('  Processing ' + gContactRecords.length + ' contacts');	
@@ -214,19 +214,12 @@ function buildContactsListing(groupName) {
 	var html = '';
 	var emails = '';
 	var displayContact = true;
+	
 	var showDivider = false;
-	var contactCounter = 0;
-	for (counter = 0; counter < gContactRecords.length; ++counter) {
-		array = gContactRecords[counter].split(gDelim);	
-		if (array[1] == groupName) {
-			contactCounter++;
-		}	
-	}	
 	if (gUserShowContactDividers == 'True') {
 		showDivider = true;
 	}
-
-	if (contactCounter == 1) {
+	if (gContactRecords.length == 1) {
 		showDivider = false;
 	}
 	
@@ -234,15 +227,14 @@ function buildContactsListing(groupName) {
 	//$('#listofentries').attr('data-filter', 'true');
 	for (counter = 0; counter < gContactRecords.length; ++counter) {
 		array = gContactRecords[counter].split(gDelim);	
-		displayContact = false;
-		if (array[1] == groupName) {
-			displayContact = true;
-		}	
-		else if (groupName == 'AllOfThem') {
+		displayContact = true;
+		if (gGroupNameSelected == 'AllOfThem') {
 			//Check to see if we have already put a contact with this email address in the listing
 			if (emails.indexOf(array[6].toLowerCase() + gDelim) == -1) {
 				emails = emails.toLowerCase() + array[6] + gDelim;
-				displayContact = true;  //Set to show we can display this contact
+			}
+			else {
+				displayContact = false;
 			}
 		}
 		if (displayContact == true) {			
@@ -283,7 +275,7 @@ function buildContactsListing(groupName) {
 	writeLog('buildContactsListing Finished');
 }
 
-function displayContacts(groupName) {
+function displayContacts(msg, groupName) {
 //*************************************************************
 //* This function will build the list of contacts based on the 
 //* selected group from the group listing
@@ -294,12 +286,37 @@ function displayContacts(groupName) {
 //*		Nothing
 //*************************************************************	
 	
-	writeLog('displayContacts Starting');
-	gGroupNameSelected = groupName;			
-	buildContactsListing(groupName);	
-	gScreenDisplayed = gScreenNameContacts;	
-	addContactsMenu();
-	writeLog('displayContacts Finished');
+	var errMsg = '';
+	if (msg == '' || msg == undefined) {
+		writeLog('displayContacts Starting');
+		gGroupNameSelected = groupName;	
+		var	sql = 'SELECT contactid, groupname, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts;
+		if (groupName != 'AllOfThem') {
+			sql += ' WHERE groupname like \'' + gGroupNameSelected + '\'';
+		}
+		if (gUserListingOrder == 'FirstName') {
+			sql += ' ORDER BY firstname, lastname';
+		}	
+		else {
+			sql += ' ORDER BY lastname, firstname';
+		}
+		dbGetRecords(sql, 'contacts', 'displayContacts');
+	}
+	else if (msg == 'DBGETRECORDSSUCCESS') {
+		buildContactsListing();	
+		gScreenDisplayed = gScreenNameContacts;	
+		addContactsMenu();
+		writeLog('displayContacts Finished');
+	}
+	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
+		errMsg = msg.substring(18);
+	}	
+	else {
+  	errMsg = 'Invalid msg: ' + msg;
+	}	
+	if (errMsg != '') {
+		writeLog('displayContacts Finished - ERROR - '+ errMsg);
+	}	
 }
 
 function insertContactRecords(msg, functionToCall) {
@@ -511,7 +528,7 @@ function processContactsPayload(msg) {
   }
   else if (msg == 'UPDATEGROUPSSUCCESS') {
 		writeLog('processContactPayload Finished');
-  	resetListings('');
+  	adminNotifyUser();
 	}   
 	else if (msg.substring(0,20) == 'INSERTCONTACTSERROR:') {
 		errMsg = msg.substring(20);
