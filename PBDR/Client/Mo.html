@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<meta name="viewport" content="width=device-width,height=device-height,user-scalable=no,initial-scale=1.0">
+		<title>jQuery UI Example Page</title>
+		<link type="text/css" href="css/custom-theme/jquery-ui-1.8.16.custom.css" rel="stylesheet" />	
+		<link type="text/css" href="css/custom-theme/jquery.mobile-1.0b1.min.css" rel="stylesheet" />	
+		<link rel="text/css" href="js/jquery.mobile.listview.accordion.css"/>
+		<script type="text/javascript" src="js/jquery.mobile.listview.accordion.js"></script>
+		<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
+		<script type="text/javascript" src="jquery.mobile.listview.js"></script>
+		<script type="text/javascript">
+			$(function(){
+
+				// Accordion
+				$("#accordion").accordion({ header: "h3" });
+	
+				// Tabs
+				$('#tabs').tabs();				
+			});
+		</script>
+		<style type="text/css">
+			/*demo page css*/
+			body{ font: 62.5% "Trebuchet MS", sans-serif; margin: 50px;}
+			.demoHeaders { margin-top: -3em; }			
+			#dialog_link {padding: .4em 1em .4em 20px;text-decoration: none;position: relative;}
+			#dialog_link span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
+			ul#icons {margin: 0; padding: 0;}
+			ul#icons li {margin: 2px; position: relative; padding: 4px 0; cursor: pointer; float: left;  list-style: none;}
+			ul#icons span.ui-icon {float: left; margin: 0 4px;}
+		</style>	
+	</head>
+	<body>	
+		<!-- Tabs -->
+		<h2 class="demoHeaders"></h2>
+		<div id="tabs" >
+			<ul>
+				<li><a href="#tabs-1">Home</a></li>
+				<li><a href="#tabs-2">Documents</a></li>
+				<li><a href="#tabs-3">Contacts</a></li>
+				<li><a href="#tabs-4">RSS</a></li>
+				<li><a href="#tabs-5">Settings</a></li>
+			</ul>
+			<div id="tabs-1"></div> 			
+			<div id="tabs-2">Documents will go here.</div>
+			<div id="tabs-3">
+				<div id="accordion">
+					<div>
+						<h3><a href="#">Jeff Bentley</a></h3>
+						<div>
+						<li>123 any street</li>
+						<li>123 any street</li>
+						Charlotte North Carolina</div>
+					</div>
+					<div>
+						<h3><a href="#">Ol Dizzle Bizzle</a></h3>
+						<div>123 anywhere street
+						Washington DC</div>
+					</div>
+					<div>
+						<h3><a href="#">Thor</a></h3>
+						<div>123 Aboot street
+						Canada</div>
+					</div>
+				</div>
+			</div>
+			<div id="tabs-4">RSS will go here.
+				<ul data-role="listview" data-theme="g">
+					<li><a href="acura.html">Acura</a></li>
+					<li><a href="audi.html">Audi</a></li>
+					<li><a href="bmw.html">BMW</a></li>
+				</ul>			
+			</div>
+			<div id="tabs-5">Settings and things.</div>			
+		</div>	
+	</body>
+</html>
+
+

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:rim="http://www.blackberry.com/ns/widgets" version="1.0.0.0">
+  <name>PlayBook Disaster Recovery Application</name>
+  <description>This application provides a listing of documents, contacts, and RSS feeds for use during an emergency</description>
+  <author rim:copyright="2011" href="www.blackberry.com/developers">Research In Motion</author>
+  <license>This application is provided as a sample, but is fully functional.</license>
+  <feature id="blackberry.app" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.app.event" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.identity" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.system" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.system.event" required="true" version="1.0.0.0"/>
+  <feature id="blackberry.invoke.BrowserArguments" required="true" version="1.0.0.0"/>
+  <access subdomains="true" uri="http://www.dagobahserver.com"/>
+  <icon rim:hover="false" src="images/cca.png"/>
+  <content src="index.html"/>
+  <rim:connection>
+    <id>MDS</id>
+  </rim:connection>
+  <rim:loadingScreen backgroundColor="#000000" foregroundImage="images/loading.gif" onFirstLaunch="true"/>
+  <rim:cache maxCacheSizeTotal="2048"/>
+</widget>

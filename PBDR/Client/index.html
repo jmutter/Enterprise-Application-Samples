@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="user-scalable=no,initial-scale=1.0">
+		
+		<title>PlayBook Disaster Recovery</title>
+  	<!--JQuery Libraries-->
+    <link rel="stylesheet"  href="scripts/jquery.mobile/jquery.mobile-1.0a4.1.min.css" />
+   	<script type="text/javascript" src="scripts/jquery/jquery-1.6.min.js"></script> 
+    <script type="text/javascript" src="scripts/jquery.mobile/jquery.mobile-1.0a4.1.min.js"></script>
+   	<script type="text/javascript" src="scripts/jquery/jquery_collapse.js"></script> 
+  	<!--JQuery Libraries-->
+    <!--Our Libraries-->
+    <link rel="stylesheet"  href="styles/styles.css" />
+    <script type="text/javascript" src="scripts/actions.js"></script>
+    <script type="text/javascript" src="scripts/database.js"></script>
+		<script type="text/javascript" src="scripts/connection.js"></script>
+		<script type="text/javascript" src="scripts/functions.js"></script>
+		<script type="text/javascript" src="scripts/documents.js"></script>
+		<script type="text/javascript" src="scripts/contacts.js"></script>
+		<script type="text/javascript" src="scripts/groups.js"></script>
+		<script type="text/javascript" src="scripts/rss.js"></script>		
+		<script type="text/javascript" src="scripts/settings.js"></script>			
+ 		<!-- Custom JS -->
+    <script>
+				$(document).ready(function(){
+						$('.panel').hide();
+					
+						$('.panelTitle').collapser({
+							target: 'next',
+							effect: 'slide',
+							changeText: 0,
+							expandClass: 'expIco',
+							collapseClass: 'collIco'
+						}, function(){
+							$('.panel').slideUp();
+						});
+				});
+		</script>
+		<!-- Custom JS -->	 	
+	</head>
+
+	<body>			
+		<div id="mainpage" data-role="page" >		
+			<div data-role="controlgroup" data-type="horizontal">
+				<a data-role="button" data-theme="a" onclick="displayScreen('home')">Home</a>
+				<a data-role="button" data-theme="a" onclick="displayScreen('documents')">Documents</a>
+				<a data-role="button" data-theme="a" onclick="displayGroups('')">Contacts</a>
+				<a data-role="button" data-theme="a" onclick="displayScreen('rss')">RSS</a>
+				<a data-role="button" data-theme="a" onclick="loadData('')">Load Data</a>
+			</div>			
+				
+			<div id="home">
+				Starting page
+			</div>
+			
+			<div id="documents">
+				Documents would be listed here
+			</div>
+	
+			<div id="nocontacts">
+				<!--Content will be supplied by the code with an image to simulate a watermark-->
+			</div>
+	
+			<div id="listing" data-theme="b">
+				<div data-role="header" data-theme="b">
+					<h1 id="listheader"></h1>				
+				</div> 			
+				<div data-role="content" data-theme="b">				
+					<ul id="listofentries" data-role="listview" data-inset="true" data-filter="true">
+					<!--Content is dynamically created to display Groups or list of Contacts-->
+  	  		</ul>
+				</div>
+			</div>	
+				
+			<div id="rss">
+				RSS listing would appear here
+			</div>
+			
+			<div id="settings">
+				Settings options go here
+			</div>						
+	</body>	
+</html>
