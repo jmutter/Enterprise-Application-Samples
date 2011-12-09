@@ -1,7 +1,8 @@
-{"EmergencyCall":[
-  {"milliseconds":"1318443259500"
-	,"phonenumber":"866-834-4161 x123456" 
-  	,"details":"just testing.  need to test what this looks like with line returns"  	
-	,"accepturl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=EmergencyCallAccept" 
-	,"declineurl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=EmergencyCallDecline"} 
+{"EmergencyCall":[{"machinename":"CI0000001380643"
+,"confirmationurl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=EmergencyCallProcessed"
+,"milliseconds":"1318443259500"
+,"phonenumber":"866-834-4161 x123456" 
+,"details":"<p>just testing.</p><p>need to test what this looks like with line returns and how to handle them in the payload but build them properly for the display</p>"  	
+,"accepturl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=EmergencyCallAccept" 
+,"declineurl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=EmergencyCallDecline"} 
 ]}

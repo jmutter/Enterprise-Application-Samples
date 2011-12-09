@@ -23,11 +23,14 @@ function addGroupsMenu() {
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItemSeparator1 = new blackberry.ui.menu.MenuItem(true, 1);
 		blackberry.ui.menu.addMenuItem(menuItemSeparator1);
-		var menuItemOptions = new blackberry.ui.menu.MenuItem(false, 2,"Options", displayOptions);
+		var menuItemOptions = new blackberry.ui.menu.MenuItem(false, 2,'Options', displayOptions);
 		blackberry.ui.menu.addMenuItem(menuItemOptions);
-		var menuItemAbout = new blackberry.ui.menu.MenuItem(false, 3,"About", displayAbout);
+		var menuItemAbout = new blackberry.ui.menu.MenuItem(false, 3,'About', displayAbout);
 		blackberry.ui.menu.addMenuItem(menuItemAbout);
-		writeLog('  menu built');		
+		writeLog('  menu built');	
+		if (gTestingMode == true) {
+			addTestingMenu();
+		}	
 	}
 	else {
 		writeLog('  invalid environment for menu');
@@ -111,13 +114,18 @@ function buildGroupsListing(){
 	document.getElementById('listheader').innerHTML = '<label>Groups</label>';
 	var html = '';
 	if (gUserShowAllGroup == 'True') {
-    html = '<li data-theme="e" style="font-size:10pt"><a onclick="displayContacts(\'AllOfThem\');">' + 'All' + '</a> <span class="ui-li-count">' + gContactRecords.length + '</span>';
+		var totalUsers = 0;
+  	for (counter = 0; counter < gGroupRecords.length; ++counter) {
+    	groupArray = gGroupRecords[counter].split(gDelim);  
+			totalUsers = totalUsers + parseInt(groupArray[2]);	 	
+		}		
+    html = '<li data-theme="e" style="font-size:10pt"><a onclick="displayContacts(\'\',\'AllOfThem\');">' + 'All' + '</a> <span class="ui-li-count">' + totalUsers + '</span>';
 		html += '</li>';
 	 	$('#listofentries').append(html);
 	}
   for (counter = 0; counter < gGroupRecords.length; ++counter) {
     groupArray = gGroupRecords[counter].split(gDelim);  
-    html = '<li data-theme="e" style="font-size:10pt"><a onclick="displayContacts(\'' + groupArray[0] + '\');">' + groupArray[0] + '</a> <span class="ui-li-count">' + groupArray[1] + '</span>';
+    html = '<li data-theme="e" style="font-size:10pt"><a onclick="displayContacts(\'\',\'' + groupArray[0] + '\');">' + groupArray[0] + '</a> <span class="ui-li-count">' + groupArray[2] + '</span>';
 		html += '</li>';
 	 	$('#listofentries').append(html);
 	}
@@ -126,7 +134,7 @@ function buildGroupsListing(){
 >>>>>>> a7d6d188708c85f7c2ad68de75ca4c3b4c077114
 }
 
-function displayGroups() {
+function displayGroups(msg) {
 //*************************************************************
 //* This function will display the listing of groups
 //* Parms:
@@ -135,15 +143,31 @@ function displayGroups() {
 //*		Nothing
 //*************************************************************	
 	
-	writeLog('displayGroups Starting');	
-	if (gGroupRecords.length == 0) {
-		writeLog('displayGroups Finished - No Contacts');
-		displayScreen(gScreenNameNoContacts);
+	var errMsg = '';
+	if (msg == '') {
+		writeLog('displayGroups Starting');
+		var	sql = 'SELECT groupname, machinename, contactrecords, recordsreceived FROM ' + gTableNameGroups + ' ORDER BY groupname';
+		dbGetRecords(sql, 'groups', 'displayGroups');
 	}
+	else if (msg == 'DBGETRECORDSSUCCESS') {
+		if (gGroupRecords.length == 0) {
+			writeLog('displayGroups Finished - No Contacts');
+			displayScreen(gScreenNameNoContacts);
+		}
+		else {
+			buildGroupsListing();
+			writeLog('displayGroups Finished');
+			displayScreen(gScreenNameGroups);
+		}	
+	}
+	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
+		errMsg = msg.substring(18);
+	}	
 	else {
-		buildGroupsListing();
-		writeLog('displayGroups Finished');
-		displayScreen(gScreenNameGroups);
+  	errMsg = 'Invalid msg: ' + msg;
+	}	
+	if (errMsg != '') {
+		writeLog('displayGroups Finished - ERROR - '+ errMsg);
 	}
 }
 
@@ -170,7 +194,7 @@ function updateGroups(msg, functionToCall) {
 		if (gInsertGroupCounter < gContactPayloadGroups.length) {			
 			array = gContactPayloadGroups[gInsertGroupCounter].split(gDelim);
 			sql = 'DELETE FROM ' + gTableNameGroups + ' WHERE groupname = \'' + fieldPrepare(array[0]) + '\'';
-			fn_DBDeleteRecord(sql, 'updateGroups');	
+			dbDeleteRecord(sql, 'updateGroups');	
 		}
 		else {	
 			writeLog('updateGroups Finished');
@@ -181,9 +205,9 @@ function updateGroups(msg, functionToCall) {
 		array = gContactPayloadGroups[gInsertGroupCounter].split(gDelim);
 		gInsertGroupCounter++;  //This needs to go after the last usage of the counter to get it incremented 
 		sql = 'INSERT INTO ' + gTableNameGroups;
-		sql += '(groupname, contactrecords, recordsreceived)';
-		sql += ' VALUES(\'' + fieldPrepare(array[0]) + '\',\'' + array[1] + '\',\'' + array[2] + '\')';
-		fn_DBAddRecord(sql, 'updateGroups');		
+		sql += '(groupname, machinename, contactrecords, recordsreceived)';
+		sql += ' VALUES(\'' + fieldPrepare(array[0]) + '\',\'' + array[1] + '\',\'' + array[2] + '\',\'' + array[3] + '\')';
+		dbAddRecord(sql, 'updateGroups');		
 	}
 	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
 		errMsg = msg.substring(20);

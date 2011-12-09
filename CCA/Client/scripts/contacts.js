@@ -17,6 +17,7 @@ var gGroupPayloadCounter = 0;
 var gContactPayloadAddedCounter = 0;
 var gContactPayloadGroupName = '';
 var gContactPayloadGroups;
+var gContactPayloadMachineName;
 var gContactPayloadURL = '';
 var gInsertGroupCounter;
 
@@ -42,7 +43,7 @@ function addContact(msg, email){
 				var contactRecord; 
 				writeLog('  Retrieving user record');
 				sql = 'SELECT contactid, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts + ' WHERE email = \'' + fieldPrepare(email) + '\'';;
-				fn_DBGetRecord(sql, 'addContact');
+				dbGetRecord(sql, 'addContact');
 			}
 		}else if (msg == 'DBGETRECORDSUCCESS') {
 			alert("msg success" + gDBRecordRetrieved.length);
@@ -103,7 +104,7 @@ function addContactsMenu() {
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItemSeparator1 = new blackberry.ui.menu.MenuItem(true, 1);
 		blackberry.ui.menu.addMenuItem(menuItemSeparator1);
-		var menuItemAbout = new blackberry.ui.menu.MenuItem(false, 2,"About", displayAbout);
+		var menuItemAbout = new blackberry.ui.menu.MenuItem(false, 2,'About', displayAbout);
 		blackberry.ui.menu.addMenuItem(menuItemAbout);
 		writeLog('  menu built');		
 	}
@@ -189,19 +190,19 @@ function buildContactPanel(contactid, group, firstname, lastname, title, company
 	return html;	
 }
 
-function buildContactsListing(groupName) {
+function buildContactsListing() {
 //*************************************************************
 //* This function will retrieve records from the database and
 //* build the listing screen as appropriate for display
 //* Parms:
-//* 	Name of group that user must belong to in order to display them
+//* 	Nothing
 //* Value Returned: 
 //*		Nothing
 //*************************************************************
 	
 	writeLog('buildContactsListing Starting');	
-	var header = groupName;
-	if (groupName == 'AllOfThem') {
+	var header = gGroupNameSelected;
+	if (gGroupNameSelected == 'AllOfThem') {
 		header = 'All';
 	}
 	writeLog('  Processing ' + gContactRecords.length + ' contacts');	
@@ -213,19 +214,12 @@ function buildContactsListing(groupName) {
 	var html = '';
 	var emails = '';
 	var displayContact = true;
+	
 	var showDivider = false;
-	var contactCounter = 0;
-	for (counter = 0; counter < gContactRecords.length; ++counter) {
-		array = gContactRecords[counter].split(gDelim);	
-		if (array[1] == groupName) {
-			contactCounter++;
-		}	
-	}	
 	if (gUserShowContactDividers == 'True') {
 		showDivider = true;
 	}
-
-	if (contactCounter == 1) {
+	if (gContactRecords.length == 1) {
 		showDivider = false;
 	}
 	
@@ -233,15 +227,14 @@ function buildContactsListing(groupName) {
 	//$('#listofentries').attr('data-filter', 'true');
 	for (counter = 0; counter < gContactRecords.length; ++counter) {
 		array = gContactRecords[counter].split(gDelim);	
-		displayContact = false;
-		if (array[1] == groupName) {
-			displayContact = true;
-		}	
-		else if (groupName == 'AllOfThem') {
+		displayContact = true;
+		if (gGroupNameSelected == 'AllOfThem') {
 			//Check to see if we have already put a contact with this email address in the listing
 			if (emails.indexOf(array[6].toLowerCase() + gDelim) == -1) {
 				emails = emails.toLowerCase() + array[6] + gDelim;
-				displayContact = true;  //Set to show we can display this contact
+			}
+			else {
+				displayContact = false;
 			}
 		}
 		if (displayContact == true) {			
@@ -282,7 +275,7 @@ function buildContactsListing(groupName) {
 	writeLog('buildContactsListing Finished');
 }
 
-function displayContacts(groupName) {
+function displayContacts(msg, groupName) {
 //*************************************************************
 //* This function will build the list of contacts based on the 
 //* selected group from the group listing
@@ -293,12 +286,37 @@ function displayContacts(groupName) {
 //*		Nothing
 //*************************************************************	
 	
-	writeLog('displayContacts Starting');
-	gGroupNameSelected = groupName;			
-	buildContactsListing(groupName);	
-	gScreenDisplayed = gScreenNameContacts;	
-	addContactsMenu();
-	writeLog('displayContacts Finished');
+	var errMsg = '';
+	if (msg == '' || msg == undefined) {
+		writeLog('displayContacts Starting');
+		gGroupNameSelected = groupName;	
+		var	sql = 'SELECT contactid, groupname, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts;
+		if (groupName != 'AllOfThem') {
+			sql += ' WHERE groupname like \'' + gGroupNameSelected + '\'';
+		}
+		if (gUserListingOrder == 'FirstName') {
+			sql += ' ORDER BY firstname, lastname';
+		}	
+		else {
+			sql += ' ORDER BY lastname, firstname';
+		}
+		dbGetRecords(sql, 'contacts', 'displayContacts');
+	}
+	else if (msg == 'DBGETRECORDSSUCCESS') {
+		buildContactsListing();	
+		gScreenDisplayed = gScreenNameContacts;	
+		addContactsMenu();
+		writeLog('displayContacts Finished');
+	}
+	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
+		errMsg = msg.substring(18);
+	}	
+	else {
+  	errMsg = 'Invalid msg: ' + msg;
+	}	
+	if (errMsg != '') {
+		writeLog('displayContacts Finished - ERROR - '+ errMsg);
+	}	
 }
 
 function insertContactRecords(msg, functionToCall) {
@@ -318,7 +336,7 @@ function insertContactRecords(msg, functionToCall) {
   	writeLog('insertContactRecords Starting');		
 		gInsertCounter = 0;
 		sql = 'DELETE FROM ' + gTableNameContacts + ' WHERE groupname = \'' + fieldPrepare(gContactPayloadGroupName) + '\'';
-		fn_DBDeleteRecord(sql, 'insertContactRecords');		
+		dbDeleteRecord(sql, 'insertContactRecords');		
 	}
 	else if (msg == 'DBDELETERECORDSUCCESS' || msg == 'DBADDRECORDSUCCESS') {
 		if (gContactCounter < gJSONPayload.Contact.length) { 
@@ -347,7 +365,7 @@ function insertContactRecords(msg, functionToCall) {
 				sql += ')';
 				gContactCounter ++;
 				gContactPayloadAddedCounter ++;
-				fn_DBAddRecord(sql, 'insertContactRecords');
+				dbAddRecord(sql, 'insertContactRecords');
 			}
 			else {
 				gContactCounter ++;
@@ -386,6 +404,7 @@ function processContactsPayload(msg) {
 
 	var sql = '';
 	var errMsg = '';
+	var abort = false;
 	if (msg == '') {
   	writeLog('processContactPayload Starting');
   	var groupsFound = '';
@@ -394,12 +413,13 @@ function processContactsPayload(msg) {
   	var counter;	
 		for (counter = 0; counter < gJSONPayload.Contact.length; ++counter) {
 			//Validate that all required properties exist in the object and if not, make them blank.
+			//If any field is undefined, change to blank for consistent testing
+			if (gJSONPayload.Contact[counter].machinename == undefined) {
+				gJSONPayload.Contact[counter].machinename = '';
+			}
 			if (gJSONPayload.Contact[counter].confirmationurl == undefined) {
 				gJSONPayload.Contact[counter].confirmationurl = '';
 			}
-			if (counter == 0) {
-				gContactPayloadURL = myTrim(gJSONPayload.Contact[counter].confirmationurl);
-			}	
 			if (gJSONPayload.Contact[counter].groupname == undefined) {
 				gJSONPayload.Contact[counter].groupname = '';
 			}		
@@ -447,8 +467,15 @@ function processContactsPayload(msg) {
 			}	
 			if (gJSONPayload.Contact[counter].country == undefined) {
 				gJSONPayload.Contact[counter].country = '';
-			}																						
-			//Validate that we have certain fields, otherwise insert text to let the user know there was a problem
+			}	
+			
+			//Get our reserved values from the 1st record only
+			if (counter == 0) {
+				gContactPayloadMachineName = myTrim(gJSONPayload.Contact[counter].machinename);
+				gContactPayloadURL = myTrim(gJSONPayload.Contact[counter].confirmationurl);
+			}			
+																									
+			//Set needed values to a default if not supplied in the payload
 			if (gJSONPayload.Contact[counter].groupname == '') {
 				gJSONPayload.Contact[counter].groupname = 'Not Defined';
 			}	
@@ -469,7 +496,14 @@ function processContactsPayload(msg) {
 			}
   	}
 	}
-  if (msg == '' || msg == 'INSERTCONTACTSSUCCESS') {
+	
+	//Analyze if we have a machine name for recording
+	if (gContactPayloadMachineName == '') {
+		abort = true;
+		errMsg = 'Could not process Contacts payload due to missing MachineName value';  	
+	}
+
+  if (abort == false && (msg == '' || msg == 'INSERTCONTACTSSUCCESS')) {
   	if (msg == '') {
   		groupsFound = groupsFound.substr(0,groupsFound.length - 4);  //Remove last delimeter
 			gContactPayloadGroups = groupsFound.split('<-->')
@@ -479,14 +513,14 @@ function processContactsPayload(msg) {
   	if (gGroupPayloadCounter < gContactPayloadGroups.length) { 
   		gContactPayloadGroupName = gContactPayloadGroups[gGroupPayloadCounter];
   		if (msg == 'INSERTCONTACTSSUCCESS') {
-    		gContactPayloadGroups[gGroupPayloadCounter - 1] = gContactPayloadGroups[gGroupPayloadCounter - 1] + gDelim + gContactPayloadAddedCounter.toString() + gDelim + getDate(gUserDateDisplay) + ' @ ' + getTime();
+    		gContactPayloadGroups[gGroupPayloadCounter - 1] = gContactPayloadGroups[gGroupPayloadCounter - 1] + gDelim + gContactPayloadMachineName + gDelim + gContactPayloadAddedCounter.toString() + gDelim + getDate(gUserDateDisplay) + ' @ ' + getTime();
   		}
   		gContactCounter = 0;
   		gContactPayloadAddedCounter = 0;
   		insertContactRecords('','processContactsPayload');
   	}
   	else {
-  		gContactPayloadGroups[gGroupPayloadCounter - 1] =gContactPayloadGroups[gGroupPayloadCounter - 1] + gDelim + gContactPayloadAddedCounter.toString() + gDelim + getDate(gUserDateDisplay) + ' @ ' + getTime();
+  		gContactPayloadGroups[gGroupPayloadCounter - 1] =gContactPayloadGroups[gGroupPayloadCounter - 1] + gDelim + gContactPayloadMachineName + gDelim + gContactPayloadAddedCounter.toString() + gDelim + getDate(gUserDateDisplay) + ' @ ' + getTime();
   		saveURL('', gContactPayloadURL);
   		updateGroups('', 'processContactsPayload');  	
   	}
@@ -494,8 +528,8 @@ function processContactsPayload(msg) {
   }
   else if (msg == 'UPDATEGROUPSSUCCESS') {
 		writeLog('processContactPayload Finished');
-  	resetListings('');
-	}  
+  	adminNotifyUser();
+	}   
 	else if (msg.substring(0,20) == 'INSERTCONTACTSERROR:') {
 		errMsg = msg.substring(20);
 	}
@@ -506,6 +540,13 @@ function processContactsPayload(msg) {
 		errMsg = 'Invalid msg: ' + msg;
 	}
 	if (errMsg != '') {
+		var tempCode = gDebugMode;
+		if (abort == true) {
+			gDebugMode = true;
+		}
 		writeLog('processContactPayload Finished - ERROR - ' + errMsg);
+		if (abort == true) {
+			gDebugMode = tempCode;
+		}
 	}
 }
