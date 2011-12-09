@@ -2,16 +2,19 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<meta name="viewport" id="viewport" content="height=device-height,width=device-width,initial-scale=1,user-scalable=yes" />
+		<meta name="viewport" content="user-scalable=no,initial-scale=1.0">
 		
 		<title>Emergency Contact List</title>
-  	<!--CSS-->
-  	<link rel="stylesheet" href="scripts/jquery.mobile/jquery.mobile.min.css" type="text/css"/>
-   	<script type="text/javascript" src="scripts/jquery/jquery-1.6.2.min.js"></script> 
-    <script type="text/javascript" src="scripts/jquery.mobile/jquery.mobile.min.js"></script>
-    <script type="text/javascript" src="scripts/jquery/jquery_collapse.js"></script>
+  	<!--JQuery Libraries-->
+    <link rel="stylesheet"  href="scripts/jquery.mobile/jquery.mobile-1.0a4.1.min.css" />
+   	<script type="text/javascript" src="scripts/jquery/jquery-1.6.min.js"></script> 
+    <script type="text/javascript" src="scripts/jquery.mobile/jquery.mobile-1.0a4.1.min.js"></script>
+   	<script type="text/javascript" src="scripts/jquery/jquery_collapse.js"></script> 
+  	<!--JQuery Libraries-->
+    <!--Our Libraries-->
+    <link rel="stylesheet"  href="styles/styles.css" />
     <script type="text/javascript" src="scripts/actions.js"></script>
-		<script type="text/javascript" src="scripts/database.js"></script>
+    <script type="text/javascript" src="scripts/database.js"></script>
 		<script type="text/javascript" src="scripts/connection.js"></script>
 		<script type="text/javascript" src="scripts/functions.js"></script>
 		<script type="text/javascript" src="scripts/contacts.js"></script>
@@ -20,6 +23,7 @@
 		<script type="text/javascript" src="scripts/options.js"></script>			
 		<script type="text/javascript" src="scripts/about.js"></script>	
 		<script type="text/javascript" src="scripts/secretkey.js"></script>
+
  		<!-- Custom JS -->
     <script>
 				$(document).ready(function(){
@@ -36,9 +40,10 @@
 						});
 				});
 		</script>
-		<!-- Custom JS -->		
+		<!-- Custom JS -->	 	
 	</head>
 
+<<<<<<< HEAD
 	<body>
 		<!--
 		This is the JQuery Mobile implementation of a page. Here we define three sections for a header, content, and footer.
@@ -64,46 +69,51 @@
 				</ul>	
 			</div>
 			<div data-role="footer" class="footer-docs" data-theme="c">
+=======
+	<body>			
+		<div id="listing" data-role="page" data-theme="b">
+			<div data-role="header" data-theme="b">
+				<h1 id="listheader"></h1>				
+			</div> 			
+			<div data-role="content" data-theme="b">				
+				<ul id="listofentries" data-role="listview" data-inset="true" data-filter="true">
+  	  	</ul>
+>>>>>>> a7d6d188708c85f7c2ad68de75ca4c3b4c077114
 			</div>
 		</div>	
+		
+		<div id="nocontacts" data-role="page">
+			No contacts to list
+		</div>			
 
-		<div id="options">
-			<label style="position:absolute; top:3px; left:5px">User Options</label>
-			<label style="position:absolute; top:30px; left:5px;">Listing Order</label>
-			<input type="radio" style="position:absolute; top:60px; left:20px" name="listingorder" id="rbListingLastName" value="LastName" onchange="rbListingLastName_Click()">
-			<label style="position:absolute; top:60px; left:50px; font-size:10pt">By Lastname</label>
-			<input type="radio" style="position:absolute; top:90px; left:20px" name="listingorder" id="rbListingFirstName" value="FirstName" onclick="rbListingFirstName_Click()">
-			<label style="position:absolute; top:90px; left:50px; font-size:10pt">By Firstname</label>			
-			<label style="position: absolute; top: 130px; left: 5px;">Date Display</label>			
-			<input type="radio" style="position:absolute; top:160px; left:20px" name="datedisplay" id="rbDateDisplayMMDDYYYY" value="MMDDYYYY" onchange="rbDateDisplayMMDDYYYY_Click()">
-			<label style="position:absolute; top:160px; left:50px; font-size:10pt">MM/DD/YYYY</label>
-			<input type="radio" style="position:absolute; top:190px; left:20px" name="datedisplay" id="rbDateDisplayDDMMYYYY" value="DDMMYYYY" onchange="rbDateDisplayDDMMYYYY_Click()">
-			<label style="position:absolute; top:190px; left:50px; font-size:10pt">DD/MM/YYYY</label>
-			<input type="radio" style="position:absolute; top:220px; left:20px" name="datedisplay" id="rbDateDisplayYYYYMMDD" value="YYYYMMDD" onchange="rbDateDisplayYYYYMMDD_Click()">
-			<label style="position:absolute; top:220px; left:50px; font-size:10pt">YYYY-MM-DD</label>			
-			<label style="position: absolute; top:260px; left: 5px;">Contact Display</label>			
-			<input type="radio" style="position:absolute; top:290px; left:20px" name="contacteffect" id="rbContactEffectBlind" value="Blind" onchange="rbContactEffectBlind_Click()">
-			<label style="position:absolute; top:290px; left:50px; font-size:10pt">Blind</label>
-			<input type="radio" style="position:absolute; top:320px; left:20px" name="contacteffect" id="rbContactEffectClip" value="Clip" onchange="rbContactEffectClip_Click()">
-			<label style="position:absolute; top:320px; left:50px; font-size:10pt">Clip</label>
-			<input type="radio" style="position:absolute; top:350px; left:20px" name="contacteffect" id="rbContactEffectDrop" value="Drop" onchange="rbContactEffectDrop_Click()">
-			<label style="position:absolute; top:350px; left:50px; font-size:10pt">Drop</label>
-			<input type="radio" style="position:absolute; top:380px; left:20px" name="contacteffect" id="rbContactEffectExplode" value="Explode" onchange="rbContactEffectExplode_Click()">
-			<label style="position:absolute; top:380px; left:50px; font-size:10pt">Explode</label>
-		</div>	
+		<div id="options"> 	
+			<h2 id="optionsgroupsheader" onclick="toggleSection('optionsgroupsheader','optionsgroupscontent')">Groups<img src="images/minus.png"/></h2>
+			<ul id="optionsgroupscontent" class="section">
+				<li><td><input id="cbShowAllGroup" type="checkbox" onchange="cbShowAllGroup_Change()"/> Show 'All' listing</td></li>
+			</ul>				
+			<h2 id="optionscontactsheader" onclick="toggleSection('optionscontactsheader','optionscontactscontent')">Contacts<img src="images/minus.png"/></h2>
+			<ul id="optionscontactscontent" class="section">
+				<li><td><label >Listing Order</label></td></li>
+				<li class="radiobutton"><td><input type="radio" name="listingorder" id="rbListingLastName" value="LastName" onchange="rbListingLastName_Change()"> By LastName</td></li>
+				<li class="radiobutton"><td><input type="radio" name="listingorder" id="rbListingFirstName" value="FirstName" onchange="rbListingFirstName_Change()"> By FirstName</td></li>		
+				<li><td><input id="cbShowContactDividers" type="checkbox" onchange="cbShowContactDividers_Change()"/> Show name divders</td></li>	
+				<li><td><input id="cbShowTitleOnContactBar" type="checkbox" onchange="cbShowTitleOnContactBar_Change()"/> Show title on bar</td></li>	
+				<li><td><input id="cbShowCompanyOnContactBar" type="checkbox" onchange="cbShowCompanyOnContactBar_Change()"/> Show company on bar</td></li>		
+			</ul>	
+			<h2 id="optionsgeneralheader" onclick="toggleSection('optionsgeneralheader','optionsgeneralcontent')">General<img src="images/minus.png"/></h2>
+			<ul id="optionsgeneralcontent" class="section">
+				<li><td><label >Date Display</label></td></li>
+				<li class="radiobutton"><td><input type="radio" name="datedisplay" id="rbDateDisplayMMDDYYYY" value="MMDDYYYY" onchange="rbDateDisplayMMDDYYYY_Change()"> mm/dd/yyyy</td></li>
+				<li class="radiobutton"><td><input type="radio" name="datedisplay" id="rbDateDisplayDDMMYYYY" value="DDMMYYYY" onchange="rbDateDisplayDDMMYYYY_Change()"> dd/mm/yyyy</td></li>
+				<li class="radiobutton"><td><input type="radio" name="datedisplay" id="rbDateDisplayYYYYMMDD" value="YYYYMMDD" onchange="rbDateDisplayYYYYMMDD_Change()"> yyyy-mm-dd</td></li>
+			</ul>	
+		</div>
 
-		<div id="about">
-			<label>No about info to show</label>
-		</div>	
-				
-		<div id="emergencycall">
-			<label style="position:absolute; top:5px; left:40px; font-size:20pt">Emergency Call</label>
-			<label style="position:absolute; top:70px; left:7px"; font-size:8pt>When:</label>
-			<input type="text" disabled="disabled" style="position:absolute; top:69px; left:100px; height:19px; width:245px; font-size:8pt" id=emergencycalldatetime>
-			<label style="position:absolute; top:105px; left:7px"; font-size:8pt>Number:</label>
-			<input type="text" disabled="disabled" style="position:absolute; top:104px; left:100px; height:19px; width:245px; font-size:8pt" id=emergencycallphonenumber>
-			<label style="position:absolute; top:140px; left:7px"; font-size:8pt>Details:</label>
-			<textarea readonly="readonly" style="position:absolute; padding-top:0px padding-bottom:0px; padding-left:0px; padding-right:0px; font-family:Arial; color:#254117; top:170px; left:10px" rows="25" cols="67" id="emergencycalldetails"></textarea>
+		<div id="about"> 	
+			<h2 id="aboutgeneralheader" onclick="toggleSection('aboutgeneralheader','aboutgeneralcontent')">Groups<img src="images/minus.png"/></h2>
+			<ul id="aboutgeneralcontent" class="section">
+				<li><td><input id="cbAllGroup" type="checkbox" onchange="cbAllGroup_Change()"/> Nuts</td></li>
+			</ul>		
 		</div>		
 
 		<div id="emergencynotification">

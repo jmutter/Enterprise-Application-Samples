@@ -5,6 +5,26 @@
 
 //Global Variables
 
+function addAboutMenu() {
+//*************************************************************
+//* This function will add the appropriate menu items for the 
+//* Options screen
+//* Parms:
+//*		Nothing
+//* Value Returned: 
+//*		Nothing
+//*************************************************************		
+	writeLog('addAboutMenu Starting');
+	if (gBrowserType == gBrowserBlackBerry || gBrowserType == gBrowserRippleBlackBerry) {	
+		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
+		writeLog('  menu built');		
+	}
+	else {
+		writeLog('  invalid environment for menu');
+	}
+	writeLog('addAboutMenu Finished');
+}
+
 function displayAbout(msg) {	
 //*************************************************************
 //* This function will display the about screen with the appropriate
@@ -19,10 +39,14 @@ function displayAbout(msg) {
 	if (msg == undefined) {
 		msg = '';
 	}	
-	alert('displayAbout msg: ' + msg);
 	
-  if (msg = '') {
+  if (msg == '') {
   	writeLog('displayAbout Starting');
+  	document.getElementById(gScreenNameAbout).style.backgroundImage = "url(images/background-about.jpg)";
+		document.getElementById(gScreenNameAbout).style.width = screen.availWidth + "px";
+		document.getElementById(gScreenNameAbout).style.height = screen.availHeight + "px";
+		document.getElementById(gScreenNameAbout).style.backgroundRepeat = "repeat";
+		displayScreen (gScreenNameAbout);
   }
   else {
   	errMsg = 'Invalid msg: ' + msg;

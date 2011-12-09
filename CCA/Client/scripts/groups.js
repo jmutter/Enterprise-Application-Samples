@@ -5,10 +5,10 @@
 
 //Global Variables
 var gGroupCounter;
-var gGroupRecords;
-var gGroupScreenIsVisible = false;
+var gGroupRecords = new Array();
+var gRetrievalStep = '';
 
-function addMenuGroups() {
+function addGroupsMenu() {
 //*************************************************************
 //* This function will add the appropriate menu items for the 
 //* Groups screen
@@ -18,33 +18,34 @@ function addMenuGroups() {
 //*		Nothing
 //*************************************************************	
 	
-	writeLog('addMenuGroups Starting');	
-	try {
+	writeLog('addGroupsMenu Starting');	
+	if (gBrowserType == gBrowserBlackBerry || gBrowserType == gBrowserRippleBlackBerry) {	
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItemSeparator1 = new blackberry.ui.menu.MenuItem(true, 1);
-		var menuItemOptions = new blackberry.ui.menu.MenuItem(false, 2,"Options", buildOptions);
-		var menuItemAbout = new blackberry.ui.menu.MenuItem(false, 3,"About", displayAbout);
 		blackberry.ui.menu.addMenuItem(menuItemSeparator1);
+		var menuItemOptions = new blackberry.ui.menu.MenuItem(false, 2,"Options", displayOptions);
 		blackberry.ui.menu.addMenuItem(menuItemOptions);
+		var menuItemAbout = new blackberry.ui.menu.MenuItem(false, 3,"About", displayAbout);
 		blackberry.ui.menu.addMenuItem(menuItemAbout);
-		writeLog('addMenuGroups Finished');
-	} 
-	catch (e) {
-		writeLog('addMenuGroups Finished - ERROR - ' + e.message);
+		writeLog('  menu built');		
 	}
+	else {
+		writeLog('  invalid environment for menu');
+	}	
+	writeLog('addGroupsMenu Finished');
 }
 
-function buildGroupsListing(msg, functionToCall){
+function buildGroupsListing(){
 //*************************************************************
 //* This function will retrieve records from the database and
 //* build the group listing screen
 //* Parms:
-//*		Success/Failure message from called functions (from callbacks)
-//*		Function name to call when we are done (success or failure)
+//*		Nothing
 //* Value Returned: 
 //*		Nothing
 //*************************************************************
 	
+<<<<<<< HEAD
 	var errMsg = '';
 	var sql = '';
 	if (msg == '') {		
@@ -100,86 +101,53 @@ function buildGroupsListing(msg, functionToCall){
 		writeLog('buildGroupsListing Finished - ERROR - ' + errMsg);
 		window[gParentFunctionToCall]('BUILDGROUPSLISTINGERROR:' + errMsg);
 	}
+=======
+	writeLog('buildGroupsListing Starting');	
+	writeLog('  Processing ' + gGroupRecords.length + ' groups');
+	var counter = 0;
+	var groupArray;	
+	$('#listofentries').empty();
+	//$('#listofentries').removeAttr('data-filter');
+	document.getElementById('listheader').innerHTML = '<label>Groups</label>';
+	var html = '';
+	if (gUserShowAllGroup == 'True') {
+    html = '<li data-theme="e" style="font-size:10pt"><a onclick="displayContacts(\'AllOfThem\');">' + 'All' + '</a> <span class="ui-li-count">' + gContactRecords.length + '</span>';
+		html += '</li>';
+	 	$('#listofentries').append(html);
+	}
+  for (counter = 0; counter < gGroupRecords.length; ++counter) {
+    groupArray = gGroupRecords[counter].split(gDelim);  
+    html = '<li data-theme="e" style="font-size:10pt"><a onclick="displayContacts(\'' + groupArray[0] + '\');">' + groupArray[0] + '</a> <span class="ui-li-count">' + groupArray[1] + '</span>';
+		html += '</li>';
+	 	$('#listofentries').append(html);
+	}
+	$('#listofentries').listview('refresh');
+	writeLog('buildGroupsListing Finished');	
+>>>>>>> a7d6d188708c85f7c2ad68de75ca4c3b4c077114
 }
 
-function displayGroups(msg) {
+function displayGroups() {
 //*************************************************************
 //* This function will display the listing of groups
 //* Parms:
-//*		Success/Failure message from called functions (from callbacks)
+//*		Nothing
 //* Value Returned: 
 //*		Nothing
 //*************************************************************	
 	
-	var errMsg = '';
-	var sql = '';
-	if (msg == '') {		
-		writeLog('displayGroups Starting');	
-		buildGroupsListing('','displayGroups');
-	}
-	else if (msg.substring(0,24) == 'BUILDGROUPSLISTINGERROR:' ) {
-		errMsg = msg.substring(24);
-	}
-	else if (msg == 'BUILDGROUPSNOENTRIES') {
-		writeLog('displayGroups Finished');
+	writeLog('displayGroups Starting');	
+	if (gGroupRecords.length == 0) {
+		writeLog('displayGroups Finished - No Contacts');
 		displayScreen(gScreenNameNoContacts);
 	}
-	else if (msg == 'BUILDGROUPSONEENTRY') {
-		buildContactsListing('','displayGroups');
-	}
-	else if (msg == 'BUILDGROUPSSUCCESS') {
+	else {
+		buildGroupsListing();
 		writeLog('displayGroups Finished');
 		displayScreen(gScreenNameGroups);
-	}	
-	else if (msg.substring(0,26) == 'BUILDCONTACTSLISTINGERROR:' ) {
-		errMsg = msg.substring(26);
-	}	
-	else if (msg == 'BUILDCONTACTSLISTINGSUCCESS') {
-		writeLog('displayGroups Finished');
-		displayScreen(gScreenNameContacts);
-	}		
-	else {
-		errMsg = 'Invalid msg: ' + msg; 	
-	} 
-	if (errMsg != '') {
-		writeLog('displayGroups Finished - ERROR - ' + errMsg);
 	}
 }
 
-
-function showContactsFromSelectedGroup(msg, groupName) {
-//*************************************************************
-//* This function will build the list of contacts based on the 
-//* selected group from the group listing
-//* Parms:
-//*		Success/Failure message from called functions (from callbacks)
-//*   Group to build listing from
-//* Value Returned: 
-//*		Nothing
-//*************************************************************	
-	
-	var errMsg = '';
-	if (msg == '') {
-		writeLog('showContactsFromSelectedGroup Starting');
-		gGroupNameSelected = groupName;
-		buildContactsListing('','showContactsFromSelectedGroup');		
-	}
-	else if (msg.substring(0,26) == 'BUILDCONTACTSLISTINGERROR:' ) {
-		errMsg = msg.substring(26);
-	}	
-	else if (msg == 'BUILDCONTACTSLISTINGSUCCESS') {
-		writeLog('showContactsFromSelectedGroup Finished');
-		displayScreen(gScreenNameContacts);
-	}		
-	else {
-		errMsg = 'Invalid msg: ' + msg; 	
-	} 
-	if (errMsg != '') {
-		writeLog('showContactsFromSelectedGroup Finished - ERROR - ' + errMsg);
-	}
-}
-
-function updateGroups(msg) {
+function updateGroups(msg, functionToCall) {
 //*************************************************************
 //* This function will add all groups that were specified when
 //* adding contacts from a JSON payload.
@@ -193,31 +161,32 @@ function updateGroups(msg) {
   var array;
   var sql;
   if (msg == '') {
-  	writeLog('upateGroups Starting');		 
+  	writeLog('upateGroups Starting');		
+  	gParentFunctionToCall = functionToCall; 
 		gInsertGroupCounter = 0;
   	msg = 'DBADDRECORDSUCCESS';  //Set to default to start the process
 	}
 	if (msg == 'DBADDRECORDSUCCESS') {
 		if (gInsertGroupCounter < gContactPayloadGroups.length) {			
 			array = gContactPayloadGroups[gInsertGroupCounter].split(gDelim);
-			sql = 'DELETE FROM ' + gTableNameGroups + ' WHERE groupname = \'' + array[0] + '\'';
+			sql = 'DELETE FROM ' + gTableNameGroups + ' WHERE groupname = \'' + fieldPrepare(array[0]) + '\'';
 			fn_DBDeleteRecord(sql, 'updateGroups');	
 		}
-		else {			
+		else {	
 			writeLog('updateGroups Finished');
-			displayGroups('');
+			window[gParentFunctionToCall]('UPDATEGROUPSSUCCESS');		
 		}
-	}
-	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
-		errMsg = msg.substring(20);
 	}
 	else if (msg == 'DBDELETERECORDSUCCESS') {
 		array = gContactPayloadGroups[gInsertGroupCounter].split(gDelim);
 		gInsertGroupCounter++;  //This needs to go after the last usage of the counter to get it incremented 
 		sql = 'INSERT INTO ' + gTableNameGroups;
-		sql += '(groupname,contactrecords,recordsreceived)';
-		sql += ' VALUES(\'' + array[0] + '\',\'' + array[1] + '\',\'' + array[2] + '\')';
+		sql += '(groupname, contactrecords, recordsreceived)';
+		sql += ' VALUES(\'' + fieldPrepare(array[0]) + '\',\'' + array[1] + '\',\'' + array[2] + '\')';
 		fn_DBAddRecord(sql, 'updateGroups');		
+	}
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
+		errMsg = msg.substring(20);
 	}
 	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
 		errMsg = msg.substring(17);
@@ -227,5 +196,6 @@ function updateGroups(msg) {
 	}	
 	if (errMsg != '') {
 		writeLog('updateGroups Finished - ERROR - '+ errMsg);
+		window[gParentFunctionToCall]('UPDATEGROUPSERROR:' + errMsg);	
 	}
 }

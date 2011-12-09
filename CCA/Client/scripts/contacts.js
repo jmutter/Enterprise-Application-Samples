@@ -1,11 +1,16 @@
 //*************************************************************
 //* This library contains all functions and global variables
 //* that pertain to the listing screen.
+//*
+//* Options are only available from the Group listing menu 
+//* to aleviate any problems with data changing while the options 
+//* screen was displayed.  This also helps for re-ordering if 
+//* the user chnages the way the contacts should be listed
 //*************************************************************	
 
 //Global Variables
 var gContactCounter = 0;
-var gContactRecords;
+var gContactRecords = new Array();
 var gGroupCounter = 0;
 var gGroupNameSelected = '';
 var gGroupPayloadCounter = 0;
@@ -19,7 +24,7 @@ function addContact(msg, email){
 
 	alert("adding msg" + msg + "email: " + email);
 	try {
-		if (msg.length == 0){
+		if (msg == ''){
 			alert("msge set right");
 			//Set up the FilterExpressions used to search the contact list 		
 			var filter = new blackberry.find.FilterExpression("email1", "REGEX", email);	
@@ -36,8 +41,7 @@ function addContact(msg, email){
 		
 				var contactRecord; 
 				writeLog('  Retrieving user record');
-				sql = 'SELECT contactid, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts + ' WHERE email = \'' + email + '\'';;
-		
+				sql = 'SELECT contactid, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts + ' WHERE email = \'' + fieldPrepare(email) + '\'';;
 				fn_DBGetRecord(sql, 'addContact');
 			}
 		}else if (msg == 'DBGETRECORDSUCCESS') {
@@ -84,7 +88,7 @@ function addContact(msg, email){
 
 } 
 
-function addMenuContacts() {
+function addContactsMenu() {
 //*************************************************************
 //* This function will add the appropriate menu items for the 
 //* Contacts screen
@@ -94,40 +98,176 @@ function addMenuContacts() {
 //*		Nothing
 //*************************************************************	
 	
-	writeLog('addMenuContacts Starting');	
-	try {
+	writeLog('addContactsMenu Starting');
+	if (gBrowserType == gBrowserBlackBerry || gBrowserType == gBrowserRippleBlackBerry) {
 		blackberry.ui.menu.clearMenuItems();  //Clear the menu items		
 		var menuItemSeparator1 = new blackberry.ui.menu.MenuItem(true, 1);
 		blackberry.ui.menu.addMenuItem(menuItemSeparator1);
-		var menuItemOptions = new blackberry.ui.menu.MenuItem(false, 2,"Options", buildOptions);
-		blackberry.ui.menu.addMenuItem(menuItemOptions);
-		var menuItemAbout = new blackberry.ui.menu.MenuItem(false, 3,"About", displayAbout);
+		var menuItemAbout = new blackberry.ui.menu.MenuItem(false, 2,"About", displayAbout);
 		blackberry.ui.menu.addMenuItem(menuItemAbout);
-		if (gDebugMode == true) {
-		  var menuItemSeparator2 = new blackberry.ui.menu.MenuItem(true, 3);
-			blackberry.ui.menu.addMenuItem(menuItemSeparator2);
-			//var menuItemTestData = new blackberry.ui.menu.MenuItem(false, 4,"Add Test Data", requestTestData);			
-			//blackberry.ui.menu.addMenuItem(menuItemTestData);
-		}
-		writeLog('addMenuContacts Finished');			
-	} 
-	catch (e) {
-		writeLog('addMenuContacts Finished - ERROR - ' + e.message);
+		writeLog('  menu built');		
 	}
+	else {
+		writeLog('  invalid environment for menu');
+	}
+	writeLog('addContactsMenu Finished');		
 }
 
-function applyAccordion(){
+function buildContactPanel(contactid, group, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country) {	
 //*************************************************************
-//* This function will apply a JQuery method to allow the contact
-//* entry in the listing to expand and contract within the listing.
+//* This function will build the panel title and details for 
+//* each contact record using the detail values supplied.
 //* Parms:
-//*		Nothing
+//* 	All necessary detail values to build the panel
 //* Value Returned: 
 //*		Nothing
 //*************************************************************
+	
+	var commaCheck = '';
+	var html = '';
+	html += '<div class="panelTitle ui-header ui-bar-c collIco" data-role="header" data-position="inline">';
+	if (gUserListingOrder == 'FirstName') {
+		html += '<div style="font-size:10pt; font-weight:strong">' + firstname + ' ' + lastname + '</div>';
+	}
+	else {
+		html += '<div style="font-size:10pt; font-weight:strong">' + lastname + ', ' + firstname + '</div>';
+	}
+	if (title != '' && gUserShowTitleOnContactBar == 'True') {
+		html += '<div style="font-size:7pt; color:#7E2217; font-weight:normal">' + title + '</div>';
+	}
+	if (company != '' && gUserShowCompanyOnContactBar == 'True') {
+		html += '<div style="font-size:7pt; font-weight:normal">' + company + '</div>';
+	}	
+	html += '</div>';
+	html += '<div class="panel">';
+	html +=	'<div class="ui-body-e">';
+	if (gGroupNameSelected == 'AllOfThem') {
+		html += '<div style="font-size:7pt; font-weight:normal">' + 'Group: ';
+		html += '<label style="font-size:9pt; color:#006600; font-weight:normal">' + group + '</label></div>';
+	}
+	if (title != '' && gUserShowTitleOnContactBar != 'True') {
+		html += '<div style="font-size:9pt; color:#347235; font-weight:normal">' + title + '</div>';
+	}
+	if (company != '' && gUserShowCompanyOnContactBar != 'True') {
+		html += '<div style="font-size:9pt; color:#AF7817; font-weight:normal">' + company + '</div>';
+	}	
+	if (email != '') {
+		html +=	'<div><img src="images/email.png"/>';
+		html +=	'<a style="font-size:9pt; font-weight:normal" href="mailto:' + email + '?subject=Emergency_Contact&body=Please contact me at">  ' + email + '</a></div>';
+	}
+	if (workphone != '') {
+		html += '<div><img src="images/phone.png"/><label style="font-size:7pt; font-weight:normal"> (w):</label>';
+		html += '<a style="font-size:9pt; font-weight:normal" href="tel:' + workphone + '">' + workphone +'</a></div>';
+	}
+	if (mobilephone != '') {
+		html += '<div><img src="images/phone.png"/><label style="font-size:7pt; font-weight:normal"> (m):</label>';
+		html += '<a style="font-size:9pt; font-weight:normal" href="tel:'+ mobilephone + '">' + mobilephone + '</a></div>';
+	}
+	if (homephone != '') {
+		html += '<div><img src="images/phone.png"/><label style="font-size:7pt; font-weight:normal"> (h):</label>';
+		html += '<a style="font-size:9pt; font-weight:normal" href="tel:'+ homephone +'">' + homephone + '</a></div>';
+	}
+	if(pin != '') {
+		html += '<div><img src="images/pin.png"/><label style="font-size:7pt; font-weight:normal"> pin:</label>';
+		html += '<a style="font-size:9pt; font-weight:normal" href="pin:' + pin+ '">' + pin + '</a></div>';
+	}
+	if (address != '') {			
+		html += '<div style="font-size:9pt; font-weight:normal">' + address + '</div>';
+	}
+	if (address2 != '') {			
+		html += '<div style="font-size:9pt; font-weight:normal">' + address2 + '</div>';
+	}
+	if (city != '' || state != '' || country != '') {			
+		commaCheck = ((city != '' && state != '') ? (city + ', ' + state) : (city + state));
+		html += '<div style="font-size:9pt; font-weight:normal">' + commaCheck + '  ' + zipcode + '  ' + country + '</div>';
+	}
+	if (email != '') {
+	var escapedE = email.replace(".", "");
+		html +=	'<div><a style="font-size:8pt; font-weight:normal" href="javascript:addContact(\'\'\,\'' + contactid + '\')"><img src="images/plus.png"/>  Add to Contacts</a></div>';
+	} 
+	html += '</div>';
+	return html;	
+}
 
-  $('.panel').hide();
-                                                                    
+function buildContactsListing(groupName) {
+//*************************************************************
+//* This function will retrieve records from the database and
+//* build the listing screen as appropriate for display
+//* Parms:
+//* 	Name of group that user must belong to in order to display them
+//* Value Returned: 
+//*		Nothing
+//*************************************************************
+	
+	writeLog('buildContactsListing Starting');	
+	var header = groupName;
+	if (groupName == 'AllOfThem') {
+		header = 'All';
+	}
+	writeLog('  Processing ' + gContactRecords.length + ' contacts');	
+	var panel = '';
+	var array;
+	var counter;
+	var prevChar = '';
+	var char = '';
+	var html = '';
+	var emails = '';
+	var displayContact = true;
+	var showDivider = false;
+	var contactCounter = 0;
+	for (counter = 0; counter < gContactRecords.length; ++counter) {
+		array = gContactRecords[counter].split(gDelim);	
+		if (array[1] == groupName) {
+			contactCounter++;
+		}	
+	}	
+	if (gUserShowContactDividers == 'True') {
+		showDivider = true;
+	}
+
+	if (contactCounter == 1) {
+		showDivider = false;
+	}
+	
+	$('#listofentries').empty();
+	//$('#listofentries').attr('data-filter', 'true');
+	for (counter = 0; counter < gContactRecords.length; ++counter) {
+		array = gContactRecords[counter].split(gDelim);	
+		displayContact = false;
+		if (array[1] == groupName) {
+			displayContact = true;
+		}	
+		else if (groupName == 'AllOfThem') {
+			//Check to see if we have already put a contact with this email address in the listing
+			if (emails.indexOf(array[6].toLowerCase() + gDelim) == -1) {
+				emails = emails.toLowerCase() + array[6] + gDelim;
+				displayContact = true;  //Set to show we can display this contact
+			}
+		}
+		if (displayContact == true) {			
+			html = '';	
+			if (showDivider == true) {
+				if (gUserListingOrder == 'FirstName') {
+					char = array[2].substr(0,1).toUpperCase();
+				}
+				else {
+					char = array[3].substr(0,1).toUpperCase();
+				}		
+				if (prevChar != char) {
+					html = '<li style="font-size:8pt; font-weight:strong" data-role="list-divider">' + char + '</li>';
+				}
+				prevChar = char;
+			}
+			panel = buildContactPanel(array[0], array[1], array[2], array[3], array[4], array[5], array[6], array[7], array[8], array[9], array[10],array[11],array[12],array[13],array[14],array[15], array[16]);
+			html += panel;
+			$('#listofentries').append(html);
+		}
+	}
+	$('#listofentries').listview('refresh');
+	
+	//Apply the JQuery Mobile plug-in to build an accordian looking effect
+	//applyAccordion();
+	$('.panel').hide();                                                                    
   $('.panelTitle').collapser( {
     target: 'next',
     effect: 'slide',
@@ -137,140 +277,28 @@ function applyAccordion(){
   }, function() {
     $('.panel').slideUp();
   });
+  
+	document.getElementById('listheader').innerHTML = '<label>' + header + '</label>';	
+	writeLog('buildContactsListing Finished');
 }
 
-function buildContactsListing(msg, functionToCall){
+function displayContacts(groupName) {
 //*************************************************************
-//* This function will retrieve records from the database and
-//* build the listing screen as appropriate for display
+//* This function will build the list of contacts based on the 
+//* selected group from the group listing
 //* Parms:
 //*		Success/Failure message from called functions (from callbacks)
-//*		Function name to call when we are done (success or failure)
+//*   Group to build listing from
 //* Value Returned: 
 //*		Nothing
-//*************************************************************
+//*************************************************************	
 	
-	var errMsg = '';
-	var sql = '';
-	if (msg == '') {		
-		gParentFunctionToCall = functionToCall;  //Save off function since recursive calls back here won't preserve it
-		writeLog('buildContactsListing Starting');	
-		writeLog('  Retrieving contact entries for: ' + gGroupNameSelected);
-		sql = 'SELECT contactid, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts;
-		sql += ' WHERE groupname = \'' + gGroupNameSelected + '\'';
-		if (gUserListingOrder == 'FirstName') {
-		  sql += ' ORDER BY firstname, lastname';
-		}	
-		else {
-		  sql += ' ORDER BY lastname, firstname';
-		}
-		fn_DBGetRecords(sql, 'buildContactsListing');
-	}	
-	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
-		errMsg = msg.substring(18);
-	}
-	else if (msg == 'DBGETRECORDSSUCCESS') {	
-		if (gDBRecordsRetrieved.length == 0) {
-			writeLog('    no records');	
-			if (gGroupNameSelected != '') {
-				writeLog('    Severe error - records missing for: ' + gGroupNameSelected);
-			}
-			else {			
-				var html = '<div class="panelTitle ui-header ui-bar-a collIco" data-role="header" data-position="inline">';
-				html += '<div id="recordTitle"><h3>' + 'No contact records' + '</h3></div>';	
-				html += '</div>';		
-				$('#listprofiles').append(html);
-			}	
-		}	
-		else {
-			writeLog('    ' + gDBRecordsRetrieved.length + ' contacts');	
-			var panel = '';
-			var array;
-			var counter;
-			$('#listprofiles').empty();
-			for (counter = 0; counter < gDBRecordsRetrieved.length; ++counter) {
-				//Our main listitem that display's the user's name
-				array = gDBRecordsRetrieved[counter].split(gDelim);	
-	
-				panel = buildContactsPanels_div(array[1], array[2], array[3], array[4], array[5], array[6], array[7], array[8], array[9], array[10],array[11],array[12],array[13],array[14],array[15]);
-				$('#listprofiles').append(panel);
-			}
-		}	
-		//Here we replace the list with our new data and call a JQuery Mobile refresh.
-		//$('#listprofiles').html(html).listview("refresh");
-		$('#listprofiles').listview("refresh");
-		applyAccordion();
-		
-		writeLog('buildContactsListing Finished');
-		window[gParentFunctionToCall]('BUILDCONTACTSLISTINGSUCCESS');
-	}	
-	else {
-		errMsg = 'Invalid msg: ' + msg; 	
-	} 
-	if (errMsg != '') {
-		writeLog('buildContactsListing Finished - ERROR - ' + errMsg);
-		window[gParentFunctionToCall]('BUILDCONTACTSLISTINGERROR:' + errMsg);
-	}
-}
-
-function buildContactsPanels_div(firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country) {	
-	
-	var commaCheck = '';
-	
-	try {	
-		var html = '';
-		html += '<div class="panelTitle ui-header ui-bar-a collIco" data-role="header" data-position="inline">';
-		if (gUserListingOrder == 'FirstName') {
-			html += '<div id="recordTitle"><h3>' + firstname + ' ' + lastname + '</h3></div>';
-		}
-		else {
-			html += '<div id="recordTitle"><h3>' + lastname + ', ' + firstname + '</h3></div>';
-		}
-		//Check to make sure we clean up errant commas
-		commaCheck = ((title != '' && company != '')? (title + ', ' + company) : (title + company));
-		
-		html += '<div id="recordSubTitle">' + commaCheck + '</div>';
-		html += '</div>';
-		html += '<div class="panel">';
-		html +=	'<div class="ui-body ui-body-a">';
-		html +=	'<div id="emailAddress"><img src="images/email.png"/>';
-		html +=	'<a href="mailto:' + email + '?subject=Emergency_Contact&body=Please contact me at">  ' + email + '</a></div>';
-		
-		if (workphone != '') {
-			html += '<div id="workPhone"><img src="images/phone.png"/><label for name="workTel"> (w):</label>';
-			html += '<a name="workTel" href="tel:' + workphone + '">' + workphone +'</a></div>';
-		}
-		if (mobilephone != '') {
-			html += '<div id="mobilePhone"><img src="images/phone.png"/><label for name="mobileTel"> (m):</label>';
-			html += '<a name="mobileTel" href="tel:'+ mobilephone + '">' + mobilephone + '</a></div>';
-		}
-		if (homephone != '') {
-			html += '<div id="homePhone"><img src="images/phone.png"/><label for name=\"homeTel\">  (h):</label>';
-			html += '<a name="homeTel" href="tel:'+ homephone +'">' + homephone + '</a></div>';
-		}
-		if(pin != '') {
-			html += '<div id="pinNumber"><img src="images/pin.png"/><label for name="pinNum"> pin:</label>';
-			html += '<a name="pinNum" href="pin:' + pin+ '">' + pin + '</a></div><br/>';
-		}
-		if (address != '' || address2 != '') {			
-			html += '<div id="addressAddress2"  data-theme="a">' + address + ' ' + address2 + '</div>';
-		}
-		if (city != '' || state != '' || country != '') {			
-			commaCheck = ((city != '' && state != '') ? (city + ', ' + state) : (city + state));
-			html += '<div id="cityStateZip" >' + commaCheck + '   ' + zipcode + '  ' + country + '</div></div>';
-		}
-		if (email != '') {
-			var escapedE = email.replace(".", "");
-			html +=	'<div class="ui-bar ui-bar-a"><a href="javascript:addContact(\'\'\,\'' + email + '\')"><img src="images/plus.gif"/>  Add to Contacts</a></div></div>';
-		} 
-		else {
-			html +=	'<div class="ui-bar ui-bar-a"></div></div>';
-		}
-	}
-	catch (e) {
-		alert('exception (): ' + e.name + '; ' + e.message);
-	}	
-	return html;	
+	writeLog('displayContacts Starting');
+	gGroupNameSelected = groupName;			
+	buildContactsListing(groupName);	
+	gScreenDisplayed = gScreenNameContacts;	
+	addContactsMenu();
+	writeLog('displayContacts Finished');
 }
 
 function insertContactRecords(msg, functionToCall) {
@@ -289,14 +317,8 @@ function insertContactRecords(msg, functionToCall) {
 		gParentFunctionToCall = functionToCall;
   	writeLog('insertContactRecords Starting');		
 		gInsertCounter = 0;
-		sql = 'DELETE FROM ' + gTableNameContacts + ' WHERE groupname = \'' + gContactPayloadGroupName + '\'';
+		sql = 'DELETE FROM ' + gTableNameContacts + ' WHERE groupname = \'' + fieldPrepare(gContactPayloadGroupName) + '\'';
 		fn_DBDeleteRecord(sql, 'insertContactRecords');		
-	}
-	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
-		errMsg = msg.substring(20);
-	}
-	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
-		errMsg = msg.substring(17);
 	}
 	else if (msg == 'DBDELETERECORDSUCCESS' || msg == 'DBADDRECORDSUCCESS') {
 		if (gContactCounter < gJSONPayload.Contact.length) { 
@@ -306,22 +328,22 @@ function insertContactRecords(msg, functionToCall) {
 				//sql += '(contactid,firstname,lastname,title,company,email,pin,workphone,mobilephone,homephone,address,address2,city,state,zipcode,country)';
 				sql += '(contactid,groupname,firstname,lastname,title,company,email,pin,workphone,mobilephone,homephone,address,address2,city,state,zipcode,country)';		
 				sql += ' VALUES(null';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].groupname + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].firstname + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].lastname + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].title + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].company + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].email + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].pin + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].workphone + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].mobilephone + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].homephone + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].address + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].address2 + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].city + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].state + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].zipcode + '\'';
-				sql += ', \'' + gJSONPayload.Contact[gContactCounter].country + '\'';																																							
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].groupname) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].firstname) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].lastname) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].title) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].company) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].email.toLowerCase()) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].pin) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].workphone) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].mobilephone) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].homephone) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].address) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].address2) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].city) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].state) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].zipcode) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].country) + '\'';																																							
 				sql += ')';
 				gContactCounter ++;
 				gContactPayloadAddedCounter ++;
@@ -337,8 +359,11 @@ function insertContactRecords(msg, functionToCall) {
 			window[gParentFunctionToCall]('INSERTCONTACTSSUCCESS');			
 		}
 	}
-	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
 		errMsg = msg.substring(20);
+	}
+	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
+		errMsg = msg.substring(17);
 	}
 	else {
 		errMsg = 'Invalid msg: ' + msg;
@@ -438,15 +463,16 @@ function processContactsPayload(msg) {
 			}	
 			//Look for groupname to see if we already have this	
 			groupName = gJSONPayload.Contact[counter].groupname;
-			if (groupsFound.toLowerCase().indexOf(groupName.toLowerCase() + gDelim) == -1) {
-				groupsFound += groupName + gDelim
+			groupName = groupName.replace("'","");  //Remove apostrophe as this affects our onclick for the group
+			if (groupsFound.toLowerCase().indexOf(groupName.toLowerCase() + '<-->') == -1) {
+				groupsFound += groupName + '<-->'
 			}
   	}
 	}
   if (msg == '' || msg == 'INSERTCONTACTSSUCCESS') {
   	if (msg == '') {
-  		groupsFound = groupsFound.substr(0,groupsFound.length - gDelim.length);  //Remove last delimeter
-			gContactPayloadGroups = groupsFound.split(gDelim)
+  		groupsFound = groupsFound.substr(0,groupsFound.length - 4);  //Remove last delimeter
+			gContactPayloadGroups = groupsFound.split('<-->')
 			writeLog('  Processing ' + gContactPayloadGroups.length + ' groups');
 			gGroupPayloadCounter = 0;
   	}
@@ -462,13 +488,19 @@ function processContactsPayload(msg) {
   	else {
   		gContactPayloadGroups[gGroupPayloadCounter - 1] =gContactPayloadGroups[gGroupPayloadCounter - 1] + gDelim + gContactPayloadAddedCounter.toString() + gDelim + getDate(gUserDateDisplay) + ' @ ' + getTime();
   		saveURL('', gContactPayloadURL);
-		  writeLog('processContactPayload Finished');
-  		updateGroups('');  		
+  		updateGroups('', 'processContactsPayload');  	
   	}
   	gGroupPayloadCounter++;
   }
+  else if (msg == 'UPDATEGROUPSSUCCESS') {
+		writeLog('processContactPayload Finished');
+  	resetListings('');
+	}  
 	else if (msg.substring(0,20) == 'INSERTCONTACTSERROR:') {
 		errMsg = msg.substring(20);
+	}
+	else if (msg.substring(0,13) == 'UPDATEGROUPS:') {
+		errMsg = msg.substring(13);
 	}
 	else {
 		errMsg = 'Invalid msg: ' + msg;

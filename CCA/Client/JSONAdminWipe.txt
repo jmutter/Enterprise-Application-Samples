@@ -1,4 +1,0 @@
-{"Administration":[
-  {"request":"wipe"
-	,"confirmationurl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=WipeWorked"} 
-]}

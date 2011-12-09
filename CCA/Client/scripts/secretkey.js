@@ -25,7 +25,6 @@ function checkKeySequence(){
 	if (currentKeySequence == secretKeySequence){
 		currentKeySequence = '';
 		gDebugMode = true;	
-		addMenu_Listing();	
 		writeLog('Secret code entered - DebugMode');
 		alert('secret code entered');		
 	}

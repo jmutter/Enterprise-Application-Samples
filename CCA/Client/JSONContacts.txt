@@ -3,6 +3,8 @@
 	,"confirmationurl":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=ContactsAdded"
 	,"firstname":"Jeffrey"
 	,"lastname":"Bentley" 
+  	,"company":"RIM"
+  	,"title":"Mobile Application Architect"
   	,"email":"jbentley@rim.com"
   	,"workphone":"704-508-1600"
   	,"mobilephone":"704-819-5071"
@@ -30,7 +32,7 @@
 	,"lastname":"Thornton" 
   	,"email":"bthornton@rim.com"
   	,"workphone":"519-999-9999"} 
- ,  {"groupname":"Management"
+ ,  {"groupname":"Managers"
 	,"firstname":"John"
 	,"lastname":"Mutter" 
   	,"email":"jmutter@rim.com"
