@@ -119,7 +119,7 @@ function displayScreen(screenName) {
  	$('#listing').hide();
  	$('#' + gScreenNameRSS).hide();
  	$('#' + gScreenNameSettings).hide();
-
+	
 	if (screenName == gScreenNameHome) {
 	  $('#' + gScreenNameHome).show('slow');
 	}

@@ -9,20 +9,29 @@
     <link rel="stylesheet"  href="scripts/jquery.mobile/jquery.mobile-1.0a4.1.min.css" />
    	<script type="text/javascript" src="scripts/jquery/jquery-1.6.min.js"></script> 
     <script type="text/javascript" src="scripts/jquery.mobile/jquery.mobile-1.0a4.1.min.js"></script>
-   	<script type="text/javascript" src="scripts/jquery/jquery_collapse.js"></script> 
+   	<script type="text/javascript" src="scripts/jquery/jquery_collapse.js"></script>
+	
+	<script type="text/javascript" src="scripts/jquery/jquery-ui.min.js"></script>
+   	<link rel="stylesheet" type="text/css" href="styles/jquery-ui.css">  
+  	
+  	
   	<!--JQuery Libraries-->
     <!--Our Libraries-->
     <link rel="stylesheet"  href="styles/styles.css" />
+    <link rel="stylesheet"  href="styles/swipe.css" />
+    
+    
     <script type="text/javascript" src="scripts/actions.js"></script>
     <script type="text/javascript" src="scripts/database.js"></script>
-		<script type="text/javascript" src="scripts/connection.js"></script>
-		<script type="text/javascript" src="scripts/functions.js"></script>
-		<script type="text/javascript" src="scripts/documents.js"></script>
-		<script type="text/javascript" src="scripts/contacts.js"></script>
-		<script type="text/javascript" src="scripts/groups.js"></script>
-		<script type="text/javascript" src="scripts/rss.js"></script>		
-		<script type="text/javascript" src="scripts/settings.js"></script>			
- 		<!-- Custom JS -->
+	<script type="text/javascript" src="scripts/connection.js"></script>
+	<script type="text/javascript" src="scripts/functions.js"></script>
+	<script type="text/javascript" src="scripts/documents.js"></script>
+	<script type="text/javascript" src="scripts/contacts.js"></script>
+	<script type="text/javascript" src="scripts/groups.js"></script>
+	<script type="text/javascript" src="scripts/rss.js"></script>		
+	<script type="text/javascript" src="scripts/settings.js"></script>			
+	<script type="text/javascript" src="scripts/swipe.js"></script>
+	<!-- Custom JS -->
     <script>
 				$(document).ready(function(){
 						$('.panel').hide();
@@ -49,10 +58,20 @@
 				<a data-role="button" data-theme="a" onclick="displayGroups('')">Contacts</a>
 				<a data-role="button" data-theme="a" onclick="displayScreen('rss')">RSS</a>
 				<a data-role="button" data-theme="a" onclick="loadData('')">Load Data</a>
+				<a data-role="button" data-theme="a" onclick="showMenuBar('')">Launch Swipe Down Menu</a>
 			</div>			
 				
+			<div id="menuBar">
+				<ul id="menuBarLinks">
+					<li onclick="doMenuAction('Action 1')"> Settings </li>					
+				</ul>
+				<ul id="menuBarButton">					
+					<li onclick="hideMenuBar()"> Close </li>
+				</ul>
+			</div>  	
+				
 			<div id="home">
-				Starting page
+				Starting page				
 			</div>
 			
 			<div id="documents">
