@@ -2,51 +2,5 @@ body {
 			font-family: Arial;
 			background-color: #a5b2c2;
 		}
-		#menuBar {
-			position: fixed; 
-			left:0px; 
-			top:-3em;
-			z-index:1000; 
-			width:100%;
-			padding: 0.25em;
-			clear: both;
-			
-			border-bottom: solid 2px black;
-			font-size: 1.5em;
-			
-			background-image: -webkit-gradient( linear, left top, left bottom, color-stop(0.31, rgb(122,121,121)), color-stop(0.66, rgb(79,77,77)), color-stop(0.83, rgb(56,54,56)) );
-		}
+
 		
-		/* Use CSS3 transition to produce an animation effect for opening/closing the menuBar from the top bezel */
-		.showMenuBar {
-			-webkit-transition: all 0.5s ease-in-out;
-			-webkit-transform: translate(0, 3em);		
-		}
-		.hideMenuBar {
-			-webkit-transition: all 0.5s ease-in-out;
-			-webkit-transform: translate(0, -3em);
-		}
-		
-		/* Use list elements to define and organize 'buttons' that the user can interact with from the menuBar */
-		#menuBar ul { 
-			list-style: none; 
-			margin: 0; 
-			padding:0; 
-		}
-		#menuBar ul li { 
-			float: left; 
-			margin-right: 0.5em; 
-			padding: 0.25em; 
-			background-color: #96999e;
-			border-radius: 0.5em;
-			cursor: pointer; 
-			text-shadow: rgb(122,121,121) 3px 3px 3px;
-		}
-		
-		/* Position groups of buttons on each side of the menuBar */
-		#menuBarLinks { 
-			float: left;			
-		}
-		#menuBarButton { 
-			float: right; 
-		}

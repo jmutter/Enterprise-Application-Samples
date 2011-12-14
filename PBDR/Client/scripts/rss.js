@@ -5,3 +5,7 @@
 
 //Global Variables
 var gRSSRecords ='';
+
+function displayRSS(msg){
+	alert("clicked display RSS");
+}

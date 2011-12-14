@@ -1,0 +1,122 @@
+/*  Copyright 2010-2011 Research in Motion
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+html, body {
+	margin:		0;
+	padding:	0;	
+}
+
+.stage {
+	width:				100%;
+	height:				100%;
+	position:			relative;
+	overflow:			hidden;
+	-webkit-transform:	translateZ(0);
+}
+
+#main {
+	width:							1024px;
+	height:							610px;
+	position:						relative;
+	overflow:						hidden;
+	-webkit-backface-visibility:	hidden;
+	-webkit-animation:				dummy-loop 1s infinite;
+	-webkit-transform:				translateZ(0);
+}
+
+.backgroundstate {
+	width:								1024px;
+	height:								610px;
+	opacity:							0;
+	position:							absolute;
+	top:								0px;
+	left:								0px;
+ 	background-repeat:					no-repeat; 
+	background-position:				center center;
+	-webkit-animation-fill-mode:		forwards;
+	-webkit-animation-duration:			1.5s;
+	-webkit-animation-iteration-count:	1;
+	-webkit-transform:					translateZ(0);
+}
+
+
+#background {
+	background-image:	url('../images/background.png');
+}
+
+#data {
+	font-family:	"Arial Black", Arial;
+	font-size:		78px;
+	font-weight:	900;
+	color:			#FFF;	
+	letter-spacing:	-5px;
+	text-shadow:	8px 8px 8px #111;
+	position:		absolute;
+	text-align:		center;
+	bottom:			0;
+	padding-bottom:	50px;
+	width:			100%;
+}
+
+
+
+#overlay {
+	position:						absolute;
+	width:							1024px;
+	height:							600px;
+	top:							0px;
+	left:							0px;
+	background-color:				#fff;
+	opacity:						1.0;
+	-webkit-transition-property:	opacity;
+	-webkit-transition-duration:	1s;
+	z-index:						99999;
+}
+
+
+
+@-webkit-keyframes dummy-loop {
+	from {
+		-webkit-transform:	scale(1.0);
+	} to {
+		-webkit-transform:	scale(1.0);
+	}
+}
+
+@-webkit-keyframes slide-up {
+	from {
+		bottom:	-268px;
+	} to {
+		bottom:	0;
+	}
+}
+
+@-webkit-keyframes slide-up2 {
+	from {
+		bottom:	-168px
+	} to {
+		bottom:	0;
+	}
+}
+
+@-webkit-keyframes fade_in {
+	0% {
+		opacity:	0;
+	} 100% {
+		opacity:	1;
+	}
+}
+
+

@@ -1,16 +1,56 @@
-addEventListener('load', setHandlers, false);
 
-function showMenuBar()
+function newSettings()
 {
-	document.getElementById("menuBar").className = "showMenuBar";
-}
-
-function hideMenuBar()
-{
-	document.getElementById("menuBar").className = "hideMenuBar";
+	//TODO: need better way to modify html vs loading into htmlDlg variable 	
+	
+	var html = 
+				   	'<div class="ui-body>' +
+				   	'<div data-role="fieldcontain">' +
+    '<fieldset data-role="controlgroup">' +
+	   '<legend>Agree to the terms:</legend>' +
+	   '<input type="checkbox" name="checkbox-1" id="checkbox-1" class="custom" />' +
+	   '<label for="checkbox-1">I agree</label>' +
+    '</fieldset>' +
+'</div>' +
+				   	
+				   	
+				   	'<div data-role="fieldcontain">' +
+		   			'<fieldset data-role="controlgroup">' +
+				   	'<legend>Groups:</legend>' +
+			     	'<input type="checkbox" name="cbShowAllGroup" id="cbShowAllGroup"/>' +
+			     	'<label for="cbShowAllGroups">Show All Listing</label>' +
+			      '</fieldset>' +
+						'</div>' +
+				   	'<div data-role="fieldcontain">' +
+				  	'<fieldset data-role="controlgroup">' +
+				   	'<legend>Listing Order:</legend>' +
+				   	'<input type="radio" name="listingorder" id="rbListingLastName" value="LastName" onchange="rbListingLastName_Change()"/>' +
+			     	'<label for="rbListingLastName">By LastName</label>' +
+				   	'<input type="radio" name="listingorder" id="rbListingFirstName" value="FirstName" onchange="rbListingFirstName_Change()"/>' +
+			     	'<label for="rbListingFirstName">By FirstName</label>' +
+				  	'</fieldset>' +
+						'</div>' +
+						'</div>'							
+	//TODO: need to style the dialog window, add a button/icon for pressing (apply/cancel)
+	$(document).ready(function() {	
+		var $dialog = $('<div></div>')
+		///.html('This dialog will show every time!')
+		.html(html)
+		.dialog({
+			autoOpen: false,
+			width: '80%',
+			height: 'auto',
+			title: 'Disaster Recovery Settings'
+		});	
+		$(document).ready(function() {
+			$dialog.dialog('open');
+			// prevent the default action, e.g., following a link
+			return false;
+		}); 
+	});
 }	
 
-function doMenuAction(msg)
+function menuSettings()
 {
 	//TODO: need better way to modify html vs loading into htmlDlg variable 	
 	
@@ -74,7 +114,7 @@ function doMenuAction(msg)
 				autoOpen: false,
 				width: 'auto',
 				height: 'auto',
-				title: 'Disaster Recover Application Settings'
+				title: 'Disaster Recovery Settings'
 			});	
 		
 		$(document).ready(function() {
@@ -86,13 +126,3 @@ function doMenuAction(msg)
 	
 	hideMenuBar();
 }	
-
-function setHandlers()
-{
-	if ((typeof blackberry == "undefined") || (typeof blackberry.app == "undefined")) return false;
-	
-	//WebWorks API Reference guide:
-	//	http://www.blackberry.com/developers/docs/webworks/api/playbook/
-	//
-	blackberry.app.event.onSwipeDown(showMenuBar);
-}

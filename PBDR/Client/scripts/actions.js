@@ -121,7 +121,7 @@ function displayScreen(screenName) {
  	$('#' + gScreenNameSettings).hide();
 	
 	if (screenName == gScreenNameHome) {
-	  $('#' + gScreenNameHome).show('slow');
+ 		$('#' + gScreenNameHome).show();
 	}
 	else if (screenName == gScreenNameDocuments) {
 	  $('#' + gScreenNameDocuments).show('slow');
@@ -143,7 +143,25 @@ function displayScreen(screenName) {
 	  $('#' + gScreenNameRSS).show('slow');
 	}
 	else if (screenName == gScreenNameSettings) {	
+		hideMenuBar();
 		$('#' + gScreenNameSettings).fadeIn(1500);
+//		var html = document.getElementById(gScreenNameSettings).innerHTML;
+//		$(document).ready(function() {	
+//			var $dialog = $('<div></div>')
+//			.html(html)
+//			.dialog({
+//				autoOpen: false,
+//				width: '80%',
+//				height: 'auto',
+//				title: 'Disaster Recovery Settings'
+//			});	
+//		
+//			$(document).ready(function() {
+//				$dialog.dialog('open');
+//				// prevent the default action, e.g., following a link
+//				return false;
+//			}); 
+//		});		
 	}
   writeLog('displayScreen Finished');
 }
@@ -218,12 +236,10 @@ function getStarted(msg) {
 	}
 	else if (msg == 'CONFIGSETTINGSRETRIEVED') {
 		validateConfigs();
+		setupHome();
 		displayScreen(gScreenNameHome);
-		if (gConfigsValid == true) {
-			gJSONPayload = {"Contact":[{"groupname":"WAAs","firstname":"Jeffrey","lastname":"Bentley","workphone":"704-508-1600"},
-				{"groupname":"WAAs","firstname":"Richard","lastname":"Balsewich","workphone":"704-508-1600"}]};		
-			processContactsPayload('');			
-			alert ('call for stuff goes here');
+		if (gConfigsValid == true) {			
+			//alert ('call for stuff goes here');
 		}
 	}
 	else if (msg.substring(0,19) == 'USERSETTINGSFAILED:') {
@@ -299,6 +315,8 @@ function registerPBEvents() {
 	blackberry.app.event.onBackground(handleBackground);
   writeLog('  onForeground');	
 	blackberry.app.event.onForeground(handleForeground);	
+  writeLog('  onSwipeDown');	
+	blackberry.app.event.onSwipeDown(showMenuBar);
   writeLog('registerPBEvents Starting');
 }
 
@@ -472,56 +490,13 @@ function retrieveUserSettings(msg, functionToCall) {
 	}
 } 
 
-function toggleSection(headerId, contentId, direction) {
-//*************************************************************
-//* This function will control how a header and content get 
-//* displayed and hidden using the header as a toggle
-//* Parms:
-//*		name of header id tag
-//*		name of content id tag
-//* Value Returned: 
-//*		Nothing
-//*************************************************************		
-	var header = document.getElementById(headerId);
-	var content = document.getElementById(contentId);
-	if (header && content) {
-		var image = header.getElementsByTagName("img")[0];
-		if (direction == undefined) {
-			if (image.src.indexOf('minus.png') == -1) {
-				direction = 'expand';
-			}
-			else {
-				direction = 'collapse';
-			}
-		}
-		else {
-			direction = direction.toLowerCase();
-		}
-
-		var newIcon = '';
-		if (direction == 'expand') {
-			newIcon = 'images/minus.png';
-			//Expand the contents
-	    document.getElementById(headerId).style.borderBottomLeftRadius = '0em';
-  	  document.getElementById(headerId).style.borderBottomRightRadius = '0em';
-			content.style.display = '';
-		}
-		else {
-			newIcon = 'images/plus.png';
-	    document.getElementById(headerId).style.borderBottomLeftRadius = '.25em';
-  	  document.getElementById(headerId).style.borderBottomRightRadius = '.25em';
-			//Collapse the contents
-		  content.style.display = 'none';
-		}
-		//Remove the existing icon
-		header.removeChild(image);
-		//Add the new icon and set the class
-		var icon = new Image();
-		icon.src = newIcon;
-		icon.className = 'sectionHeaderImage';
-		header.appendChild(icon);
-	}
+function showMenuBar() {
+	document.getElementById("menuBar").className = "showMenuBar";
 }
+
+function hideMenuBar() {
+	document.getElementById("menuBar").className = "hideMenuBar";
+}	
 
 function validateConfigs() {
 //*************************************************************

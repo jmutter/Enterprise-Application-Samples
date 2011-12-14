@@ -234,34 +234,34 @@ function insertContactRecords(msg, functionToCall) {
 	var errMsg = '';
 	if (msg == '') {
 		gParentFunctionToCall = functionToCall;
-  	writeLog('insertContactRecords Starting');		
-		sql = 'DELETE FROM ' + gTableNameContacts;
+  	writeLog('insertContactRecords Starting');
+		sql = 'DELETE FROM ' + gTableNameContacts + ' WHERE groupname = \'' + fieldPrepare(gContactPayloadGroupName) + '\'';
 		dbDeleteRecord(sql, 'insertContactRecords');		
 	}
 	else if (msg == 'DBDELETERECORDSUCCESS' || msg == 'DBADDRECORDSUCCESS') {
-		if (gContactCounter < gJSONPayload.Contact.length) { 
-			if (gJSONPayload.Contact[gContactCounter].groupname.toLowerCase() == gContactPayloadGroupName.toLowerCase()) {
+		if (gContactCounter < gJSONPayload.Contacts.length) { 
+			if (gJSONPayload.Contacts[gContactCounter].groupname.toLowerCase() == gContactPayloadGroupName.toLowerCase()) {				
 				//Ensure the values added are in the order of which they were defined for the database
 				sql = 'INSERT INTO ' + gTableNameContacts;
 				//sql += '(contactid,firstname,lastname,title,company,email,pin,workphone,mobilephone,homephone,address,address2,city,state,zipcode,country)';
 				sql += '(contactid,groupname,firstname,lastname,title,company,email,pin,workphone,mobilephone,homephone,address,address2,city,state,zipcode,country)';		
 				sql += ' VALUES(null';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].groupname) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].firstname) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].lastname) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].title) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].company) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].email.toLowerCase()) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].pin) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].workphone) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].mobilephone) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].homephone) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].address) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].address2) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].city) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].state) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].zipcode) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contact[gContactCounter].country) + '\'';																																							
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].groupname) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].firstname) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].lastname) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].title) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].company) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].email.toLowerCase()) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].pin) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].workphone) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].mobilephone) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].homephone) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].address) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].address2) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].city) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].state) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].zipcode) + '\'';
+				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].country) + '\'';																																							
 				sql += ')';
 				gContactCounter ++;
 				gContactPayloadAddedCounter ++;
@@ -304,86 +304,79 @@ function processContactsPayload(msg) {
 
 	var sql = '';
 	var errMsg = '';
-	var abort = false;
 	if (msg == '') {
   	writeLog('processContactPayload Starting');
   	var groupsFound = '';
   	var groupName;
   	writeLog('  Analyzing JSON payload');
   	var counter;	
-		for (counter = 0; counter < gJSONPayload.Contact.length; ++counter) {
+		for (counter = 0; counter < gJSONPayload.Contacts.length; ++counter) {
 			//Validate that all required properties exist in the object and if not, make them blank.
 			//If any field is undefined, change to blank for consistent testing
-			if (gJSONPayload.Contact[counter].machinename == undefined) {
-				gJSONPayload.Contact[counter].machinename = '';
-			}
-			if (gJSONPayload.Contact[counter].confirmationurl == undefined) {
-				gJSONPayload.Contact[counter].confirmationurl = '';
-			}
-			if (gJSONPayload.Contact[counter].groupname == undefined) {
-				gJSONPayload.Contact[counter].groupname = '';
+			if (gJSONPayload.Contacts[counter].groupname == undefined) {
+				gJSONPayload.Contacts[counter].groupname = '';
 			}		
-			if (gJSONPayload.Contact[counter].firstname == undefined) {
-				gJSONPayload.Contact[counter].firstname = '';
+			if (gJSONPayload.Contacts[counter].firstname == undefined) {
+				gJSONPayload.Contacts[counter].firstname = '';
 			}				
-			if (gJSONPayload.Contact[counter].lastname == undefined) {
-				gJSONPayload.Contact[counter].lastname = '';
+			if (gJSONPayload.Contacts[counter].lastname == undefined) {
+				gJSONPayload.Contacts[counter].lastname = '';
 			}		
-			if (gJSONPayload.Contact[counter].title == undefined) {
-				gJSONPayload.Contact[counter].title = '';
+			if (gJSONPayload.Contacts[counter].title == undefined) {
+				gJSONPayload.Contacts[counter].title = '';
 			}		
-			if (gJSONPayload.Contact[counter].company == undefined) {
-				gJSONPayload.Contact[counter].company = '';
+			if (gJSONPayload.Contacts[counter].company == undefined) {
+				gJSONPayload.Contacts[counter].company = '';
 			}	
-			if (gJSONPayload.Contact[counter].email == undefined) {
-				gJSONPayload.Contact[counter].email = '';
+			if (gJSONPayload.Contacts[counter].email == undefined) {
+				gJSONPayload.Contacts[counter].email = '';
 			}	
-			if (gJSONPayload.Contact[counter].pin == undefined) {
-				gJSONPayload.Contact[counter].pin = '';
+			if (gJSONPayload.Contacts[counter].pin == undefined) {
+				gJSONPayload.Contacts[counter].pin = '';
 			}	
-			if (gJSONPayload.Contact[counter].workphone == undefined) {
-				gJSONPayload.Contact[counter].workphone = '';
+			if (gJSONPayload.Contacts[counter].workphone == undefined) {
+				gJSONPayload.Contacts[counter].workphone = '';
 			}	
-			if (gJSONPayload.Contact[counter].mobilephone == undefined) {
-				gJSONPayload.Contact[counter].mobilephone = '';
+			if (gJSONPayload.Contacts[counter].mobilephone == undefined) {
+				gJSONPayload.Contacts[counter].mobilephone = '';
 			}										
-			if (gJSONPayload.Contact[counter].homephone == undefined) {
-				gJSONPayload.Contact[counter].homephone = '';
+			if (gJSONPayload.Contacts[counter].homephone == undefined) {
+				gJSONPayload.Contacts[counter].homephone = '';
 			}
-			if (gJSONPayload.Contact[counter].address == undefined) {
-				gJSONPayload.Contact[counter].address = '';
+			if (gJSONPayload.Contacts[counter].address == undefined) {
+				gJSONPayload.Contacts[counter].address = '';
 			}	
-			if (gJSONPayload.Contact[counter].address2 == undefined) {
-				gJSONPayload.Contact[counter].address2 = '';
+			if (gJSONPayload.Contacts[counter].address2 == undefined) {
+				gJSONPayload.Contacts[counter].address2 = '';
 			}	
-			if (gJSONPayload.Contact[counter].city == undefined) {
-				gJSONPayload.Contact[counter].city = '';
+			if (gJSONPayload.Contacts[counter].city == undefined) {
+				gJSONPayload.Contacts[counter].city = '';
 			}
-			if (gJSONPayload.Contact[counter].state == undefined) {
-				gJSONPayload.Contact[counter].state = '';
+			if (gJSONPayload.Contacts[counter].state == undefined) {
+				gJSONPayload.Contacts[counter].state = '';
 			}	
-			if (gJSONPayload.Contact[counter].zipcode == undefined) {
-				gJSONPayload.Contact[counter].zipcode = '';
+			if (gJSONPayload.Contacts[counter].zipcode == undefined) {
+				gJSONPayload.Contacts[counter].zipcode = '';
 			}	
-			if (gJSONPayload.Contact[counter].country == undefined) {
-				gJSONPayload.Contact[counter].country = '';
+			if (gJSONPayload.Contacts[counter].country == undefined) {
+				gJSONPayload.Contacts[counter].country = '';
 			}		
 																									
 			//Set needed values to a default if not supplied in the payload
-			if (gJSONPayload.Contact[counter].groupname == '') {
-				gJSONPayload.Contact[counter].groupname = 'Not Defined';
+			if (gJSONPayload.Contacts[counter].groupname == '') {
+				gJSONPayload.Contacts[counter].groupname = 'Not Defined';
 			}	
-			if (gJSONPayload.Contact[counter].firstname == '') {
-				gJSONPayload.Contact[counter].firstname = 'MissingValue';
+			if (gJSONPayload.Contacts[counter].firstname == '') {
+				gJSONPayload.Contacts[counter].firstname = 'MissingValue';
 			}				
-			if (gJSONPayload.Contact[counter].lastname == '') {
-				gJSONPayload.Contact[counter].lastname = 'MissingValue';
+			if (gJSONPayload.Contacts[counter].lastname == '') {
+				gJSONPayload.Contacts[counter].lastname = 'MissingValue';
 			}	
-			if (gJSONPayload.Contact[counter].email == '') {
-				gJSONPayload.Contact[counter].email = 'MissingValue';
+			if (gJSONPayload.Contacts[counter].email == '') {
+				gJSONPayload.Contacts[counter].email = 'MissingValue';
 			}	
 			//Look for groupname to see if we already have this	
-			groupName = gJSONPayload.Contact[counter].groupname;
+			groupName = gJSONPayload.Contacts[counter].groupname;
 			groupName = groupName.replace("'","");  //Remove apostrophe as this affects our onclick for the group
 			if (groupsFound.toLowerCase().indexOf(groupName.toLowerCase() + '<-->') == -1) {
 				groupsFound += groupName + '<-->'
@@ -391,7 +384,7 @@ function processContactsPayload(msg) {
   	}
 	}
 
-  if (abort == false && (msg == '' || msg == 'INSERTCONTACTSSUCCESS')) {
+  if (msg == '' || msg == 'INSERTCONTACTSSUCCESS') {
   	if (msg == '') {
   		groupsFound = groupsFound.substr(0,groupsFound.length - 4);  //Remove last delimeter
 			gContactPayloadGroups = groupsFound.split('<-->')
