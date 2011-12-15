@@ -6,171 +6,433 @@
 //Global Variables
 var gTestingClearMethod ='';
 
-function addTestingMenu() {
-//*************************************************************
-//* This function will add the appropriate menu items for the 
-//* Groups screen
-//* Parms:
-//*		Success/Failure message of recursive calls
-//* Value Returned: 
-//*		Nothing
-//*************************************************************	
-	
-	writeLog('addGroupsTestingMenu Starting');	
-	if (gBrowserType == gBrowserBlackBerry || gBrowserType == gBrowserRippleBlackBerry) {	
-		var menuItemSeparator1 = new blackberry.ui.menu.MenuItem(true, 10);
-		blackberry.ui.menu.addMenuItem(menuItemSeparator1);
-		var menuItemClear = new blackberry.ui.menu.MenuItem(false, 11,'Clear Tables', testingClearTables);
-		blackberry.ui.menu.addMenuItem(menuItemClear);
-		var menuItemAdd = new blackberry.ui.menu.MenuItem(false, 12,'Add Contacts', testingAddContacts);
-		blackberry.ui.menu.addMenuItem(menuItemAdd);
-		var menuItemSeparator2 = new blackberry.ui.menu.MenuItem(true, 13);
-		blackberry.ui.menu.addMenuItem(menuItemSeparator2);
-		var menuItemCall = new blackberry.ui.menu.MenuItem(false, 14,'Emerg Call', testingEmergencyCall);
-		blackberry.ui.menu.addMenuItem(menuItemCall);
-		var menuItemNotification = new blackberry.ui.menu.MenuItem(false, 15,'Emerg Notify', testingEmergencyNotification);
-		blackberry.ui.menu.addMenuItem(menuItemNotification);
-		writeLog('  testing menu added');	
-	}
-	writeLog('addGroupsTestingMenu Finished');
-}
-
-function testingAddContacts() {
-	alert ("AddContacts");
+function testingLoadContacts() {
 	//Build payload from text and call processPayload
-}
-
-function testingClearTables(msg) {
-//*************************************************************
-//* This function will clear the tables for testing
-//* Parms:
-//*		Success/Failure message of recursive calls
-//* Value Returned: 
-//*		Nothing
-//*************************************************************	
-	
-	var sql = '';
-	var errMsg = '';
-	if (msg == undefined || msg == 'DBDELETERECORDSUCCESS') {
-		if (msg == undefined) {
-  		gTestingClearMethod = 'groups';
-			sql = 'DELETE FROM ' + gTableNameGroups;
-  	}
-  	else if (gTestingClearMethod == 'groups') {
-			gTestingClearMethod = 'contacts';
-			sql = 'DELETE FROM ' + gTableNameContacts;			
-  	}
-  	else if (gTestingClearMethod == 'contacts') {
-			gTestingClearMethod = 'urls';
-			sql = 'DELETE FROM ' + gTableNameOutstandingURLs;			
-  	}
-		else {
-			displayGroups('');
-		}
-		if (sql != '') {
-			dbDeleteRecord(sql, 'testingClearTables');	
-		}			
-	}
-	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
-		errMsg = msg.substring(20);
-	}
-	else {
-		errMsg = 'Invalid msg: ' + msg;
-	}
-	if (errMsg != '') {
-		alert ('Clearing error: ' + errMsg);
-	}
-}
-
-function testingEmergencyCall(msg) {
-//*************************************************************
-//* This function will insert an Emergency Call request to simulate
-//* a push to the device
-//* Parms:
-//*		Success/Failure message of recursive calls
-//* Value Returned: 
-//*		Nothing
-//*************************************************************	
-
-  var errMsg = '';
-	if (msg == undefined) {
-		var machineName = 'Server10945351';
-		var confirmationURL = 'http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=EmergencyCallProcessed';
-		var milliseconds = '1318443259500';
-		var phoneNumber = '866-834-4161 x123456';
-		var details = '<p>just testing.</p><p>need to test what this looks like with line returns and how to handle them in the payload but build them properly for the display</p>';
-		var acceptURL = 'http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=EmergencyCallAccept';
-		var declineURL = 'http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=EmergencyCallDecline';
-		var sql = 'INSERT INTO ' + gTableNameEmergency;
-		sql += '(emergencyid,type,receiveddatetime,machinename,milliseconds,phonenumber,details,accepturl,declineurl)';
-		sql += ' VALUES(null, \'' + 'Call' + '\'';	
-		sql += ', \'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\''; 						
-		sql += ', \'' + machineName + '\''; 		
-		sql += ', \'' + milliseconds + '\'';  			
-		sql += ', \'' + phoneNumber + '\''; 
-		sql += ', \'' + details + '\''; 			
-		sql += ', \'' + acceptURL + '\'';
-		sql += ', \'' + declineURL + '\'';																																								
-		sql += ')';	
-		dbAddRecord(sql, 'testingEmergencyCall');					
-	}
-	else if (msg == 'DBADDRECORDSUCCESS') {
-		if (gProcessingEmergencyRequest == false) {
-			displayEmergencyRequest('');
-		}
-	}
-	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
-		errMsg = msg.substring(17);
-	}	
-	else {
-		errMsg = 'Invalid msg: ' + msg;
-	}
-	if (errMsg != '') {
-		alert ('Error creating Emergency Call: ' + errMsg);
-	}
-}
-
-function testingEmergencyNotification(msg) {
-//*************************************************************
-//* This function will insert an Emergency Notificatoin request to simulate
-//* a push to the device
-//* Parms:
-//*		Success/Failure message of recursive calls
-//* Value Returned: 
-//*		Nothing
-//*************************************************************	
-
-  var errMsg = '';
-	if (msg == undefined) {
-		var machineName = 'Server20111116';
-		var confirmationURL = 'http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=EmergencyNotification';
-		var details = '<p>Please take note of the impending snowstorm that is being forecasted for your area</p><p>Please ensure you leave work in time to get home before the storm arrives.</p>';
-		var acceptURL = 'http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=EmergencyNotificationAccept';
-		var sql = 'INSERT INTO ' + gTableNameEmergency;
-		sql += '(emergencyid,type,receiveddatetime,machinename,milliseconds,phonenumber,details,accepturl,declineurl)';
-		sql += ' VALUES(null, \'' + 'Notification' + '\'';	
-		sql += ', \'' + getDate(gUserDateDisplay) + ' @ ' + getTime() + '\''; 						
-		sql += ', \'' + machineName + '\''; 		
-		sql += ', \'' + '' + '\'';  			
-		sql += ', \'' + '' + '\''; 
-		sql += ', \'' + details + '\''; 			
-		sql += ', \'' + acceptURL + '\'';
-		sql += ', \'' + '' + '\'';																																								
-		sql += ')';	
-		dbAddRecord(sql, 'testingEmergencyNotification');					
-	}
-	else if (msg == 'DBADDRECORDSUCCESS') {
-		if (gProcessingEmergencyRequest == false) {
-			displayEmergencyRequest('');
-		}
-	}
-	else if (msg.substring(0,17) == 'DBADDRECORDERROR:') {
-		errMsg = msg.substring(17);
-	}	
-	else {
-		errMsg = 'Invalid msg: ' + msg;
-	}
-	if (errMsg != '') {
-		alert ('Error creating Emergency Notification: ' + errMsg);
-	}
+	gJSONPayload = {"Contacts":[
+		{"groupname":"Directs"
+		,"firstname":"Alex"
+		,"lastname":"Willis"
+		,"title":"Director, Technical Services"
+		,"email":"awillis@rim.com"
+		,"address":"377 County Rd"
+		,"state":"MA"
+		,"zipcode":"02341"
+		,"workphone":"824-67166"}
+		,{"groupname":"Directs"
+		,"firstname":"John"
+		,"lastname":"Kobularik"
+		,"title":"Technical Channel Enablement Manager"
+	,"email":"jkobe@rim.com"
+	,"address":"2000 Bridge Parkway"
+	,"state":"CA"
+	,"zipcode":"94065"
+	,"workphone":"(821) 62515"}
+	,{"groupname":"Directs"
+	,"firstname":"John"
+	,"lastname":"Mutter"
+	,"title":"Wireless Application Architect"
+	,"email":"jmutter@rim.com"
+	,"address":""
+	,"state":""
+	,"zipcode":""
+	,"workphone":"(820) 63697"}
+	,{"groupname":"Directs"
+	,"firstname":"Mark"
+	,"lastname":"Howden"
+	,"title":"Manager, Technical Services"
+	,"email":"MHowden@rim.com"
+	,"address":"120 Center Ave"
+	,"state":"New Jersey"
+	,"zipcode":"07928"
+	,"workphone":"(801) 75793"}
+	,{"groupname":"Directs"
+	,"firstname":"Paul"
+	,"lastname":"Steel"
+	,"title":"Manager, Technical Services"
+	,"email":"psteel@rim.com"
+	,"address":"1623 Durfey Lane"
+	,"state":"TX"
+	,"zipcode":"77449"
+	,"workphone":""}
+	,{"groupname":"Directs"
+	,"firstname":"Raymond"
+	,"lastname":"Chronister"
+	,"title":"Manager, Sales Engineers"
+	,"email":"rchronister@rim.com"
+	,"address":"15260 Ventura Blvd Suite 1410"
+	,"state":"CA"
+	,"zipcode":"91403"
+	,"workphone":"(821) 66129"}
+	,{"groupname":"Directs"
+	,"firstname":"Raymond"
+	,"lastname":"Newman"
+	,"title":"Field Engineer"
+	,"email":"rnewman@rim.com"
+	,"address":"1933 Meyer Pl"
+	,"state":"CA"
+	,"zipcode":"92627"
+	,"workphone":"(821) 62056"}
+	,{"groupname":"Directs"
+	,"firstname":"Rob"
+	,"lastname":"Iannacone Jr"
+	,"title":"Technical Project Manager"
+	,"email":"riannacone@rim.com"
+	,"address":""
+	,"state":""
+	,"zipcode":""
+	,"workphone":"(821) 66195"}
+	,{"groupname":"Directs"
+	,"firstname":"Ron"
+	,"lastname":"Moses"
+	,"title":"Sales Support Manager EMEA"
+	,"email":"ramoses@rim.com"
+	,"address":"2000 Bridge Parkway"
+	,"state":"CA"
+	,"zipcode":"94065"
+	,"workphone":"(818) 29683"}
+	,{"groupname":"Directs"
+	,"firstname":"Steve"
+	,"lastname":"Hu"
+	,"title":"Converged Network Engineer"
+	,"email":"shu@rim.com"
+	,"address":""
+	,"state":""
+	,"zipcode":""
+	,"workphone":"(821) 62509"}
+	,{"groupname":"Prof Services"
+	,"firstname":"Ajay"
+	,"lastname":"Malhan"
+	,"title":"Technical Account Manager"
+	,"email":"amalhan@rim.com"
+	,"address":""
+	,"state":""
+	,"zipcode":""
+	,"workphone":"(801) 72131"}
+	,{"groupname":"Prof Services"
+	,"firstname":"Darlton"
+	,"lastname":"Myers"
+	,"title":"Technical Account Manager"
+	,"email":"dmyers@rim.com"
+	,"address":""
+	,"state":""
+	,"zipcode":""
+	,"workphone":"(801) 72409"}
+	,{"groupname":"Prof Services"
+	,"firstname":"Kevin"
+	,"lastname":"Davis"
+	,"title":"Blackberry Enterprise Architect"
+	,"email":"kdavis@rim.com"
+	,"address":""
+	,"state":""
+	,"zipcode":""
+	,"workphone":"(801) 71120"}
+	,{"groupname":"Prof Services"
+	,"firstname":"Tyson"
+	,"lastname":"Wheeler"
+	,"title":"Blackberry Enterprise Architect"
+	,"email":"twheeler@rim.com"
+	,"address":""
+	,"state":""
+	,"zipcode":""
+	,"workphone":"(824) 67103"}
+	,{"groupname":"WAAs"
+	,"firstname":"Brent"
+	,"lastname":"Thornton"
+	,"title":"Wireless Application Architect"
+	,"email":"bthornton@rim.com"
+	,"address":""
+	,"state":""
+	,"zipcode":""
+	,"workphone":"(801) 72095"}
+	,{"groupname":"WAAs"
+	,"firstname":"Jeff"
+	,"lastname":"Bentley"
+	,"title":"Wireless Application Architect"
+	,"email":"jbentley@rim.com"
+	,"address":""
+	,"state":""
+	,"zipcode":""
+	,"workphone":"704-508-1600"}
+	,{"groupname":"WAAs"
+	,"firstname":"Maurice"
+	,"lastname":"White"
+	,"title":"Wireless Application Architect"
+	,"email":"mauwhite@rim.com"
+	,"address":""
+	,"state":""
+	,"zipcode":""
+	,"workphone":""}
+	,{"groupname":"WAAs"
+	,"firstname":"Richard"
+	,"lastname":"Balsewich"
+	,"title":"Wireless Application Architect"
+	,"email":"rbalsewich@rim.com"
+	,"address":""
+	,"state":""
+	,"zipcode":""
+	,"workphone":""}
+	,{"groupname":"MVS TAMs"
+	,"firstname":"John"
+	,"lastname":"McMorrow"
+	,"title":"Sales Engineer"
+	,"email":"jmcmorrow@rim.com"
+	,"address":"4 Copley Place S-603"
+	,"state":"MA"
+	,"zipcode":"02116"
+	,"workphone":"(824) 67050"}
+	,{"groupname":"MVS TAMs"
+	,"firstname":"Patrick"
+	,"lastname":"Jones"
+	,"title":"Technical Account Manager"
+	,"email":"patjones@rim.com"
+	,"address":"3259 Manor Rd."
+	,"state":"VA"
+	,"zipcode":"19006"
+	,"workphone":"(821) 62530"}
+	,{"groupname":"MVS TAMs"
+	,"firstname":"Regina"
+	,"lastname":"Pepper"
+	,"title":"Sales Engineer"
+	,"email":"rpepper@rim.com"
+	,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(821) 66135"}
+,{"groupname":"MVS TAMs"
+,"firstname":"Russell"
+,"lastname":"Mohr"
+,"title":"Sales Engineer"
+,"email":"rmohr@rim.com"
+,"address":"54 East 1st Street Apt 1C"
+,"state":"NY"
+,"zipcode":"10003"
+,"workphone":"(821) 62565"}
+,{"groupname":"MVS TAMs"
+,"firstname":"Stuart"
+,"lastname":"Cordery"
+,"title":"Converged Network Engineer"
+,"email":"scordery@rim.com"
+,"address":"6 Bramley Road Kinson, Bournemouth"
+,"state":""
+,"zipcode":"BH10 5LU"
+,"workphone":"(818) 47724"}
+,{"groupname":"MVS Design"
+,"firstname":"Raymond"
+,"lastname":"Newman"
+,"title":"Field Engineer"
+,"email":"rnewman@rim.com"
+,"address":"1933 Meyer Pl"
+,"state":"CA"
+,"zipcode":"92627"
+,"workphone":"(821) 62056"}
+,{"groupname":"MVS Design"
+,"firstname":"Rob"
+,"lastname":"Iannacone Jr"
+,"title":"Technical Project Manager"
+,"email":"riannacone@rim.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(821) 66195"}
+,{"groupname":"MVS Design"
+,"firstname":"Steve"
+,"lastname":"Hu"
+,"title":"Converged Network Engineer"
+,"email":"shu@rim.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(821) 62509"}
+,{"groupname":"TAMs East"
+,"firstname":"Alex"
+,"lastname":"Rainero"
+,"title":"Technical Account Manager"
+,"email":"arainero@rim.com"
+,"address":"1642 Frank Street"
+,"state":"NJ"
+,"zipcode":"07076"
+,"workphone":""}
+,{"groupname":"TAMs East"
+,"firstname":"Anthony"
+,"lastname":"Sietz"
+,"title":"Technical Account Manager"
+,"email":"asietz@rim.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(820) 63656"}
+,{"groupname":"TAMs East"
+,"firstname":"Bill"
+,"lastname":"Tucker"
+,"title":"Technical Account Manager"
+,"email":"btucker@rim.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(820) 63438"}
+,{"groupname":"TAMs East"
+,"firstname":"Brian"
+,"lastname":"Dingman"
+,"title":"Technical Account Manager"
+,"email":"bdingman@rim.com"
+,"address":"728 Woodfield Road"
+,"state":"PA"
+,"zipcode":"19085"
+,"workphone":"(820) 63602"}
+,{"groupname":"TAMs East"
+,"firstname":"Craig"
+,"lastname":"Ano"
+,"title":"Technical Services,Federal Government-US"
+,"email":"cano@rim.com"
+,"address":"8805 Mourning Dove Ct    Gaithersburg, MD    20879"
+,"state":""
+,"zipcode":""
+,"workphone":"(820) 63639"}
+,{"groupname":"TAMs East"
+,"firstname":"Douglas"
+,"lastname":"Hillgren"
+,"title":"Technical Account Manager"
+,"email":"dhillgren@rim.com"
+,"address":"227 Maple Ridge Lane"
+,"state":"WV"
+,"zipcode":"25425"
+,"workphone":"(820) 63046"}
+,{"groupname":"TAMs East"
+,"firstname":"Joseph"
+,"lastname":"Petroski"
+,"title":"Technical Account Manager, Public Sector"
+,"email":"jpetroski@rim.com"
+,"address":"1465 Woodfield Dr"
+,"state":"TN"
+,"zipcode":"37211"
+,"workphone":""}
+,{"groupname":"TAMs East"
+,"firstname":"Duane"
+,"lastname":"Petroro"
+,"title":"Technical Account Manager"
+,"email":"dpetroro@rim.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(824) 61439"}
+,{"groupname":"TAMs East"
+,"firstname":"Jim"
+,"lastname":"Doherty"
+,"title":"Technical Account Manager"
+,"email":"jdoherty@rim.com"
+,"address":"20 Townline Rd"
+,"state":"MA"
+,"zipcode":"02038"
+,"workphone":"(824) 67169"}
+,{"groupname":"TAMs East"
+,"firstname":"Lisa"
+,"lastname":"Ricco"
+,"title":"Technical Account Manager"
+,"email":"lricco@rim.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(824) 61440"}
+,{"groupname":"TAMs West"
+,"firstname":"Aisha"
+,"lastname":"Visram"
+,"title":"Technical Account Manager"
+,"email":"AVisram@rim.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(801) 72909"}
+,{"groupname":"TAMs West"
+,"firstname":"Alain"
+,"lastname":"Marcil"
+,"title":"Technical Account Manager, Public Sector"
+,"email":"amarcil@rim.com"
+,"address":"1, St-Tropez"
+,"state":"QC"
+,"zipcode":"J8T 6C9"
+,"workphone":"(819) 246-8093"}
+,{"groupname":"TAMs West"
+,"firstname":"Bill"
+,"lastname":"Padilla"
+,"title":"Technical Account Manager"
+,"email":"bpadilla@rim.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":""}
+,{"groupname":"TAMs West"
+,"firstname":"Darren"
+,"lastname":"Greenough"
+,"title":"Technical Account Manager"
+,"email":"dgreenough@rim.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(801) 75105"}
+,{"groupname":"TAMs West"
+,"firstname":"Jay"
+,"lastname":"Klauser"
+,"title":"Technical Account Manager"
+,"email":"jklauser@rim.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":""}
+,{"groupname":"TAMs West"
+,"firstname":"Lynne"
+,"lastname":"Cassaday"
+,"title":"Technical Account Manager"
+,"email":"lcassaday@rim.com"
+,"address":"26806 Serrano Place"
+,"state":"CA"
+,"zipcode":"91351"
+,"workphone":"661-252-2220"}
+,{"groupname":"TAMs West"
+,"firstname":"Michael"
+,"lastname":"Mantho"
+,"title":"Technical Account Manager"
+,"email":"mmantho@rim.com"
+,"address":"8875 Trailwood Court    Mentor, OH    44060"
+,"state":""
+,"zipcode":""
+,"workphone":""}
+,{"groupname":"TAMs West"
+,"firstname":"Rodney"
+,"lastname":"Stokes"
+,"title":"Technical Account Manager"
+,"email":"rstokes@rim.com"
+,"address":"160 Muir Hill Drive Aledo, TX 76008"
+,"state":""
+,"zipcode":""
+,"workphone":"(820) 63604"}
+,{"groupname":"TAMs West"
+,"firstname":"Troy"
+,"lastname":"Stark"
+,"title":"Technical Account Manager"
+,"email":"tstark@rim.com"
+,"address":"254 Wissler Rd.,"
+,"state":"Ontario"
+,"zipcode":"N2K 2X4"
+,"workphone":"(801) 72151"}
+,{"groupname":"Channel"
+,"firstname":"Cerafin"
+,"lastname":"Castillo"
+,"title":""
+,"email":"cecastillo@rim.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":""}
+,{"groupname":"Admin"
+,"firstname":"Glenna"
+,"lastname":"Huth"
+,"title":"Executive Assistant"
+,"email":"ghuth@rim.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(801) 78828"}
+]};		
+alert ('sending json');
+	processContactsPayload('');		
 }

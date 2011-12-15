@@ -4,26 +4,8 @@
 //*************************************************************	
 
 //Global Variables
-var gOptionsChangeDetected = false;
 
-function buildOptionsScreen() {
-//*************************************************************
-//* This function will setup the options screen for appropriate
-//* display based on orientation
-//* Parms:
-//*		Nothing
-//* Value Returned: 
-//*		Nothing
-//*************************************************************		
-	
-	document.getElementById(gScreenNameOptions).style.backgroundImage = "url(images/background-options.jpg)";
-	document.getElementById(gScreenNameOptions).style.width = screen.availWidth + "px";
-	document.getElementById(gScreenNameOptions).style.height = screen.availHeight + "px";
-	document.getElementById(gScreenNameOptions).style.backgroundRepeat = "repeat";
-	//Might put code here to realign data elements based on orientation
-}
-
-function cancelOptions() {
+function cancelSettings() {
 //*************************************************************
 //* This function is called when the user clicks on the Cancel
 //* menu item.
@@ -32,31 +14,11 @@ function cancelOptions() {
 //* Value Returned: 
 //*		Nothing
 //*************************************************************			
-	gOptionsChangeDetected = false;
+	gSettingsChangeDetected = false;
 	displayScreen(gScreenNameGroups);
 }
 
-function cbShowAllGroup_Change() {
-	
-	gOptionsChangeDetected = true;
-}
-
-function cbShowCompanyOnContactBar_Change() {
-	
-	gOptionsChangeDetected = true;
-}
-
-function cbShowContactDividers_Change() {
-	
-	gOptionsChangeDetected = true;
-}
-
-function cbShowTitleOnContactBar_Change() {
-	
-	gOptionsChangeDetected = true;
-}
-
-function displayOptions() {
+function displaySettings() {
 //*************************************************************
 //* This function will setup and display the options screen.
 //* Parms:
@@ -65,10 +27,6 @@ function displayOptions() {
 //*		Nothing
 //*************************************************************		
 	
-	buildOptionsScreen();
-	toggleSection('optionsgroupsheader','optionsgroupscontent', 'collapse'); 
-	toggleSection('optionscontactsheader','optionscontactscontent', 'collapse'); 
-	toggleSection('optionsgeneralheader', 'optionsgeneralcontent', 'collapse'); 	
 	//Set the checkboxes and readio buttons according to values from database
 	if (gUserShowAllGroup == 'True') {
 		cbShowAllGroup.checked = true 
@@ -101,36 +59,11 @@ function displayOptions() {
 	}
 	else {
 		rbDateDisplayMMDDYYYY.checked = true;		
-	}
-	displayScreen (gScreenNameOptions);
+	}	
+	displayScreen (gScreenNameSettings);
 }
 
-function rbDateDisplayDDMMYYYY_Change() {
-	
-	gOptionsChangeDetected = true;
-}
-
-function rbDateDisplayMMDDYYYY_Change() {
-	
-	gOptionsChangeDetected = true;
-}
-
-function rbDateDisplayYYYYMMDD_Change() {
-	
-	gOptionsChangeDetected = true;
-}
-
-function rbListingFirstName_Change() {
-	
-	gOptionsChangeDetected = true;
-}
-
-function rbListingLastName_Change() {
-	
-	gOptionsChangeDetected = true;
-}
-
-function saveOptions(msg) {
+function saveSettings(msg) {
 //*************************************************************
 //* This function is called when the user clicks on the Save 
 //* menu option
@@ -141,7 +74,8 @@ function saveOptions(msg) {
 //*************************************************************		
 	
 	var errMsg = '';
-	if (msg == undefined) {
+	if (msg == undefined || msg == '') {
+		writeLog('saveSettings Starting');
 		if (cbShowAllGroup.checked == true) {
 			gUserShowAllGroup = 'True';
 		}
@@ -191,20 +125,20 @@ function saveOptions(msg) {
 		sql += ', showcontactdividers = \'' + gUserShowContactDividers + '\', showtitleoncontactbar = \'' + gUserShowTitleOnContactBar + '\'';
 		sql += ', showcompanyoncontactbar = \'' + gUserShowCompanyOnContactBar + '\', datedisplay = \'' + gUserDateDisplay + '\'';
 		sql += ' WHERE recordid = \'' + gUserRecordID + '\'';
-		dbUpdateRecord(sql, 'saveOptions'); 	
+		dbUpdateRecord(sql, 'saveSettings'); 	
 	}
 	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
 		errMsg = msg.substring(20);
 	}
 	else if (msg == 'DBUPDATERECORDSUCCESS') {	
-		gOptionsChangeDetected = false;			
-		displayMessage('Options information saved');
+		gSettingsChangeDetected = false;			
+		displayMessage('Settings saved');
 		displayGroups('');
 	}
 	else {
 		errMsg = 'Invalid msg: ' + msg;
 	}
 	if (errMsg != '') {
-		writeLog('saveOptions Finished - ERROR - ' + errMsg);	
+		writeLog('saveSettings Finished - ERROR - ' + errMsg);	
 	}
 }

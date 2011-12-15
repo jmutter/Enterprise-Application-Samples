@@ -82,7 +82,7 @@ function displayGroups(msg) {
 	}	
 	if (errMsg != '') {
 		writeLog('displayGroups Finished - ERROR - '+ errMsg);
-	}
+	}	
 }
 
 function updateGroups(msg, functionToCall) {

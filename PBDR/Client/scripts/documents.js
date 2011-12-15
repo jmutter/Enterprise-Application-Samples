@@ -4,3 +4,7 @@
 //*************************************************************	
 
 //Global Variables
+
+function displayDocuments(msg){
+	alert("clicked display Documents");
+}
