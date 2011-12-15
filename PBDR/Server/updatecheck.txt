@@ -1,0 +1,10 @@
+{ "Updates" : [   
+           { "contacts" : "20111208193900" ,
+             "documents": "20111208193900",
+	     "rss": "20111208193900"}
+],"Config" : [   
+           { "primaryurl" : "http://www.dagobahserver.com/pbdr" ,
+             "secondaryurl": "http://www.dagobahserver.com/pbdr",
+             "configuration": "20111208193900"}
+]
+}

@@ -1,0 +1,27 @@
+{ "Configuration" : [   
+           { "rssprimaryurl" : "http://www.dagobahserver.com/pbr/Rss.ashx",
+             "userid": "userid",
+             "password": "password" },
+           { "rsssecondaryurl" : "http://www.dagobahserver.com/pbr/Rss.ashx",
+             "userid": "userid2",
+             "password": "password2" },
+ 	   { "contactsprimaryurl" : "http://www.dagobahserver.com/pbr/Contacts.ashx",
+             "userid": "userid",
+             "password": "password" },
+           { "contactssecondaryurl" : "http://www.dagobahserver.com/pbr/Contacts.ashx",
+             "userid": "userid2",
+             "password": "password2" },
+	   { "configprimaryurl" : "http://www.dagobahserver.com/pbr/Config.ashx",
+             "userid": "userid",
+             "password": "password" },
+           { "configsecondaryurl" : "http://www.dagobahserver.com/pbr/Config.ashx",
+             "userid": "userid2",
+             "password": "password2" },
+ 	   { "documentsprimaryurl" : "http://www.dagobahserver.com/pbr/Documents.ashx",
+             "userid": "userid",
+             "password": "password" },
+           { "documentssecondaryurl" : "http://www.dagobahserver.com/pbr/Documents.ashx",
+             "userid": "userid2",
+             "password": "password2" }
+]
+}

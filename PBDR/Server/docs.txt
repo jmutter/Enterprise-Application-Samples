@@ -1,0 +1,29 @@
+[
+  {"filename":"test.pdf"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/test.pdf" 
+  } 	
+ ,{"filename":"testdoc.doc"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testdoc.doc" 
+  } 
+ ,{"filename":"testexcel.xls"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testexcel.xls" 
+  } 
+ ,{"filename":"testgif.gif"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testgif.gif" 
+  }		
+ ,{"filename":"testjpg.jpg"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testjpg.jpg" 
+  }
+ ,{"filename":"testpng.png"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testpng.png" 
+  }
+ ,{"filename":"testppt.ppt"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testppt.ppt" 
+  }
+ ,{"filename":"testxlsx.xlsx"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testxlsx.xlsx" 
+  }
+ ,{"filename":"testzip.zip"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testzip.zip" 
+  } 
+]
