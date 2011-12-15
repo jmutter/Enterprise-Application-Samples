@@ -37,10 +37,10 @@ var gUserRecordID = '1';
 //The next variables are used to hold information relative to the connection preferences
 //This allows persistent storage of data for the application
 var gConfigDateTime = '';
-var gConfigPrimaryURL = 'http://www.dagobaahserver.com/pbdr/Config.ashx';
+var gConfigPrimaryURL = 'http://www.dagobaahserver.com/pbdr/UpdateCheck.ashx';
 var gConfigPrimaryUserID = '';
 var gConfigPrimaryPassword = '';
-var gConfigSecondaryURL = 'http://www.dagobaahserver.com/pbdr/Config.ashx';
+var gConfigSecondaryURL = 'http://www.dagobaahserver.com/pbdr/UpdateCheck.ashx';
 var gConfigSecondaryUserID = '';
 var gConfigSecondaryPassword = '';
 var gContactsDateTime = '';
@@ -240,6 +240,11 @@ function getStarted(msg) {
 		displayScreen(gScreenNameHome);
 		if (gConfigsValid == true) {			
 			//alert ('call for stuff goes here');
+			//alert('need code here to analyze the datetime');
+			//if never (blank) simply prompt to let user know we are getting data
+		}
+		else {
+			alert ('Severe error retrieving configurations settings.\n\nPlease contact your administrator');
 		}
 	}
 	else if (msg.substring(0,19) == 'USERSETTINGSFAILED:') {
@@ -380,6 +385,15 @@ function retrieveConfigSettings(msg, functionToCall) {
 					gConfigSecondaryPassword = array[6];					
 					gConfigDateTime = array[7];
 				}				
+			}
+			if (gDocumentsDateTime == '') {
+				gDocumentsDateTime = 'Never';
+			}
+			if (gContactsDateTime == '') {
+				gContactsDateTime = 'Never';
+			}
+			if (gRSSDateTime == '') {
+				gRSSDateTime = 'Never';
 			}
 			window[gParentFunctionToCall]('CONFIGSETTINGSRETRIEVED');			
 		}

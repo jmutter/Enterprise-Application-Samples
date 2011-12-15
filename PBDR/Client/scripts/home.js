@@ -17,37 +17,31 @@
 /*
  * Variables related to our display Objects. 
  */
-
+var introSound = new Audio("Intro_Music.mp3");
+var waitSound = new Audio("Intro_Music.mp3");
 var rope = [];
 var bg_background = null;
-var cloudsVisible = false;
 var standard_transition = '-webkit-transition:all 0.6s linear;';
-var name = "info";
-var domain = "rim.com";
 
 /**
  * Set the objects to be visible or not. We only update if the state is different than our current state.
  * 
  * @param visible true = visible, false = not visible.
  */
-function setClouds(visible) {
-	
-	
+function showImages(visible) {
+		
 	var i = 0;
-	if(cloudsVisible && !visible) {
+	if(visible == false) {
 		for(i = 0; i<3; ++i) {
 			rope[i*2].pullUp();
 		}
-		cloudsVisible = false;
-	} else if(!cloudsVisible && visible) {
+	} 
+	else {
 		for(i = 0; i<3; ++i) {
 			rope[i*2].fallDown();
 		}
-		rainCloudsVisible = true;
-	}
-	
+	}	
 	document.getElementById('graphics').style.display="block";
-
 }
 
 /**
@@ -56,21 +50,19 @@ function setClouds(visible) {
  */
 function updateGraphics() {
 		
-	document.getElementById('data').innerHTML = "Disaster Recovery";
-
-	setClouds(true);
-	
+	document.getElementById('data').innerHTML = '<label style="font-size:60%">Disaster Recovery</label>';
+	showImages(true);	
 }
 
 /**
  * Once our page is loaded, we will clear our splash screen and display our main application.
  */
 function setupHome() {
-    //var snd = new Audio("song.mp3");
-	//snd.play();
+
+	introSound.play();
+
 	setTimeout(function() {
 		$("#overlay").css("opacity", "0");
-	//	$("#main").css("-webkit-animation", "fade_in 1s");
 		$("#data").css("-webkit-animation", "slide-up2 2.2s");
 		
 		setTimeout(function() {
@@ -84,30 +76,35 @@ function setupHome() {
  */
 function whenReady() {
 
-	currentHour = (new Date()).getHours();
+	//currentHour = (new Date()).getHours();
 		
 	bg_background = document.getElementById('background');
 	bg_background.style.zIndex = 0;
 	bg_background.style.display = '';
 	bg_background.style.webkitAnimationName = 'fade_in';
-	
-	//documents
+
 	var ropeHandler = new RopeHandler({"fps":10, "timeStep":1/5});
-	rope[0] = ropeHandler.createRope({"length":250, "width":2,"anchorX":150,"anchorY":-480, "lock":false, "color":"#333","attachElement":"iDocuments", "attachX":45, "attachY":61, "angle":8});
-	rope[1] = ropeHandler.createRope({"length":75, "width":1,"anchorX":100,"anchorY":20, "lock":false, "color":"#333", "attachElement":"txtDocuments", "attachX":50, "attachY":40, "angle":3 });		
 
-   //people
-	rope[2] = ropeHandler.createRope({"length":225, "width":2,"anchorX":475,"anchorY":-460, "lock":false, "color":"#333","attachElement":"iContacts", "attachX":105, "attachY":70, "angle":10});
-	rope[3] = ropeHandler.createRope({"length":30, "width":1,"anchorX":100,"anchorY":200, "lock":false, "color":"#333", "attachElement":"txtContacts", "attachX":75, "attachY":9});		
-
-   //newsfeeds
-	rope[4] = ropeHandler.createRope({"length":250, "width":2,"anchorX":810,"anchorY":-480, "lock":false, "color":"#333","attachElement":"iNewsFeeds", "attachX":90, "attachY":61, "angle":5});
-	rope[5] = ropeHandler.createRope({"length":35, "width":1,"anchorX":100,"anchorY":200, "lock":false, "color":"#333", "attachElement":"txtNewsFeeds", "attachX":97, "attachY":0, "angle":5 });		
-
+	
+	//Documents
+	rope[0] = ropeHandler.createRope({"length":250, "width":4,"anchorX":150,"anchorY":0, "lock":false, "color":"#333","attachElement":"imgDocuments", "attachX":45, "attachY":61, "angle":8});
+	rope[1] = ropeHandler.createRope({"length":75, "width":1,"anchorX":150,"anchorY":20, "lock":false, "color":"#333", "attachElement":"txtDocuments", "attachX":50, "attachY":40, "angle":3 });		
 	rope[0].attachRope(rope[1], "20", "33");
-	rope[2].attachRope(rope[3], "0", "39"); 
+	
+  //People
+	rope[2] = ropeHandler.createRope({"length":225, "width":4,"anchorX":475,"anchorY":-460, "lock":false, "color":"#333","attachElement":"imgContacts", "attachX":105, "attachY":70, "angle":10});
+	rope[3] = ropeHandler.createRope({"length":30, "width":1,"anchorX":150,"anchorY":200, "lock":false, "color":"#333", "attachElement":"txtContacts", "attachX":75, "attachY":9});		
+	rope[2].attachRope(rope[3], "0", "39");
+
+  //News Feeds
+	rope[4] = ropeHandler.createRope({"length":225, "width":4,"anchorX":810,"anchorY":-480, "lock":false, "color":"#333","attachElement":"imgNewsFeeds", "attachX":90, "attachY":61, "angle":5});
+	rope[5] = ropeHandler.createRope({"length":35, "width":1,"anchorX":150,"anchorY":200, "lock":false, "color":"#333", "attachElement":"txtNewsFeeds", "attachX":97, "attachY":0, "angle":5 });		
 	rope[4].attachRope(rope[5], "5", "15");
-		
+ 
+	//Please Wait	
+	var xLocation = (screen.width / 2) - 60;
+	rope[99] = ropeHandler.createRope({"length":250, "width":4,"anchorX":xLocation,"anchorY":-480, "lock":false, "color":"#333","attachElement":"imgPleaseWait", "attachX":45, "attachY":61, "angle":8});
+	
 	updateGraphics();
 }
 
@@ -193,4 +190,3 @@ document.ontouchend = function(event) {
 document.ontouchcancel = function(event) {
 	event.preventDefault();
 }; 
-

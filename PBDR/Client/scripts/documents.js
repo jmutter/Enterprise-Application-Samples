@@ -6,5 +6,10 @@
 //Global Variables
 
 function displayDocuments(msg){
-	alert("clicked display Documents");
+	
+	introSound.pause();
+	
+	rope[99].fallDown();
+	showImages(false);
+	//document.getElementById('imgPleaseWait').style.display="block";	
 }
