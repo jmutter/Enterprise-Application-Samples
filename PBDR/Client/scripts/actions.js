@@ -37,10 +37,10 @@ var gUserRecordID = '1';
 //The next variables are used to hold information relative to the connection preferences
 //This allows persistent storage of data for the application
 var gConfigDateTime = '';
-var gConfigPrimaryURL = 'http://www.dagobaahserver.com/pbdr/UpdateCheck.ashx';
+var gConfigPrimaryURL = 'http://www.dagobaahserver.com/pbdr/Config.ashx';
 var gConfigPrimaryUserID = '';
 var gConfigPrimaryPassword = '';
-var gConfigSecondaryURL = 'http://www.dagobaahserver.com/pbdr/UpdateCheck.ashx';
+var gConfigSecondaryURL = 'http://www.dagobaahserver.com/pbdr/Config.ashx';
 var gConfigSecondaryUserID = '';
 var gConfigSecondaryPassword = '';
 var gContactsDateTime = '';
@@ -64,6 +64,15 @@ var gRSSPrimaryPassword = '';
 var gRSSSecondaryURL = 'http://www.dagobaahserver.com/pbdr/RSS.ashx';
 var gRSSSecondaryUserID = '';
 var gRSSSecondaryPassword = '';
+
+//*************************************************************
+//File sync variables...
+//*************************************************************
+var FILE_STORAGE = blackberry.io.dir.appDirs.shared.documents;
+//the directory to download files to in the FILE_STORAGE space
+var DIRECTORY_NAME = "pbdr";
+var FULL_DIR_PATH = FILE_STORAGE.path + '/'  + DIRECTORY_NAME;
+
 
 function browserDetection() {
 //*************************************************************
@@ -111,7 +120,7 @@ function displayScreen(screenName) {
 //* Value Returned: 
 //*		Nothing
 //*************************************************************	
-	
+		
   writeLog('displayScreen Starting');
  	$('#' + gScreenNameHome).hide();
  	$('#' + gScreenNameDocuments).hide();
@@ -123,7 +132,8 @@ function displayScreen(screenName) {
 	if (screenName == gScreenNameHome) {
  		$('#' + gScreenNameHome).show();
 	}
-	else if (screenName == gScreenNameDocuments) {
+	else if (screenName == gScreenNameDocuments) {	  
+	  $('#' + gScreenNameDocuments).fadeIn(1500);
 	  $('#' + gScreenNameDocuments).show('slow');
 	}
 	else if (screenName == gScreenNameNoContacts) {
@@ -135,6 +145,7 @@ function displayScreen(screenName) {
 	}
 	else if (screenName == gScreenNameGroups) {
 	  $('#listing').show('slow');
+	  
 	}
 	else if (screenName == gScreenNameContacts) {
 		$('#listing').fadeIn(1500);
@@ -240,11 +251,6 @@ function getStarted(msg) {
 		displayScreen(gScreenNameHome);
 		if (gConfigsValid == true) {			
 			//alert ('call for stuff goes here');
-			//alert('need code here to analyze the datetime');
-			//if never (blank) simply prompt to let user know we are getting data
-		}
-		else {
-			alert ('Severe error retrieving configurations settings.\n\nPlease contact your administrator');
 		}
 	}
 	else if (msg.substring(0,19) == 'USERSETTINGSFAILED:') {
@@ -385,15 +391,6 @@ function retrieveConfigSettings(msg, functionToCall) {
 					gConfigSecondaryPassword = array[6];					
 					gConfigDateTime = array[7];
 				}				
-			}
-			if (gDocumentsDateTime == '') {
-				gDocumentsDateTime = 'Never';
-			}
-			if (gContactsDateTime == '') {
-				gContactsDateTime = 'Never';
-			}
-			if (gRSSDateTime == '') {
-				gRSSDateTime = 'Never';
 			}
 			window[gParentFunctionToCall]('CONFIGSETTINGSRETRIEVED');			
 		}
@@ -558,3 +555,53 @@ function validateConfigs() {
 		displayMessage(msg);
 	}
 }
+
+
+//*************************************************************
+//Integreating FileSync/download code below
+//*************************************************************
+function launchFile ()
+{ //filePath
+	//alert("in launchFile filePath = " + filePath);
+	alert("in launchFile filePath = ");
+	// if (blackberry.io.file.exists(filePath))
+	// {
+        // blackberry.io.file.open(filePath);	               
+	// }else
+	// {
+		// alert("file does not exist");
+	// }
+}
+
+var fullFileList;
+function sendRequest() {	
+	debug("Im in sendRequest");
+	var jqxhr = $.getJSON("http://dagobahserver.com/pbdr/Documents.ashx", function(data) {
+		//debug("success: " + data[0].filename);
+		fullFileList = data;
+		})
+		//.success(function() { debug("second success"); })
+		.error(function() { debug("error"); })
+		.complete(function() { 
+			//debug("Complete: " + fullFileList, "clear"); 
+			downloader.startDownloader(fullFileList, FULL_DIR_PATH, onDownloadComplete);
+		});
+
+}
+
+function getFileList(){
+	//debug ('in getFileList');
+	var fileList = downloader.getCurrentFileList(FULL_DIR_PATH);	
+	//debug ("fileList = " + fileList);	
+	return fileList;
+}
+
+function onDownloadComplete(){
+	alert("download complete");
+}
+
+function debug(str, cleartext){
+	if (cleartext !== undefined) document.getElementById('results').innerHTML = "";
+	document.getElementById('results').innerHTML += str + '<br />';
+}
+

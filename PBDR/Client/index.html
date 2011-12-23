@@ -34,6 +34,7 @@
 		<script type="text/javascript" src="scripts/rss.js"></script>		
 		<script type="text/javascript" src="scripts/settings.js"></script>	
 		<script type="text/javascript" src="scripts/testing.js"></script>	
+		<script type="text/javascript" src="scripts/downloader.js"></script>
 					
 		<script type="text/javascript">
 			$(document).ready(function() {
@@ -108,8 +109,12 @@
 			
 			
 			<div id="documents">
-				Documents would be listed here
-			</div>
+				<ul id="lviewDocs" data-role="listview" class="ui-listview" data-inset="true" role="listbox">
+					<!--<button onclick ="sendRequest()">Send Request</button>
+					<button onclick ="getFileList()">Get File List</button> -->
+					<!--Dynamically populated via displayDocuments() function -->					
+				</ul>				
+			</div>	
 	
 			<div id="nocontacts">
 				<!--Content will be supplied by the code with an image to simulate a watermark-->
@@ -159,6 +164,9 @@
 			   	<label for="rbDateDisplayYYYYMMDD">YYYYMMDD</label>
 			  </fieldset>
 			</div>	
+			
+			<!--	<output id="results"></output>-->
+			
 		</div>					
 	</body>	
 </html>
