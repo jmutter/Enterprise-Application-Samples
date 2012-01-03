@@ -77,7 +77,7 @@ function getTime(format) {
 		if (hours > 12 ) {
 			hours = hours - 12;
 		}
-		returnValue = hours + ":" + minutes + ' ' + suffix;
+		returnValue = hours + ':' + minutes + ' ' + suffix;
 	}
 
 	return returnValue;

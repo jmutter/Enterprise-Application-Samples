@@ -10,45 +10,7 @@ var gGroupRecords = new Array();
 var gInsertGroupCounter;
 var gRetrievalStep = '';
 
-function buildGroupsListing(){
-//*************************************************************
-//* This function will retrieve records from the database and
-//* build the group listing screen
-//* Parms:
-//*		Nothing
-//* Value Returned: 
-//*		Nothing
-//*************************************************************
-	
-	writeLog('buildGroupsListing Starting');	
-	writeLog('  Processing ' + gGroupRecords.length + ' groups');
-	var counter = 0;
-	var groupArray;	
-	$('#listofentries').empty();
-	//$('#listofentries').removeAttr('data-filter');
-	document.getElementById('listheader').innerHTML = '<label>Groups</label>';
-	var html = '';
-	if (gUserShowAllGroup == 'True') {
-		var totalUsers = 0;
-  	for (counter = 0; counter < gGroupRecords.length; ++counter) {
-    	groupArray = gGroupRecords[counter].split(gDelim);  
-			totalUsers = totalUsers + parseInt(groupArray[1]);	 	
-		}		
-    html = '<li data-theme="e" style="font-size:10pt"><a onclick="displayContacts(\'\',\'AllOfThem\');">' + 'All' + '</a> <span class="ui-li-count">' + totalUsers + '</span>';
-		html += '</li>';
-	 	$('#listofentries').append(html);
-	}
-  for (counter = 0; counter < gGroupRecords.length; ++counter) {
-    groupArray = gGroupRecords[counter].split(gDelim);  
-    html = '<li data-theme="e" style="font-size:10pt"><a onclick="displayContacts(\'\',\'' + groupArray[0] + '\');">' + groupArray[0] + '</a> <span class="ui-li-count">' + groupArray[1] + '</span>';
-		html += '</li>';
-	 	$('#listofentries').append(html);
-	}
-	$('#listofentries').listview('refresh');
-	writeLog('buildGroupsListing Finished');	
-}
-
-function displayGroups(msg) {
+function buildGroupsScreen(msg) {
 //*************************************************************
 //* This function will display the listing of groups
 //* Parms:
@@ -59,18 +21,43 @@ function displayGroups(msg) {
 	
 	var errMsg = '';
 	if (msg == '') {
-		writeLog('displayGroups Starting');
+		manageMusic('Stop');
+		writeLog('buildGroupsScreen Starting');
 		var	sql = 'SELECT groupname, contactrecords, recordsreceived FROM ' + gTableNameGroups + ' ORDER BY groupname';
-		dbGetRecords(sql, 'groups', 'displayGroups');
+		dbGetRecords(sql, 'groups', 'buildGroupsScreen');
 	}
 	else if (msg == 'DBGETRECORDSSUCCESS') {
 		if (gGroupRecords.length == 0) {
 			writeLog('displayGroups Finished - No Contacts');
 			displayScreen(gScreenNameNoContacts);
 		}
-		else {
-			buildGroupsListing();
-			writeLog('displayGroups Finished');
+		else {	
+			writeLog('Processing ' + gGroupRecords.length + ' groups');
+			var counter = 0;
+			var groupArray;	
+			$('#grouplisting').empty();
+			//$('#listofentries').removeAttr('data-filter');
+			document.getElementById('listheader').innerHTML = '<label>Groups</label>';
+			var html = '';
+			if (gUserShowAllGroup == 'True') {
+				var totalUsers = 0;
+ 			 	for (counter = 0; counter < gGroupRecords.length; ++counter) {
+ 			   	groupArray = gGroupRecords[counter].split(gDelim);  
+					totalUsers = totalUsers + parseInt(groupArray[1]);	 	
+				}		
+  			html = '<li data-theme="e" style="font-size:10pt"><a onclick="buildContactsScreen(\'\',\'AllOfThem\');">' + 'All' + '</a> <span class="ui-li-count">' + totalUsers + '</span>';
+			  html += '</li>';
+			 	$('#grouplisting').append(html);
+			}
+		  for (counter = 0; counter < gGroupRecords.length; ++counter) {
+ 		   groupArray = gGroupRecords[counter].split(gDelim);  
+		    html = '<li data-theme="e" style="font-size:10pt"><a onclick="buildContactsScreen(\'\',\'' + groupArray[0] + '\');">' + groupArray[0] + '</a> <span class="ui-li-count">' + groupArray[1] + '</span>';
+				html += '</li>';
+	 			$('#grouplisting').append(html);
+			}
+			//$('#listofentries').listview('refresh');		
+			$('#grouplisting').listview('refresh');		
+			writeLog('buildGroupsScreen Finished');			
 			displayScreen(gScreenNameGroups);
 		}	
 	}
@@ -81,7 +68,7 @@ function displayGroups(msg) {
   	errMsg = 'Invalid msg: ' + msg;
 	}	
 	if (errMsg != '') {
-		writeLog('displayGroups Finished - ERROR - '+ errMsg);
+		writeLog('buildGroupsScreen Finished - ERROR - '+ errMsg);
 	}	
 }
 

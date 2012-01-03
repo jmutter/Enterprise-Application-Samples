@@ -127,13 +127,13 @@ function saveSettings(msg) {
 		sql += ' WHERE recordid = \'' + gUserRecordID + '\'';
 		dbUpdateRecord(sql, 'saveSettings'); 	
 	}
-	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
-		errMsg = msg.substring(20);
-	}
 	else if (msg == 'DBUPDATERECORDSUCCESS') {	
 		gSettingsChangeDetected = false;			
 		displayMessage('Settings saved');
 		displayGroups('');
+	}
+	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
+		errMsg = msg.substring(20);
 	}
 	else {
 		errMsg = 'Invalid msg: ' + msg;

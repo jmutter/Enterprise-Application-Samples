@@ -4,7 +4,60 @@
 //*************************************************************	
 
 //Global Variables
-var gTestingClearMethod ='';
+var gTestingClearMethod = '';
+var gTestingWaitMethod = '';
+
+function testingClearContacts(msg) {
+	
+	var errMsg = '';
+	var sql = '';
+	if (msg == '') {
+		gTestingClearMethod = 'Groups';
+		sql = 'DELETE FROM ' + gTableNameGroups;
+		dbDeleteRecord(sql, 'testingClearContacts');
+	}
+	else if (msg == 'DBDELETERECORDSUCCESS') {
+		if (gTestingClearMethod == 'Groups') {
+			gTestingClearMethod = 'Contacts';
+			sql = 'DELETE FROM ' + gTableNameContacts;
+			dbDeleteRecord(sql, 'testingClearContacts');
+		}
+		else {
+			buildGroupsScreen('');
+		}
+	}	
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
+	else {
+  	errMsg = 'Invalid msg: ' + msg;
+	}	
+	if (errMsg != '') {
+		alert ('Error deleting ' + gTestingClearMethod + '\n' + errMsg);
+	}		
+}
+
+function testingClearRSS(msg) {
+	
+	var errMsg = '';
+	if (msg == '') {
+		var sql = 'DELETE FROM ' + gTableNameRSS;
+		dbDeleteRecord(sql, 'testingClearRSS');
+	}
+	else if (msg == 'DBDELETERECORDSUCCESS') {
+		buildRSSScreen('');
+	}	
+	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}
+	else {
+  	errMsg = 'Invalid msg: ' + msg;
+	}	
+	if (errMsg != '') {
+		alert ('Error deleting ' + gTestingClearMethod + '\n' + errMsg);
+	}		
+}
+
 
 function testingLoadContacts() {
 	//Build payload from text and call processPayload
@@ -433,6 +486,52 @@ function testingLoadContacts() {
 ,"zipcode":""
 ,"workphone":"(801) 78828"}
 ]};		
-alert ('sending json');
-	processContactsPayload('');		
+
+	processJSONPayload();	
+	setTimeout(function() {
+		alert ('People content loaded');
+	}, 2500); 
+}
+
+function testingLoadRSS() {
+	
+	gJSONPayload = {"RSS":[   
+  	{"id" : 1 ,
+  	"title" : "The System is down!",
+    "detail" : "We are in a disaster recovery cycle" },
+    {"id" : 2 , 
+    "title" : "The System is rebooting!",
+    "detail" : "We are still in a disaster recovery cycle" },
+	  {"id" : 3 ,
+    "title": "System still rebooting",
+    "detail": "We are getting closer to recovery" },
+	  {"id" : 4 ,
+    "title": "Systems online, applications starting",
+    "detail": "ETA 20 Minutes to back in operation" },
+	  {"id" : 5 ,
+    "title": "DR scenario completed",
+    "detail": "All systems back online. report all discrepanices to anyone." }	
+	]};
+	processJSONPayload();
+	setTimeout(function() {
+		alert ('RSS content loaded');
+	}, 1500); 
+}
+
+function testingPleaseWait() {
+	if (gTestingWaitMethod == '' || gTestingWaitMethod == 'Hidden') {
+		showOptions(false);	 
+		manageMusic('Stop');
+		setTimeout(function() {
+			manageWait('Show');
+		}, 500); 
+		gTestingWaitMethod = 'Shown';		
+	}
+	else {	
+		gTestingWaitMethod = 'Hidden';		
+		manageWait('Hide');
+		setTimeout(function() {
+			showOptions(true);	 
+		}, 500); 
+	}
 }

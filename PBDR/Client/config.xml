@@ -11,7 +11,7 @@
   <feature id="blackberry.system.event" required="true" version="1.0.0.0"/>
   <feature id="blackberry.invoke.BrowserArguments" required="true" version="1.0.0.0"/>
   <access subdomains="true" uri="http://www.dagobahserver.com"/>
-  <icon rim:hover="false" src="images/cca.png"/>
+  <icon rim:hover="false" src="images/applicationicon.png"/>
   <content src="index.html"/>
   <rim:connection>
     <id>MDS</id>

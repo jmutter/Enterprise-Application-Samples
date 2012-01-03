@@ -125,40 +125,6 @@ ul.section li.category h3 {
 	color: #FF9200;
 }
 
-.aboutdetail {
-	border : solid 2px black;
-	padding: 0 1em;
-	height : 300px;	
-	border-bottom-left-radius: .25em;
-}
-.auto {
-	overflow : auto; 
-}
-.hidden {
-	overflow : hidden; 
-}
-.scroll {
-	overflow : scroll; 
-}
-
-.emergencycalldetails {
-	border : solid 4px #780000;
-	margin: 0 5px 0 5px;
-	padding: 0 1em;
-	height : 400px;	
-	color:black;
-	overflow : auto; 
-}
-
-.emergencynotificationdetails {
-	border : solid 4px #780000;
-	margin: 0 5px 0 5px;
-	padding: 0 1em;
-	height : 400px;	
-	color:black;
-	overflow : auto; 
-}
-
 .marquee {
 	height:80px;
 	background-color:ffff33;
@@ -220,6 +186,6 @@ ul.section li.category h3 {
 
 /* Position groups of buttons on each side of the menuBar */
 .menuBarButton { 
-	font-size: 60%;
+	font-size: 40%;
 	float: left;			
 }

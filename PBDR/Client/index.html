@@ -36,49 +36,46 @@
 		<script type="text/javascript" src="scripts/testing.js"></script>	
 		<script type="text/javascript" src="scripts/downloader.js"></script>
 					
+		<!-- Custom JS -->	 
 		<script type="text/javascript">
 			$(document).ready(function() {
-				whenReady();				
-			});
-		</script>
-											
-		<!-- Custom JS -->
-    <script>
-				$(document).ready(function(){
-						$('.panel').hide();
+				setupHomeScreen();	
+							
+				$('.panel').hide();
 					
-						$('.panelTitle').collapser({
-							target: 'next',
-							effect: 'slide',
-							changeText: 0,
-							expandClass: 'expIco',
-							collapseClass: 'collIco'
-						}, function(){
-							$('.panel').slideUp();
-						});
+				$('.panelTitle').collapser({
+					target: 'next',
+					effect: 'slide',
+					changeText: 0,
+					expandClass: 'expIco',
+					collapseClass: 'collIco'
+				}, function(){
+					$('.panel').slideUp();
 				});
+			});
 		</script>
 		<!-- Custom JS -->	 	
 	</head>
 
 	<body>			
 		<div id="mainpage" data-role="page">		
-		<!-- Custom JS -->
-				<div id="background"	class="backgroundstate"></div>		
+
+			<div id="background" class="backgroundstate"></div>	
 			
-			<div id="home">
+			<div id="home"> >
 				<img id="overlay" width="1025" height="600" alt=""/> 		
-				<div id="background"	class="backgroundstate"></div>	
 				<section class="stage">
 					<div id="graphics" style="display:none" >
 						<svg id="my_path" width="1024px" height="610px" style="position:fixed; top:0px; z-index: 1110;" version="1.1" xmlns="http://www.w3.org/2000/svg"> 
-				 			<image id="imgDocuments" width="175" height="150" xlink:href="images/documents.png" onclick="displayDocuments('')"/>
-							<image id="imgContacts" width="233" height="150" xlink:href="images/contacts.png" onclick="displayGroups('')"/>
-							<image id="imgNewsFeeds" width="130" height="110" xlink:href="images/rss.png" onclick="displayRSS('')"/>	
+				 			<image id="imgDocuments" width="175" height="150" xlink:href="images/documents.png" onclick="buildDocumentsScreen('')"/>
+							<image id="imgContacts" width="233" height="150" xlink:href="images/contacts.png" onclick="buildGroupsScreen('')"/>
+							<image id="imgNewsFeeds" width="130" height="110" xlink:href="images/rss.png" onclick="buildRSSScreen('')"/>	
 							<image id="imgPleaseWait" width="250" height="200" xlink:href="images/pleasewait.png"/>					
-							<image id="txtDocuments" width="200" height="150" xlink:href="images/txtDocuments.png"/>
-							<image id="txtContacts" width="210" height="168" xlink:href="images/txtPeople.png"/>
-							<image id="txtNewsFeeds" width="210" height="168" xlink:href="images/txtNewsFeeds.png"/>  		
+							<image id="imgStopMusic" width="50" height="50" xlink:href="images/stopmusic.png" onclick="manageMusic('Stop')"/>	
+							<image id="txtDocuments" width="200" height="150" xlink:href="images/txtdocuments.png"/>
+							<image id="txtContacts" width="210" height="168" xlink:href="images/txtpeople.png"/>
+							<image id="txtNewsFeeds" width="210" height="168" xlink:href="images/txtnewsfeeds.png"/>  		
+							<image id="imgTestPleaseWait" width="64" height="64" xlink:href="images/testpleasewait.png" onclick="testingPleaseWait('')"/>	
 				 		</svg>
 					</div>			
 					<div id="main">
@@ -102,7 +99,19 @@
 					<li onclick="displaySettings()">Settings</li>					
 				</ul>
 				<ul class="menuBarButton">
+					<li onclick="testingClearContacts('')">Clear Contacts</li>					
+				</ul>
+				<ul class="menuBarButton">
 					<li onclick="testingLoadContacts('')">Load Contacts</li>					
+				</ul>
+				<ul class="menuBarButton">
+					<li onclick="testingClearRSS('')">Clear RSS</li>					
+				</ul>
+				<ul class="menuBarButton">
+					<li onclick="testingLoadRSS('')">Load RSS</li>					
+				</ul>
+				<ul class="menuBarButton">
+					<li onclick="sendRequest()">Get JSON</li>					
 				</ul>
 			</div>  			
 			
@@ -110,29 +119,43 @@
 			
 			<div id="documents">
 				<ul id="lviewDocs" data-role="listview" class="ui-listview" data-inset="true" role="listbox">
-					<button onclick ="sendRequest()">Send Request</button>
-					<button onclick ="getFileList()">Get File List</button> 
-					<!--Dynamically populated via displayDocuments() function -->					
+					<!--Dynamically populated via buildDocumentsScreen() function -->					
 				</ul>				
 			</div>	
 	
 			<div id="nocontacts">
-				<!--Content will be supplied by the code with an image to simulate a watermark-->
+				<!--Content will be created via buildNoContactsScreen() function -->
 			</div>
-	
-			<div id="listing" data-theme="b">
+
+			<div id="groups" data-theme="b">
 				<div data-role="header" data-theme="b">
-					<h1 id="listheader"></h1>				
+					<h1 id="listheader">Groups</h1>				
 				</div> 			
 				<div data-role="content" data-theme="b">				
-					<ul id="listofentries" data-role="listview" data-inset="true" data-filter="true">
-					<!--Content is dynamically created to display Groups or list of Contacts-->
+					<ul id="grouplisting" data-role="listview" class="ui-listview" data-inset="true">
+					<!--Content is dynamically via buildGroupsScreen() function -->
   	  		</ul>
 				</div>
 			</div>	
-				
+
+			<div id="contacts" data-theme="b">
+				<div data-role="header" data-theme="b">
+					<h1 id="contactsheader" onclick="buildGroupsScreen('')"></h1>				
+				</div> 			
+				<div data-role="content" data-theme="b">				
+					<ul id="contactslisting" data-role="listview" data-inset="true" data-filter="true">
+					<!--Content is dynamically created via buildContactsScreen() functionn -->
+  	  		</ul>
+				</div>
+			</div>
+
+			<div id="norss" >
+				<div id="norssbackground"></div>		
+				<!--Content will be created via buildNoRSSScreen() function -->
+			</div>
+
 			<div id="rss">
-				RSS listing would appear here
+				<!--Content will be created via buildRSSScreen() function -->
 			</div>
 			
 			<div id="settings">				
@@ -164,9 +187,9 @@
 			   	<label for="rbDateDisplayYYYYMMDD">YYYYMMDD</label>
 			  </fieldset>
 			</div>	
-			
-			<!--<output id="results"></output>-->
-			
-		</div>					
+										<!--		
+			<output id="results"></output>
+			-->
+		</div>
 	</body>	
 </html>

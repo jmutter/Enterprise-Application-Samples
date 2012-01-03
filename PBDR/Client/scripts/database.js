@@ -96,10 +96,10 @@ function dbCreateTable(tableName, functionToCall) {
 		sql += ', recordsreceived text)';  //Date and time the records were received
 	}	
 	else if (tableName == gTableNameRSS) {
-		sql += ' urlid integer primary key';
-		sql += ', id text';  //URL that hasn't been posted
-		sql += ', title text';  //Date and time the URL was put into the database
-		sql += ', data text)';  //Status code from last attempt if not 200
+		sql += ' rssid integer primary key';
+		sql += ', feedid text';  //Unique identifer from source
+		sql += ', title text';  //Title of feed
+		sql += ', detail text)';  //Contents of feed
 	}	
 	else if (tableName == gTableNameConfig) {
 		sql += ' type text';  //Type of config information
@@ -169,7 +169,8 @@ function dbDeleteRecord(sql, functionToCall) {
 			gDatabase.transaction(function(tx) {
 				tx.executeSql(sql, []
 				,function(tx, response) {  //Pass Callback - called when the transaction works 
-					returnValue = 'DBDELETERECORDSUCCESS';	
+					returnValue = 'DBDELETERECORDSUCCESS';
+				
 					window[functionToCall](returnValue);
 				}
 				,function(err) { //Failure Callback - called when the transaction fails
@@ -180,7 +181,7 @@ function dbDeleteRecord(sql, functionToCall) {
 			});
 		} 
 		catch (e) {
-			returnValue = 'DBDELETERECORDERROR:General SQL failure with:\n  Name: ' + e.name + '\n  Msg: ' + e.message + '\n  SQL: ' + sql;
+			returnValue = 'DBDELETERECORDERROR:General SQL failure with:\n Msg: ' + e.message + '\n  SQL: ' + sql;
 			window[functionToCall](returnValue);
 		}			
 	}
@@ -445,22 +446,31 @@ function dbOpenDatabase(msg, functionToCall) {
 		errMsg = msg.substring(19);
 	}
 	else if (msg == 'DATABASEOPEN') {
-		dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameContacts);
-		//dbDropTable(gTableNameContacts,"dbOpenDatabase");  //Only use this line when testing and wanting to clear data
+		//Once you have run this in your browser and on a PlayBook
+		//Uncomment line 452
+		//Comment line 453
+		//dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameContacts);
+		dbDropTable(gTableNameContacts,"dbOpenDatabase");  //Only use this line when testing and wanting to clear data
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameContacts) {
 		dbCreateTable(gTableNameContacts, 'dbOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameContacts) {
-		dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameGroups);  
-		//dbDropTable(gTableNameGroups,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		//Once you have run this in your browser and on a PlayBook
+		//Uncomment line 462
+		//Comment line 463
+		//dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameGroups);  
+		dbDropTable(gTableNameGroups,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameGroups) {
 		dbCreateTable(gTableNameGroups, 'dbOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameGroups) {
-		dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameRSS);  
-		//dbDropTable(gTableNameRSS,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		//Once you have run this in your browser and on a PlayBook
+		//Uncomment line 472
+		//Comment line 473
+		//dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameRSS);  
+		dbDropTable(gTableNameRSS,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameRSS) {
 		dbCreateTable(gTableNameRSS, 'dbOpenDatabase');			

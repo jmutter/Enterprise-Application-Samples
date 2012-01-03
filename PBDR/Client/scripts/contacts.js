@@ -43,7 +43,7 @@ function buildContactPanel(contactid, group, firstname, lastname, title, company
 	}	
 	html += '</div>';
 	html += '<div class="panel">';
-	html +=	'<div class="ui-body-e">';
+	html +=	'<div class="ui-body-a">';
 	if (gGroupNameSelected == 'AllOfThem') {
 		html += '<div style="font-size:7pt; font-weight:normal">' + 'Group: ';
 		html += '<label style="font-size:9pt; color:#006600; font-weight:normal">' + group + '</label></div>';
@@ -65,19 +65,19 @@ function buildContactPanel(contactid, group, firstname, lastname, title, company
 	}
 	if (workphone != '') {
 		html += '<div><img src="images/phone.png"/><label style="font-size:7pt; font-weight:normal"> (w):</label>';
-		html += '<a style="font-size:9pt; font-weight:normal" href="tel:' + workphone + '">' + workphone +'</a></div>';
+		html += '<a style="font-size:9pt; font-weight:normal">' + workphone +'</a></div>';
 	}
 	if (mobilephone != '') {
 		html += '<div><img src="images/phone.png"/><label style="font-size:7pt; font-weight:normal"> (m):</label>';
-		html += '<a style="font-size:9pt; font-weight:normal" href="tel:'+ mobilephone + '">' + mobilephone + '</a></div>';
+		html += '<a style="font-size:9pt; font-weight:normal">' + mobilephone + '</a></div>';
 	}
 	if (homephone != '') {
 		html += '<div><img src="images/phone.png"/><label style="font-size:7pt; font-weight:normal"> (h):</label>';
-		html += '<a style="font-size:9pt; font-weight:normal" href="tel:'+ homephone +'">' + homephone + '</a></div>';
+		html += '<a style="font-size:9pt; font-weight:normal">' + homephone + '</a></div>';
 	}
 	if(pin != '') {
 		html += '<div><img src="images/pin.png"/><label style="font-size:7pt; font-weight:normal"> pin:</label>';
-		html += '<a style="font-size:9pt; font-weight:normal" href="pin:' + pin+ '">' + pin + '</a></div>';
+		html += '<a style="font-size:9pt; font-weight:normal">' + pin + '</a></div>';
 	}
 	if (address != '') {			
 		html += '<div style="font-size:9pt; font-weight:normal">' + address + '</div>';
@@ -126,7 +126,7 @@ function buildContactsListing() {
 		showDivider = false;
 	}
 	
-	$('#listofentries').empty();
+	$('#contactslisting').empty();
 	//$('#listofentries').attr('data-filter', 'true');
 	for (counter = 0; counter < gContactRecords.length; ++counter) {
 		array = gContactRecords[counter].split(gDelim);	
@@ -156,10 +156,10 @@ function buildContactsListing() {
 			}
 			panel = buildContactPanel(array[0], array[1], array[2], array[3], array[4], array[5], array[6], array[7], array[8], array[9], array[10],array[11],array[12],array[13],array[14],array[15], array[16]);
 			html += panel;
-			$('#listofentries').append(html);
+			$('#contactslisting').append(html);
 		}
 	}
-	$('#listofentries').listview('refresh');
+	$('#contactslisting').listview('refresh');
 	
 	//Apply the JQuery Mobile plug-in to build an accordian looking effect
 	//applyAccordion();
@@ -174,11 +174,11 @@ function buildContactsListing() {
     $('.panel').slideUp();
   });
   
-	document.getElementById('listheader').innerHTML = '<label>' + header + '</label>';	
+	document.getElementById('contactsheader').innerHTML = '<label>' + header + '</label>';	
 	writeLog('buildContactsListing Finished');
 }
 
-function displayContacts(msg, groupName) {
+function buildContactsScreen(msg, groupName) {
 //*************************************************************
 //* This function will build the list of contacts based on the 
 //* selected group from the group listing
@@ -191,7 +191,7 @@ function displayContacts(msg, groupName) {
 	
 	var errMsg = '';
 	if (msg == '' || msg == undefined) {
-		writeLog('displayContacts Starting');
+		writeLog('buildContactsScreen Starting');
 		gGroupNameSelected = groupName;	
 		var	sql = 'SELECT contactid, groupname, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts;
 		if (groupName != 'AllOfThem') {
@@ -203,11 +203,17 @@ function displayContacts(msg, groupName) {
 		else {
 			sql += ' ORDER BY lastname, firstname';
 		}
-		dbGetRecords(sql, 'contacts', 'displayContacts');
+		dbGetRecords(sql, 'contacts', 'buildContactsScreen');
 	}
 	else if (msg == 'DBGETRECORDSSUCCESS') {
-		buildContactsListing();	
-		writeLog('displayContacts Finished');
+		if (gContactRecords.length > 0 ) {
+			buildContactsListing();
+			displayScreen(gScreenNameContacts);
+		}
+		else {
+			alert ('No contacts found for Group: ' + gGroupNameSelected + '\n\nPlease contact your administrator.');
+		}
+		writeLog('buildContactsScreen Finished');
 	}
 	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
 		errMsg = msg.substring(18);
@@ -216,8 +222,25 @@ function displayContacts(msg, groupName) {
   	errMsg = 'Invalid msg: ' + msg;
 	}	
 	if (errMsg != '') {
-		writeLog('displayContacts Finished - ERROR - '+ errMsg);
+		writeLog('buildContactsScreen Finished - ERROR - '+ errMsg);
 	}	
+}
+
+function buildNoContactsScreen() {
+//*************************************************************
+//* This function will build the nocontacts <div> to build
+//* a repeated background.
+//* Only need to call this function once
+//* Parms:
+//*		Nothing
+//* Value Returned: 
+//*		Nothing
+//*************************************************************	
+
+	document.getElementById(gScreenNameNoContacts).style.backgroundImage = "url(images/nocontacts.png)";
+	document.getElementById(gScreenNameNoContacts).style.width = screen.availWidth + "px";
+	document.getElementById(gScreenNameNoContacts).style.height = screen.availHeight + "px";
+	document.getElementById(gScreenNameNoContacts).style.backgroundRepeat = "repeat";
 }
 
 function insertContactRecords(msg, functionToCall) {
@@ -236,7 +259,7 @@ function insertContactRecords(msg, functionToCall) {
 		gParentFunctionToCall = functionToCall;
   	writeLog('insertContactRecords Starting');
 		sql = 'DELETE FROM ' + gTableNameContacts + ' WHERE groupname = \'' + fieldPrepare(gContactPayloadGroupName) + '\'';
-		dbDeleteRecord(sql, 'insertContactRecords');		
+		dbDeleteRecord(sql, 'insertContactRecords');
 	}
 	else if (msg == 'DBDELETERECORDSUCCESS' || msg == 'DBADDRECORDSUCCESS') {
 		if (gContactCounter < gJSONPayload.Contacts.length) { 
@@ -407,8 +430,16 @@ function processContactsPayload(msg) {
   	gGroupPayloadCounter++;
   }
   else if (msg == 'UPDATEGROUPSSUCCESS') {
+  	gContactsDateTime = getDate('yyyymmdd') + ' @ ' + getTime('hhmmss');
+  	var	sql = 'UPDATE ' + gTableNameConfig + ' SET datetime = \'' + gContactsDateTime + '\' WHERE type = \'Contacts\'';
+		dbUpdateRecord(sql, 'processContactsPayload'); 
+	} 
+	else if (msg == 'DBUPDATERECORDSUCCESS') {	
 		writeLog('processContactPayload Finished');
-	}   
+	}
+	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
+		errMsg = msg.substring(20);
+	}  
 	else if (msg.substring(0,20) == 'INSERTCONTACTSERROR:') {
 		errMsg = msg.substring(20);
 	}

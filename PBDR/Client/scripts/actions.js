@@ -6,6 +6,7 @@ window.onload=formLoad;
 window.onorientationchange = function(){orientationChangeDetected();};
 	
 //Global variables
+var gApplicationWaiting = false;
 var gBrowserPlayBook = 'PlayBook';
 var gBrowserGeneric = 'Browser';
 var gBrowserRipplePlayBook = 'RipplePlayBook';
@@ -15,11 +16,13 @@ var gConfigRecords = new Array();
 var gConfigsValid = true;
 var gInsertConfigCounter = 0;
 var gParentFunctionToCall = '';
+var gScreenDisplayed = '';
 var gScreenNameContacts = 'contacts';
 var gScreenNameDocuments = 'documents';
 var gScreenNameGroups = 'groups';
 var gScreenNameHome = 'home';
 var gScreenNameNoContacts = 'nocontacts';
+var gScreenNameNoRSS = 'norss';
 var gScreenNameRSS = 'rss';
 var gScreenNameSettings = 'settings';
 var gTestingMode = true;
@@ -37,10 +40,10 @@ var gUserRecordID = '1';
 //The next variables are used to hold information relative to the connection preferences
 //This allows persistent storage of data for the application
 var gConfigDateTime = '';
-var gConfigPrimaryURL = 'http://www.dagobaahserver.com/pbdr/Config.ashx';
+var gConfigPrimaryURL = 'http://www.dagobaahserver.com/pbdr/updatecheck.ashx';
 var gConfigPrimaryUserID = '';
 var gConfigPrimaryPassword = '';
-var gConfigSecondaryURL = 'http://www.dagobaahserver.com/pbdr/Config.ashx';
+var gConfigSecondaryURL = 'http://www.dagobaahserver.com/pbdr/updatecheck.ashx';
 var gConfigSecondaryUserID = '';
 var gConfigSecondaryPassword = '';
 var gContactsDateTime = '';
@@ -64,15 +67,9 @@ var gRSSPrimaryPassword = '';
 var gRSSSecondaryURL = 'http://www.dagobaahserver.com/pbdr/RSS.ashx';
 var gRSSSecondaryUserID = '';
 var gRSSSecondaryPassword = '';
-
-//*************************************************************
-//File sync variables...
-//*************************************************************
-var FILE_STORAGE = blackberry.io.dir.appDirs.shared.documents;
-//the directory to download files to in the FILE_STORAGE space
-var DIRECTORY_NAME = "pbdr";
-var FULL_DIR_PATH = FILE_STORAGE.path + '/'  + DIRECTORY_NAME;
-
+//The next variables are for sound
+var gSoundIntro = new Audio("Intro.mp3");
+var gSoundWait = new Audio("Wait.mp3");
 
 function browserDetection() {
 //*************************************************************
@@ -122,58 +119,90 @@ function displayScreen(screenName) {
 //*************************************************************	
 		
   writeLog('displayScreen Starting');
- 	$('#' + gScreenNameHome).hide();
- 	$('#' + gScreenNameDocuments).hide();
- 	$('#' + gScreenNameNoContacts).hide();
- 	$('#listing').hide();
- 	$('#' + gScreenNameRSS).hide();
- 	$('#' + gScreenNameSettings).hide();
+  if (gScreenDisplayed == '') {
+  	//Only hide all <div> areas when we first start.
+ 		$('#MenuBar').hide();
+ 		$('#' + gScreenNameHome).hide();
+ 		$('#' + gScreenNameDocuments).hide();
+ 		$('#' + gScreenNameNoContacts).hide();
+ 		$('#' + gScreenNameGroups).hide();
+ 		$('#' + gScreenNameContacts).hide(); 		
+ 		$('#' + gScreenNameNoRSS).hide();
+ 		$('#' + gScreenNameRSS).hide();
+		$('#' + gScreenNameSettings).hide();
+	}
 	
 	if (screenName == gScreenNameHome) {
+		//If this is the home screen, we need to show it, then show the ropes hanging
+		if (gScreenDisplayed != '') {
+			$('#' + gScreenDisplayed).hide();			
+		}
  		$('#' + gScreenNameHome).show();
+		showOptions(true);	 		
 	}
-	else if (screenName == gScreenNameDocuments) {	  
-	  $('#' + gScreenNameDocuments).fadeIn(1500);
-	  $('#' + gScreenNameDocuments).show('slow');
+	else {
+		if (gScreenDisplayed == gScreenNameHome) {
+			//If the previous screen was the home screen, pull the options ropes up
+			showOptions(false);	
+		}
+		switch (screenName) {
+			case gScreenNameDocuments:
+			  setTimeout(function() {
+			  	$('#' + gScreenNameHome).fadeOut(750);
+			  	$('#' + gScreenNameDocuments).fadeIn(1500);
+			  }, 1000); 
+			  break;
+			case gScreenNameNoContacts:			  	
+			  setTimeout(function() {
+			  	$('#' + gScreenNameHome).fadeOut(500);
+			  	$('#' + gScreenNameNoContacts).show(1500);
+			  	setTimeout(function() {
+		  			displayScreen(gScreenNameHome);
+			  	}, 1500); 
+			  }, 500); 
+			  break;
+			case gScreenNameGroups:
+			  if (gScreenDisplayed == gScreenNameContacts) {
+					$('#' + gScreenNameContacts).fadeOut(1000);
+			  	setTimeout(function() {
+			  		$('#' + gScreenNameGroups).show(1500);
+			  	}, 1000);  
+			  }
+			  else {
+			  	setTimeout(function() {
+			  	$('#' + gScreenNameHome).fadeOut(500);
+			  	$('#' + gScreenNameGroups).show(1500);		
+			  	}, 500);  
+			  	break;
+				}
+			case gScreenNameContacts:	
+				$('#' + gScreenNameGroups).fadeOut(500);
+				setTimeout(function() {
+				 	$('#' + gScreenNameContacts).fadeIn(1500);  
+				  }, 500);
+				  break;
+			case gScreenNameNoRSS:			  	
+			  setTimeout(function() {
+			  	$('#' + gScreenNameHome).fadeOut(500);
+			  	$('#' + gScreenNameNoRSS).show(1500);
+			  	setTimeout(function() {
+		  			displayScreen(gScreenNameHome);
+			  	}, 1500); 
+			  }, 500); 
+			  break;
+			case gScreenNameRSS:	
+			  setTimeout(function() {
+			  	$('#' + gScreenNameHome).fadeOut(500);
+			  	$('#' + gScreenNameRSS).show(1500);		 	  	
+			  }, 500); 
+			  break;
+			case gScreenNameSettings:	
+				hideMenuBar();	
+				$('#' + gScreenNameSettings).fadeIn(1500);
+				break;
+		}
 	}
-	else if (screenName == gScreenNameNoContacts) {
-		document.getElementById(gScreenNameNoContacts).style.backgroundImage = "url(images/background-nocontacts.jpg)";
-		document.getElementById(gScreenNameNoContacts).style.width = screen.availWidth + "px";
-		document.getElementById(gScreenNameNoContacts).style.height = screen.availHeight + "px";
-		document.getElementById(gScreenNameNoContacts).style.backgroundRepeat = "repeat";
-	  $('#' + gScreenNameNoContacts).show('slow');
-	}
-	else if (screenName == gScreenNameGroups) {
-	  $('#listing').show('slow');
-	  
-	}
-	else if (screenName == gScreenNameContacts) {
-		$('#listing').fadeIn(1500);
-	}
-	else if (screenName == gScreenNameRSS) {
-	  $('#' + gScreenNameRSS).show('slow');
-	}
-	else if (screenName == gScreenNameSettings) {	
-		hideMenuBar();
-		$('#' + gScreenNameSettings).fadeIn(1500);
-//		var html = document.getElementById(gScreenNameSettings).innerHTML;
-//		$(document).ready(function() {	
-//			var $dialog = $('<div></div>')
-//			.html(html)
-//			.dialog({
-//				autoOpen: false,
-//				width: '80%',
-//				height: 'auto',
-//				title: 'Disaster Recovery Settings'
-//			});	
-//		
-//			$(document).ready(function() {
-//				$dialog.dialog('open');
-//				// prevent the default action, e.g., following a link
-//				return false;
-//			}); 
-//		});		
-	}
+	gScreenDisplayed = screenName;
   writeLog('displayScreen Finished');
 }
 
@@ -201,22 +230,18 @@ function formLoad() {
 	//Detect browser type
 	browserDetection();
 	
+	buildNoContactsScreen();
+	buildNoRSSScreen();
+	
 	displayScreen('');  //Ensure all screens are hidden until we figure out what to display
 
-	gHTTPObject = getHTTPObject();	
-		
  	//gDebugMode = true;
 	writeLog('Application starting');		
 
   //Register required BlackBerry events
   registerPBEvents();
 	
-	if (gHTTPObject == false) {		
-		displayMessage('Unable to start application:\nUnable to create HTTP object');	
-	}
-	else {
-		getStarted('');		
-	}
+	getStarted('');		
 }
 
 function getStarted(msg) {
@@ -236,7 +261,6 @@ function getStarted(msg) {
 	if (msg == '') {	
 		writeLog('getStarted Starting');
 		writeLog('  Opening database');
-
 		dbOpenDatabase('', 'getStarted');  //Call function to open database and create tables
 	}
 	else if (msg == 'DATABASEOKAY') {
@@ -249,8 +273,9 @@ function getStarted(msg) {
 		validateConfigs();
 		setupHome();
 		displayScreen(gScreenNameHome);
-		if (gConfigsValid == true) {			
-			//alert ('call for stuff goes here');
+		gTestingPleaseWaitRope.fallDown();
+		if (gConfigsValid == true) {	
+			//requestUpdatesAndConfigs();
 		}
 	}
 	else if (msg.substring(0,19) == 'USERSETTINGSFAILED:') {
@@ -298,7 +323,85 @@ function handleForeground() {
 	writeLog('handleForeground Finished');
 }
 
+function manageMusic(method, song) {
+//*************************************************************
+//* This function is executed to stop or start music requests
+//* based on request type and song.
+//* Parms:
+//*		method to perform (start or stop)
+//*   song to manipulate (intro or waiting)
+//* Value Returned: 
+//*		Nothing
+//*************************************************************		
+	
+	writeLog('manageMusic Starting');
+	if (song == undefined) {
+		song = '';
+	}
+
+	if (method.toLowerCase() == 'start') {
+		gStopMusicRope.fallDown();
+		if (song.toLowerCase() == 'intro') {
+			gSoundIntro.play();
+		}
+		else {
+			gSoundWait.play();
+		}
+	}
+	else {
+		gStopMusicRope.pullUp();		
+		if (song.toLowerCase() == 'intro' || song == '') {
+			gSoundIntro.pause();
+		}
+		if (song.toLowerCase() == 'waiting' || song == '') {
+			gSoundWait.pause();
+		}
+	}
+	writeLog('manageMusic Finished');	
+}
+
+function manageWait(method) {
+//*************************************************************
+//* This function is executed to show or hide the PleaseWait
+//* image and start the music
+//* Parms:
+//*		method to perform (show or hide)
+//* Value Returned: 
+//*		Nothing
+//*************************************************************		
+	
+	writeLog('manageWait Starting');
+	if (method.toLowerCase() == 'show') {
+		gApplicationWaiting = true;
+		showOptions(false);
+		setTimeout(function() {
+			gPleaseWaitRope.fallDown();
+			setTimeout(function() {
+				manageMusic('Start','Waiting');
+			}, 500); 
+		}, 500); 
+	}
+	else {
+		gPleaseWaitRope.pullUp();
+		manageMusic('Stop','Waiting');
+		setTimeout(function() {
+			showOptions(true);
+		}, 1000); 
+		gApplicationWaiting = false;
+	}
+	writeLog('manageWait Finished');	
+}
+
 function orientationChangeDetected() {
+//*************************************************************
+//* This function is executed whenever the device is rotated
+//* and we can detect the orientation.
+//* Parms:
+//*		Nothing
+//* Value Returned: 
+//*		Nothing
+//*************************************************************			
+	
 	var orientation = window.orientation;
 	//alert ('orientation: ' + orientation);
 	switch(orientation) {
@@ -502,7 +605,9 @@ function retrieveUserSettings(msg, functionToCall) {
 } 
 
 function showMenuBar() {
-	document.getElementById("menuBar").className = "showMenuBar";
+	if (gApplicationWaiting == false) {
+		document.getElementById("menuBar").className = "showMenuBar";
+	}	
 }
 
 function hideMenuBar() {
@@ -555,53 +660,3 @@ function validateConfigs() {
 		displayMessage(msg);
 	}
 }
-
-
-//*************************************************************
-//Integreating FileSync/download code below
-//*************************************************************
-function launchFile ()
-{ //filePath
-	//alert("in launchFile filePath = " + filePath);
-	alert("in launchFile filePath = ");
-	// if (blackberry.io.file.exists(filePath))
-	// {
-        // blackberry.io.file.open(filePath);	               
-	// }else
-	// {
-		// alert("file does not exist");
-	// }
-}
-
-var fullFileList;
-function sendRequest() {	
-	debug("Im in sendRequest");
-	var jqxhr = $.getJSON("http://dagobahserver.com/pbdr/Documents.ashx", function(data) {
-		//debug("success: " + data[0].filename);
-		fullFileList = data;
-		})
-		//.success(function() { debug("second success"); })
-		.error(function() { debug("error"); })
-		.complete(function() { 
-			//debug("Complete: " + fullFileList, "clear"); 
-			downloader.startDownloader(fullFileList, FULL_DIR_PATH, onDownloadComplete);
-		});
-
-}
-
-function getFileList(){
-	//debug ('in getFileList');
-	var fileList = downloader.getCurrentFileList(FULL_DIR_PATH);	
-	//debug ("fileList = " + fileList);	
-	return fileList;
-}
-
-function onDownloadComplete(){
-	alert("download complete");
-}
-
-function debug(str, cleartext){
-	if (cleartext !== undefined) document.getElementById('results').innerHTML = "";
-	document.getElementById('results').innerHTML += str + '<br />';
-}
-
