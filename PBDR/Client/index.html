@@ -62,11 +62,11 @@
 
 			<div id="background" class="backgroundstate"></div>	
 			
-			<div id="home"> >
-				<img id="overlay" width="1025" height="600" alt=""/> 		
+			<div id="home"> 
+				<img id="overlay" width="1024" height="600" alt=""/> 		
 				<section class="stage">
 					<div id="graphics" style="display:none" >
-						<svg id="my_path" width="1024px" height="610px" style="position:fixed; top:0px; z-index: 1110;" version="1.1" xmlns="http://www.w3.org/2000/svg"> 
+						<svg id="my_path" width="1024px" height="600px" style="position:fixed; top:0px; z-index: 1110;" version="1.1" xmlns="http://www.w3.org/2000/svg"> 
 				 			<image id="imgDocuments" width="175" height="150" xlink:href="images/documents.png" onclick="buildDocumentsScreen('')"/>
 							<image id="imgContacts" width="233" height="150" xlink:href="images/contacts.png" onclick="buildGroupsScreen('')"/>
 							<image id="imgNewsFeeds" width="130" height="110" xlink:href="images/rss.png" onclick="buildRSSScreen('')"/>	
@@ -87,7 +87,7 @@
 				</section>
 			</div>			
 			
-			<div data-role="controlgroup" data-type="horizontal">
+			<div id="showMenuBar" data-role="controlgroup" data-type="horizontal">
 				<a data-role="button" data-theme="a" onclick="showMenuBar('')">Swipe Down</a>
 			</div>
 
@@ -114,7 +114,7 @@
 					<li onclick="sendRequest()">Get JSON</li>					
 				</ul>
 			</div>  			
-			
+	
 			
 			
 			<div id="documents">

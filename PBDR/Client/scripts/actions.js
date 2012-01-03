@@ -121,7 +121,8 @@ function displayScreen(screenName) {
   writeLog('displayScreen Starting');
   if (gScreenDisplayed == '') {
   	//Only hide all <div> areas when we first start.
- 		$('#MenuBar').hide();
+ 		$('#showMenuBar').hide();
+ 		$('#menuBar').hide();
  		$('#' + gScreenNameHome).hide();
  		$('#' + gScreenNameDocuments).hide();
  		$('#' + gScreenNameNoContacts).hide();
