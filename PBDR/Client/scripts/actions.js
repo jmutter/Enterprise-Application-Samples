@@ -121,8 +121,6 @@ function displayScreen(screenName) {
   writeLog('displayScreen Starting');
   if (gScreenDisplayed == '') {
   	//Only hide all <div> areas when we first start.
- 		$('#showMenuBar').hide();
- 		$('#menuBar').hide();
  		$('#' + gScreenNameHome).hide();
  		$('#' + gScreenNameDocuments).hide();
  		$('#' + gScreenNameNoContacts).hide();
@@ -132,6 +130,8 @@ function displayScreen(screenName) {
  		$('#' + gScreenNameRSS).hide();
 		$('#' + gScreenNameSettings).hide();
 	}
+	
+	hideMenuBar();
 	
 	if (screenName == gScreenNameHome) {
 		//If this is the home screen, we need to show it, then show the ropes hanging
@@ -156,9 +156,11 @@ function displayScreen(screenName) {
 			case gScreenNameNoContacts:			  	
 			  setTimeout(function() {
 			  	$('#' + gScreenNameHome).fadeOut(500);
+			  	var element = document.getElementById(gScreenNameNoContacts);
+			  	element.onclick = null;  //Disable the onclick so they don't accidentally press the screen
 			  	$('#' + gScreenNameNoContacts).show(1500);
 			  	setTimeout(function() {
-		  			displayScreen(gScreenNameHome);
+			  		element.onclick = function() {displayScreen(gScreenNameHome);};  //Add the onclick after 1.5 seconds of wait
 			  	}, 1500); 
 			  }, 500); 
 			  break;
@@ -171,11 +173,11 @@ function displayScreen(screenName) {
 			  }
 			  else {
 			  	setTimeout(function() {
-			  	$('#' + gScreenNameHome).fadeOut(500);
-			  	$('#' + gScreenNameGroups).show(1500);		
+			  		$('#' + gScreenNameHome).fadeOut(500);
+			  		$('#' + gScreenNameGroups).show(1500);		
 			  	}, 500);  
-			  	break;
 				}
+			  break;
 			case gScreenNameContacts:	
 				$('#' + gScreenNameGroups).fadeOut(500);
 				setTimeout(function() {
@@ -185,9 +187,11 @@ function displayScreen(screenName) {
 			case gScreenNameNoRSS:			  	
 			  setTimeout(function() {
 			  	$('#' + gScreenNameHome).fadeOut(500);
+			  	var element = document.getElementById(gScreenNameNoRSS);
+			  	element.onclick = null;  //Disable the onclick so they don't accidentally press the screen
 			  	$('#' + gScreenNameNoRSS).show(1500);
 			  	setTimeout(function() {
-		  			displayScreen(gScreenNameHome);
+			  		element.onclick = function() {displayScreen(gScreenNameHome);};  //Add the onclick after 1.5 seconds of wait
 			  	}, 1500); 
 			  }, 500); 
 			  break;
@@ -274,9 +278,11 @@ function getStarted(msg) {
 		validateConfigs();
 		setupHome();
 		displayScreen(gScreenNameHome);
-		gTestingPleaseWaitRope.fallDown();
+		manageMusic('Start', 'Intro');
 		if (gConfigsValid == true) {	
-			//requestUpdatesAndConfigs();
+			setTimeout(function() {
+				checkUpdates('');
+			}, 2500);			
 		}
 	}
 	else if (msg.substring(0,19) == 'USERSETTINGSFAILED:') {
@@ -641,8 +647,8 @@ function validateConfigs() {
 	}
 	if (errMsg != '') {
 		gConfigsValid = false;
-		errMsg = 'Unable to properly start this application!\nCritical error(s) were found:\n' + errMsg + '\nUnable to update content\n\nPlease contact your Administrator';
-		alert (errMsg);
+		errMsg = 'Unable to properly start this application!\nCritical error(s) were found:\n' + errMsg + '\n\nPlease contact your Administrator';
+		displayMessage (errMsg);
 	}	
 	writeLog('validateConfigs Finished');
 }

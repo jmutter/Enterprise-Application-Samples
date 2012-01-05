@@ -7,6 +7,52 @@
 
 //Global Variables
 
+function convertDateTime(dateTime, dateFormat) {
+//*************************************************************
+//* This function retrieve the current date formatted as per
+//* requested.
+//* Parms:
+//*		date and time in yyyymmddhhmmss format
+//		requested format for date
+//* Value Returned: 
+//*		Formatted date
+//*************************************************************	
+
+	var returnValue = ''
+	if (dateTime.length != 14) {
+		returnValue = 'Unknown';
+	}
+	else {
+		var year = dateTime.substring(0,4);
+		var month = dateTime.substring(4,6);
+		var day = dateTime.substring(6,8);
+		var hours = dateTime.substring(8,10);
+		var minutes = dateTime.substring(10,12);
+		var returnDate = ''
+		if (dateFormat.toLowerCase() == 'dd/mm/yyyy') {
+			returnDate = day + '/' +month + '/' + year;
+		}
+		else if (dateFormat.toLowerCase() == 'yyyy-mm-dd') {
+			returnDate = year + '-' + month + '-' + day;
+		}
+		else if (dateFormat.toLowerCase() == 'yyyymmdd') {	
+			returnDate = year.toString() + month.toString() + day.toString();
+		}
+		else {
+			returnDate = month + '/' + day + '/' + year;
+		}
+		var suffix = 'am';		
+		if (hours > 11 ) {
+			suffix = 'pm';
+		}
+		if (hours > 12 ) {
+			hours = hours - 12;
+		}
+		returnValue = returnDate + ' @ ' + hours + ':' + minutes + ' ' + suffix;
+	}
+	return returnValue;
+}
+
 function getDate(format) {
 //*************************************************************
 //* This function retrieve the current date formatted as per
@@ -22,20 +68,20 @@ function getDate(format) {
 	var month = currentTime.getMonth() + 1
 	var day = currentTime.getDate()
 	var year = currentTime.getFullYear()
-	if (month.length == 1) {
-		month = '0' + month;
+	if (month < 10) {
+		month = '0' + month.toString();
 	}	
-	if (day.length == 1) {
-		day = '0' + day;
+	if (day < 10) {
+		day = '0' + day.toString();
 	}	
-	if (format == 'DD/MM/YYYY') {
+	if (format.toLowerCase() == 'dd/mm/yyyy') {
 		returnvalue = day + '/' + month + '/' + year;
 	}
-	else if (format == 'YYYY-MM-DD') {
+	else if (format.toLowerCase() == 'yyyy-mm-dd') {
 		returnValue = year + '-' + month + '-' + day;
 	}
-	else if (format == 'YYYYMMDD') {	
-		returnValue = year + month + day;
+	else if (format.toLowerCase() == 'yyyymmdd') {	
+		returnValue = year.toString() + month.toString() + day.toString();
 	}
 	else {
 		returnValue = month + '/' + day + '/' + year;
@@ -52,6 +98,10 @@ function getTime(format) {
 //*		Formatted time
 //*************************************************************	
 
+	
+	if (format == undefined) {
+		format = '';
+	}
 	var returnValue = '';
 	var currentTime = new Date();
 	var hours = currentTime.getHours();
@@ -63,11 +113,11 @@ function getTime(format) {
 	if (seconds < 10){
 		seconds = '0' + seconds	
 	}	
-	if (format == 'hhmmss') {
+	if (format.toLowerCase() == 'hhmmss') {
 		if (hours < 10){
 			hours = '0' + hours	
 		}
-		returnValue = hours + minutes + seconds;
+		returnValue = hours.toString() + minutes.toString() + seconds.toString();
 	}		
 	else {
 		var suffix = 'am';		

@@ -43,7 +43,7 @@ function buildContactPanel(contactid, group, firstname, lastname, title, company
 	}	
 	html += '</div>';
 	html += '<div class="panel">';
-	html +=	'<div class="ui-body-a">';
+	html +=	'<div class="ui-body-e">';
 	if (gGroupNameSelected == 'AllOfThem') {
 		html += '<div style="font-size:7pt; font-weight:normal">' + 'Group: ';
 		html += '<label style="font-size:9pt; color:#006600; font-weight:normal">' + group + '</label></div>';
@@ -211,7 +211,7 @@ function buildContactsScreen(msg, groupName) {
 			displayScreen(gScreenNameContacts);
 		}
 		else {
-			alert ('No contacts found for Group: ' + gGroupNameSelected + '\n\nPlease contact your administrator.');
+			displayMessage ('No contacts found for Group: ' + gGroupNameSelected + '\n\nPlease contact your administrator.');
 		}
 		writeLog('buildContactsScreen Finished');
 	}
@@ -222,7 +222,7 @@ function buildContactsScreen(msg, groupName) {
   	errMsg = 'Invalid msg: ' + msg;
 	}	
 	if (errMsg != '') {
-		writeLog('buildContactsScreen Finished - ERROR - '+ errMsg);
+		checkUpdates('CONTACTSLOADERROR:'+ errMsg);  //Go back to loading function			writeLog('buildContactsScreen Finished - ERROR - '+ errMsg);				
 	}	
 }
 
@@ -430,12 +430,13 @@ function processContactsPayload(msg) {
   	gGroupPayloadCounter++;
   }
   else if (msg == 'UPDATEGROUPSSUCCESS') {
-  	gContactsDateTime = getDate('yyyymmdd') + ' @ ' + getTime('hhmmss');
+  	gContactsDateTime = getDate('yyyymmdd') + getTime('hhmmss');
   	var	sql = 'UPDATE ' + gTableNameConfig + ' SET datetime = \'' + gContactsDateTime + '\' WHERE type = \'Contacts\'';
 		dbUpdateRecord(sql, 'processContactsPayload'); 
 	} 
-	else if (msg == 'DBUPDATERECORDSUCCESS') {	
+	else if (msg == 'DBUPDATERECORDSUCCESS') {
 		writeLog('processContactPayload Finished');
+		checkUpdates('CONTACTSLOADED');  //Go back to loading function	
 	}
 	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
 		errMsg = msg.substring(20);
@@ -443,20 +444,14 @@ function processContactsPayload(msg) {
 	else if (msg.substring(0,20) == 'INSERTCONTACTSERROR:') {
 		errMsg = msg.substring(20);
 	}
-	else if (msg.substring(0,13) == 'UPDATEGROUPS:') {
-		errMsg = msg.substring(13);
+	else if (msg.substring(0,18) == 'UPDATEGROUPSERROR:') {
+		errMsg = msg.substring(18);
 	}
 	else {
 		errMsg = 'Invalid msg: ' + msg;
 	}
 	if (errMsg != '') {
-		var tempCode = gDebugMode;
-		if (abort == true) {
-			gDebugMode = true;
-		}
 		writeLog('processContactPayload Finished - ERROR - ' + errMsg);
-		if (abort == true) {
-			gDebugMode = tempCode;
-		}
+		checkUpdates('CONTACTSLOADERROR:'+ errMsg);  //Go back to loading function	
 	}
 }

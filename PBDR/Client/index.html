@@ -39,7 +39,7 @@
 		<!-- Custom JS -->	 
 		<script type="text/javascript">
 			$(document).ready(function() {
-				setupHomeScreen();	
+				buildHomeScreen();	
 							
 				$('.panel').hide();
 					
@@ -60,9 +60,10 @@
 	<body>			
 		<div id="mainpage" data-role="page">		
 
-			<div id="background" class="backgroundstate"></div>	
+
 			
 			<div id="home"> 
+				<div id="background" class="backgroundstate"></div>	
 				<img id="overlay" width="1024" height="600" alt=""/> 		
 				<section class="stage">
 					<div id="graphics" style="display:none" >
@@ -75,7 +76,6 @@
 							<image id="txtDocuments" width="200" height="150" xlink:href="images/txtdocuments.png"/>
 							<image id="txtContacts" width="210" height="168" xlink:href="images/txtpeople.png"/>
 							<image id="txtNewsFeeds" width="210" height="168" xlink:href="images/txtnewsfeeds.png"/>  		
-							<image id="imgTestPleaseWait" width="64" height="64" xlink:href="images/testpleasewait.png" onclick="testingPleaseWait('')"/>	
 				 		</svg>
 					</div>			
 					<div id="main">
@@ -114,7 +114,6 @@
 					<li onclick="sendRequest()">Get JSON</li>					
 				</ul>
 			</div>  			
-	
 			
 			
 			<div id="documents">
@@ -149,8 +148,7 @@
 				</div>
 			</div>
 
-			<div id="norss" >
-				<div id="norssbackground"></div>		
+			<div id="norss">
 				<!--Content will be created via buildNoRSSScreen() function -->
 			</div>
 

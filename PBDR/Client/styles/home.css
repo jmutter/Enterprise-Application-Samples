@@ -31,9 +31,6 @@ html, body {
 	height:							600px;
 	position:						relative;
 	overflow:						hidden;
-	-webkit-backface-visibility:	hidden;
-	-webkit-animation:				dummy-loop 1s infinite;
-	-webkit-transform:				translateZ(0);
 }
 
 .backgroundstate {

@@ -53,7 +53,7 @@ function buildRSSScreen(msg) {
 				//array[2] = title
 				//array[3] = detail
 				//Use the above information to display in a listview of some kind
-			}
+			}			
 			displayScreen(gScreenNameRSS);
 		}
 		writeLog('buildRSSScreen Finished');
@@ -109,9 +109,17 @@ function processRSSPayload(msg) {
 			dbAddRecord(sql, 'processRSSPayload');
 		}
 		else {
-			writeLog('processRSSPayload Finished');
-			//window[gParentFunctionToCall]('INSERTCONTACTSSUCCESS');			
-		}
+ 	 	gRSSDateTime = getDate('yyyymmdd') + getTime('hhmmss');
+ 			sql = 'UPDATE ' + gTableNameConfig + ' SET datetime = \'' + gRSSDateTime + '\' WHERE type = \'RSS\'';
+	 		dbUpdateRecord(sql, 'processRSSPayload'); 
+		} 
+	}
+	else if (msg == 'DBUPDATERECORDSUCCESS') {	
+		writeLog('processRSSPayload Finished');
+		checkUpdates('RSSLOADED');  //Go back to loading function
+	}
+	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
+		errMsg = msg.substring(20);
 	}
 	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
 		errMsg = msg.substring(20);
@@ -124,5 +132,6 @@ function processRSSPayload(msg) {
 	}
 	if (errMsg != '') {
 		writeLog('processRSSPayload Finished - ERROR - ' + errMsg);
+		checkUpdates('RSSLOADERROR:'+ errMsg);  //Go back to loading function	
 	}	
 }

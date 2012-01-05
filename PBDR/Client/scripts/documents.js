@@ -19,7 +19,10 @@ function buildDocumentsScreen(msg){
 	var JSONPayload = JSON.parse(localFileList);	
 	var html = '';
 	var iconImage = '';
-					
+		
+	//clear out the listview before populating
+	$('#lviewDocs').empty();
+	
 	for (var counter = 0; counter < JSONPayload.length; counter++) {		
 		var docType = JSONPayload[counter].ext;  
 		var fModified = JSONPayload[counter].dateModified; 
@@ -30,60 +33,68 @@ function buildDocumentsScreen(msg){
 			iconImage = "images/pdf.png";
 		}
 		else if (docType == ".doc") {
-			iconImage = "images/documentssmall.png";
+			iconImage = "images/msword.png";
 		}
 		else if (docType == ".mov")	{
 			iconImage = "images/movie.png";
 		}
 		else if (docType == ".xls" || docType == ".xlsx")	{
-			iconImage = "images/xls.png";
+			iconImage = "images/msxls.png";
 		}
 		else if (docType == ".gif")	{
-			iconImage = "images/gif.png";
+			iconImage = "images/imagesico.png";
 		}
 		else if (docType == ".png")	{
-			iconImage = "images/png.png";
+			iconImage = "images/imagesico.png";
 		}
 		else if (docType == ".jpg")	{
-			iconImage = "images/jpg.png";
+			iconImage = "images/imagesico.png";
 		}
 		else if (docType == ".ppt")	{
-			iconImage = "images/ppt.png";
+			iconImage = "images/msppt.png";
 		}
 		else if (docType == ".zip")	{
 			iconImage = "images/winzip.png";
 		}
+		else if (docType == ".mp3")	{
+			iconImage = "images/audio.png";
+		}
 		else {
 			iconImage = "images/unknownfile.png";
-		}				
-		html = '<li onclick= \"alert(' + i + ')\">' + '<img src=\"' + iconImage + '\" />' + '<h3>' + fName + '</h3>' + '<p>' + fModified + '</p></li>';		
+		}
+		
+		html = '<li  onclick="launchFile(\'' + fPath + '\');">' + '<img src=\"' + iconImage + '\" />' + '<h3>' + fName + '</h3>' + '<p>' + fModified + '</p></li>';
+		
 		$('#lviewDocs').append(html);
 		$('#lviewDocs').listview("refresh");	
 	}		
-	
-	alert('buildDocumentsScreen finished');	
-	displayScreen(gScreenNameDocuments);	
+		
+	displayScreen(gScreenNameDocuments);
+	alert('buildDocumentsScreen finished');		
 }
 
 
 //*************************************************************
 //Integreating FileSync/download code below
 //*************************************************************
-function launchFile ()
+function launchFile (filePath)
 { //filePath
 	//alert("in launchFile filePath = " + filePath);
-	alert("in launchFile filePath = ");
-	// if (blackberry.io.file.exists(filePath))
-	// {
-        // blackberry.io.file.open(filePath);	               
-	// }else
-	// {
-		// alert("file does not exist");
-	// }
+	alert("in launchFile filePath = " +  filePath);
+	
+	if (blackberry.io.file.exists(filePath))
+	{
+		alert ("launching file");
+    	blackberry.io.file.open(filePath);	               
+	}else
+	{
+		alert("file does not exist");
+	}
+	
 }
 
 function getFileList(){
-	//debug ('in getFileList');
+	alert ('in getFileList');
 	var fileList = downloader.getCurrentFileList(FULL_DIR_PATH);	
 	//debug ("fileList = " + fileList);	
 	return fileList;

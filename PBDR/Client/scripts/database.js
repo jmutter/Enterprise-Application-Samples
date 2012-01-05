@@ -446,31 +446,22 @@ function dbOpenDatabase(msg, functionToCall) {
 		errMsg = msg.substring(19);
 	}
 	else if (msg == 'DATABASEOPEN') {
-		//Once you have run this in your browser and on a PlayBook
-		//Uncomment line 452
-		//Comment line 453
-		//dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameContacts);
-		dbDropTable(gTableNameContacts,"dbOpenDatabase");  //Only use this line when testing and wanting to clear data
+		dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameContacts);
+		//dbDropTable(gTableNameContacts,"dbOpenDatabase");  //Only use this line when testing and wanting to clear data
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameContacts) {
 		dbCreateTable(gTableNameContacts, 'dbOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameContacts) {
-		//Once you have run this in your browser and on a PlayBook
-		//Uncomment line 462
-		//Comment line 463
-		//dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameGroups);  
-		dbDropTable(gTableNameGroups,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameGroups);  
+		//dbDropTable(gTableNameGroups,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameGroups) {
 		dbCreateTable(gTableNameGroups, 'dbOpenDatabase');			
 	}
 	else if (msg == 'DBCREATETABLESUCCESS' + gTableNameGroups) {
-		//Once you have run this in your browser and on a PlayBook
-		//Uncomment line 472
-		//Comment line 473
-		//dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameRSS);  
-		dbDropTable(gTableNameRSS,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
+		dbOpenDatabase('DBDROPTABLESUCCESS' + gTableNameRSS);  
+		//dbDropTable(gTableNameRSS,'dbOpenDatabase');  //Only use this line when testing and you want to redefine the table
 	}
 	else if (msg == 'DBDROPTABLESUCCESS' + gTableNameRSS) {
 		dbCreateTable(gTableNameRSS, 'dbOpenDatabase');			

@@ -58,440 +58,232 @@ function testingClearRSS(msg) {
 	}		
 }
 
+function testingLoadConfig() {
+	
+	gJSONPayload = {"Updates" : [   
+  {"contacts" : "20111208193900" ,
+  "documents": "20111208193900",
+	"rss": "20111208193900",
+  "configuration": "20111208193900"}
+	],"Config" : [   
+  { "configprimaryurl" : "http://www.dagobahserver.com/pbdr/updatecheck.ashx" ,
+  "configsecondaryurl": "http://www.dagobahserver.com/pbdr/updatecheck.ashx",
+  "configuserid": "",
+  "configpassword": "",
+  "contactsprimaryurl" : "http://www.dagobahserver.com/pbdr/Contacts.ashx" ,
+  "contactssecondaryurl": "http://www.dagobahserver.com/pbdr/Contacts.ashx",
+  "contactuserid": "",
+  "contactpassword": "",
+  "documentsprimaryurl" : "http://www.dagobahserver.com/pbdr/Documents.ashx" ,
+  "documentssecondaryurl": "http://www.dagobahserver.com/pbdr/Documents.ashx",
+  "rssprimaryurl" : "http://www.dagobahserver.com/pbdr/Rss.ashx" ,
+  "rsssecondaryurl": "http://www.dagobahserver.com/pbdr/Rss.ashx"}
+	]};	
+	processJSONPayload();
+//	setTimeout(function() {
+//		alert ('Config content loaded');
+//	}, 1500); 
+}
 
 function testingLoadContacts() {
 	//Build payload from text and call processPayload
 	gJSONPayload = {"Contacts":[
-		{"groupname":"Directs"
-		,"firstname":"Alex"
-		,"lastname":"Willis"
-		,"title":"Director, Technical Services"
-		,"email":"awillis@rim.com"
-		,"address":"377 County Rd"
-		,"state":"MA"
-		,"zipcode":"02341"
-		,"workphone":"824-67166"}
-		,{"groupname":"Directs"
-		,"firstname":"John"
-		,"lastname":"Kobularik"
-		,"title":"Technical Channel Enablement Manager"
-	,"email":"jkobe@rim.com"
-	,"address":"2000 Bridge Parkway"
-	,"state":"CA"
-	,"zipcode":"94065"
-	,"workphone":"(821) 62515"}
-	,{"groupname":"Directs"
-	,"firstname":"John"
-	,"lastname":"Mutter"
-	,"title":"Wireless Application Architect"
-	,"email":"jmutter@rim.com"
-	,"address":""
-	,"state":""
-	,"zipcode":""
-	,"workphone":"(820) 63697"}
-	,{"groupname":"Directs"
-	,"firstname":"Mark"
-	,"lastname":"Howden"
-	,"title":"Manager, Technical Services"
-	,"email":"MHowden@rim.com"
-	,"address":"120 Center Ave"
-	,"state":"New Jersey"
-	,"zipcode":"07928"
-	,"workphone":"(801) 75793"}
-	,{"groupname":"Directs"
-	,"firstname":"Paul"
-	,"lastname":"Steel"
-	,"title":"Manager, Technical Services"
-	,"email":"psteel@rim.com"
-	,"address":"1623 Durfey Lane"
-	,"state":"TX"
-	,"zipcode":"77449"
-	,"workphone":""}
-	,{"groupname":"Directs"
-	,"firstname":"Raymond"
-	,"lastname":"Chronister"
-	,"title":"Manager, Sales Engineers"
-	,"email":"rchronister@rim.com"
-	,"address":"15260 Ventura Blvd Suite 1410"
-	,"state":"CA"
-	,"zipcode":"91403"
-	,"workphone":"(821) 66129"}
-	,{"groupname":"Directs"
-	,"firstname":"Raymond"
-	,"lastname":"Newman"
-	,"title":"Field Engineer"
-	,"email":"rnewman@rim.com"
-	,"address":"1933 Meyer Pl"
-	,"state":"CA"
-	,"zipcode":"92627"
-	,"workphone":"(821) 62056"}
-	,{"groupname":"Directs"
-	,"firstname":"Rob"
-	,"lastname":"Iannacone Jr"
-	,"title":"Technical Project Manager"
-	,"email":"riannacone@rim.com"
-	,"address":""
-	,"state":""
-	,"zipcode":""
-	,"workphone":"(821) 66195"}
-	,{"groupname":"Directs"
-	,"firstname":"Ron"
-	,"lastname":"Moses"
-	,"title":"Sales Support Manager EMEA"
-	,"email":"ramoses@rim.com"
-	,"address":"2000 Bridge Parkway"
-	,"state":"CA"
-	,"zipcode":"94065"
-	,"workphone":"(818) 29683"}
-	,{"groupname":"Directs"
-	,"firstname":"Steve"
-	,"lastname":"Hu"
-	,"title":"Converged Network Engineer"
-	,"email":"shu@rim.com"
-	,"address":""
-	,"state":""
-	,"zipcode":""
-	,"workphone":"(821) 62509"}
-	,{"groupname":"Prof Services"
-	,"firstname":"Ajay"
-	,"lastname":"Malhan"
-	,"title":"Technical Account Manager"
-	,"email":"amalhan@rim.com"
-	,"address":""
-	,"state":""
-	,"zipcode":""
-	,"workphone":"(801) 72131"}
-	,{"groupname":"Prof Services"
-	,"firstname":"Darlton"
-	,"lastname":"Myers"
-	,"title":"Technical Account Manager"
-	,"email":"dmyers@rim.com"
-	,"address":""
-	,"state":""
-	,"zipcode":""
-	,"workphone":"(801) 72409"}
-	,{"groupname":"Prof Services"
-	,"firstname":"Kevin"
-	,"lastname":"Davis"
-	,"title":"Blackberry Enterprise Architect"
-	,"email":"kdavis@rim.com"
-	,"address":""
-	,"state":""
-	,"zipcode":""
-	,"workphone":"(801) 71120"}
-	,{"groupname":"Prof Services"
-	,"firstname":"Tyson"
-	,"lastname":"Wheeler"
-	,"title":"Blackberry Enterprise Architect"
-	,"email":"twheeler@rim.com"
-	,"address":""
-	,"state":""
-	,"zipcode":""
-	,"workphone":"(824) 67103"}
-	,{"groupname":"WAAs"
-	,"firstname":"Brent"
-	,"lastname":"Thornton"
-	,"title":"Wireless Application Architect"
-	,"email":"bthornton@rim.com"
-	,"address":""
-	,"state":""
-	,"zipcode":""
-	,"workphone":"(801) 72095"}
-	,{"groupname":"WAAs"
-	,"firstname":"Jeff"
-	,"lastname":"Bentley"
-	,"title":"Wireless Application Architect"
-	,"email":"jbentley@rim.com"
-	,"address":""
-	,"state":""
-	,"zipcode":""
-	,"workphone":"704-508-1600"}
-	,{"groupname":"WAAs"
-	,"firstname":"Maurice"
-	,"lastname":"White"
-	,"title":"Wireless Application Architect"
-	,"email":"mauwhite@rim.com"
-	,"address":""
-	,"state":""
-	,"zipcode":""
-	,"workphone":""}
-	,{"groupname":"WAAs"
-	,"firstname":"Richard"
-	,"lastname":"Balsewich"
-	,"title":"Wireless Application Architect"
-	,"email":"rbalsewich@rim.com"
-	,"address":""
-	,"state":""
-	,"zipcode":""
-	,"workphone":""}
-	,{"groupname":"MVS TAMs"
-	,"firstname":"John"
-	,"lastname":"McMorrow"
-	,"title":"Sales Engineer"
-	,"email":"jmcmorrow@rim.com"
-	,"address":"4 Copley Place S-603"
-	,"state":"MA"
-	,"zipcode":"02116"
-	,"workphone":"(824) 67050"}
-	,{"groupname":"MVS TAMs"
-	,"firstname":"Patrick"
-	,"lastname":"Jones"
-	,"title":"Technical Account Manager"
-	,"email":"patjones@rim.com"
-	,"address":"3259 Manor Rd."
-	,"state":"VA"
-	,"zipcode":"19006"
-	,"workphone":"(821) 62530"}
-	,{"groupname":"MVS TAMs"
-	,"firstname":"Regina"
-	,"lastname":"Pepper"
-	,"title":"Sales Engineer"
-	,"email":"rpepper@rim.com"
-	,"address":""
-,"state":""
-,"zipcode":""
-,"workphone":"(821) 66135"}
-,{"groupname":"MVS TAMs"
-,"firstname":"Russell"
-,"lastname":"Mohr"
-,"title":"Sales Engineer"
-,"email":"rmohr@rim.com"
-,"address":"54 East 1st Street Apt 1C"
-,"state":"NY"
-,"zipcode":"10003"
-,"workphone":"(821) 62565"}
-,{"groupname":"MVS TAMs"
-,"firstname":"Stuart"
-,"lastname":"Cordery"
-,"title":"Converged Network Engineer"
-,"email":"scordery@rim.com"
-,"address":"6 Bramley Road Kinson, Bournemouth"
-,"state":""
-,"zipcode":"BH10 5LU"
-,"workphone":"(818) 47724"}
-,{"groupname":"MVS Design"
-,"firstname":"Raymond"
-,"lastname":"Newman"
-,"title":"Field Engineer"
-,"email":"rnewman@rim.com"
-,"address":"1933 Meyer Pl"
-,"state":"CA"
-,"zipcode":"92627"
-,"workphone":"(821) 62056"}
-,{"groupname":"MVS Design"
-,"firstname":"Rob"
-,"lastname":"Iannacone Jr"
-,"title":"Technical Project Manager"
-,"email":"riannacone@rim.com"
-,"address":""
-,"state":""
-,"zipcode":""
-,"workphone":"(821) 66195"}
-,{"groupname":"MVS Design"
-,"firstname":"Steve"
-,"lastname":"Hu"
-,"title":"Converged Network Engineer"
-,"email":"shu@rim.com"
-,"address":""
-,"state":""
-,"zipcode":""
-,"workphone":"(821) 62509"}
-,{"groupname":"TAMs East"
+{"groupname":"Directs"
 ,"firstname":"Alex"
-,"lastname":"Rainero"
-,"title":"Technical Account Manager"
-,"email":"arainero@rim.com"
-,"address":"1642 Frank Street"
-,"state":"NJ"
-,"zipcode":"07076"
-,"workphone":""}
-,{"groupname":"TAMs East"
-,"firstname":"Anthony"
-,"lastname":"Sietz"
-,"title":"Technical Account Manager"
-,"email":"asietz@rim.com"
-,"address":""
-,"state":""
-,"zipcode":""
-,"workphone":"(820) 63656"}
-,{"groupname":"TAMs East"
-,"firstname":"Bill"
-,"lastname":"Tucker"
-,"title":"Technical Account Manager"
-,"email":"btucker@rim.com"
-,"address":""
-,"state":""
-,"zipcode":""
-,"workphone":"(820) 63438"}
-,{"groupname":"TAMs East"
-,"firstname":"Brian"
-,"lastname":"Dingman"
-,"title":"Technical Account Manager"
-,"email":"bdingman@rim.com"
-,"address":"728 Woodfield Road"
-,"state":"PA"
-,"zipcode":"19085"
-,"workphone":"(820) 63602"}
-,{"groupname":"TAMs East"
-,"firstname":"Craig"
-,"lastname":"Ano"
-,"title":"Technical Services,Federal Government-US"
-,"email":"cano@rim.com"
-,"address":"8805 Mourning Dove Ct    Gaithersburg, MD    20879"
-,"state":""
-,"zipcode":""
-,"workphone":"(820) 63639"}
-,{"groupname":"TAMs East"
-,"firstname":"Douglas"
-,"lastname":"Hillgren"
-,"title":"Technical Account Manager"
-,"email":"dhillgren@rim.com"
-,"address":"227 Maple Ridge Lane"
-,"state":"WV"
-,"zipcode":"25425"
-,"workphone":"(820) 63046"}
-,{"groupname":"TAMs East"
-,"firstname":"Joseph"
-,"lastname":"Petroski"
-,"title":"Technical Account Manager, Public Sector"
-,"email":"jpetroski@rim.com"
-,"address":"1465 Woodfield Dr"
-,"state":"TN"
-,"zipcode":"37211"
-,"workphone":""}
-,{"groupname":"TAMs East"
-,"firstname":"Duane"
-,"lastname":"Petroro"
-,"title":"Technical Account Manager"
-,"email":"dpetroro@rim.com"
-,"address":""
-,"state":""
-,"zipcode":""
-,"workphone":"(824) 61439"}
-,{"groupname":"TAMs East"
-,"firstname":"Jim"
-,"lastname":"Doherty"
-,"title":"Technical Account Manager"
-,"email":"jdoherty@rim.com"
-,"address":"20 Townline Rd"
+,"lastname":"Ovechkin"
+,"title":"Director, Caps Hockey"
+,"email":"aovi@test.com"
+,"address":"1234 test Rd"
 ,"state":"MA"
-,"zipcode":"02038"
-,"workphone":"(824) 67169"}
-,{"groupname":"TAMs East"
-,"firstname":"Lisa"
-,"lastname":"Ricco"
-,"title":"Technical Account Manager"
-,"email":"lricco@rim.com"
-,"address":""
-,"state":""
-,"zipcode":""
-,"workphone":"(824) 61440"}
-,{"groupname":"TAMs West"
-,"firstname":"Aisha"
-,"lastname":"Visram"
-,"title":"Technical Account Manager"
-,"email":"AVisram@rim.com"
-,"address":""
-,"state":""
-,"zipcode":""
-,"workphone":"(801) 72909"}
-,{"groupname":"TAMs West"
-,"firstname":"Alain"
-,"lastname":"Marcil"
-,"title":"Technical Account Manager, Public Sector"
-,"email":"amarcil@rim.com"
-,"address":"1, St-Tropez"
-,"state":"QC"
-,"zipcode":"J8T 6C9"
-,"workphone":"(819) 246-8093"}
-,{"groupname":"TAMs West"
-,"firstname":"Bill"
-,"lastname":"Padilla"
-,"title":"Technical Account Manager"
-,"email":"bpadilla@rim.com"
-,"address":""
-,"state":""
-,"zipcode":""
-,"workphone":""}
-,{"groupname":"TAMs West"
-,"firstname":"Darren"
-,"lastname":"Greenough"
-,"title":"Technical Account Manager"
-,"email":"dgreenough@rim.com"
-,"address":""
-,"state":""
-,"zipcode":""
-,"workphone":"(801) 75105"}
-,{"groupname":"TAMs West"
-,"firstname":"Jay"
-,"lastname":"Klauser"
-,"title":"Technical Account Manager"
-,"email":"jklauser@rim.com"
-,"address":""
-,"state":""
-,"zipcode":""
-,"workphone":""}
-,{"groupname":"TAMs West"
-,"firstname":"Lynne"
-,"lastname":"Cassaday"
-,"title":"Technical Account Manager"
-,"email":"lcassaday@rim.com"
-,"address":"26806 Serrano Place"
+,"zipcode":"12345"
+,"workphone":"123-53434"}
+,{"groupname":"Directs"
+,"firstname":"John"
+,"lastname":"Doe"
+,"title":"TV Repair man"
+,"email":"jdoe@test.com"
+,"address":"23313 Test Parkway"
 ,"state":"CA"
-,"zipcode":"91351"
-,"workphone":"661-252-2220"}
-,{"groupname":"TAMs West"
-,"firstname":"Michael"
-,"lastname":"Mantho"
-,"title":"Technical Account Manager"
-,"email":"mmantho@rim.com"
-,"address":"8875 Trailwood Court    Mentor, OH    44060"
+,"zipcode":"12345"
+,"workphone":"(321) 123123"}
+,{"groupname":"Directs"
+,"firstname":"John"
+,"lastname":"Mugger"
+,"title":"Test Pioneer"
+,"email":"jmugger@test.com"
+,"address":""
 ,"state":""
 ,"zipcode":""
+,"workphone":"(123) 2321232"}
+,{"groupname":"Directs"
+,"firstname":"Marky"
+,"lastname":"Mark"
+,"title":"Manager, Highspeed internet"
+,"email":"MMark@test.com"
+,"address":"34334 Street Ave"
+,"state":"NJ"
+,"zipcode":"01234"
+,"workphone":"(343) 343423"}
+,{"groupname":"Directs"
+,"firstname":"Paul"
+,"lastname":"Cornishhen"
+,"title":"Manager, Work Parties"
+,"email":"pcornishen@test.com"
+,"address":"12354 Lane Lane"
+,"state":"TX"
+,"zipcode":"12323"
 ,"workphone":""}
-,{"groupname":"TAMs West"
-,"firstname":"Rodney"
-,"lastname":"Stokes"
-,"title":"Technical Account Manager"
-,"email":"rstokes@rim.com"
-,"address":"160 Muir Hill Drive Aledo, TX 76008"
+,{"groupname":"Directs"
+,"firstname":"Richie"
+,"lastname":"Ticker"
+,"title":"Manager"
+,"email":"rticker@test.com"
+,"address":"12311231 Blvd Blvd Suite AW"
+,"state":"CA"
+,"zipcode":"12343"
+,"workphone":"(343) 34242"}
+,{"groupname":"Directs"
+,"firstname":"Ray"
+,"lastname":"Bands"
+,"title":"Test Engineer"
+,"email":"rbands@test.com"
+,"address":"123123 Park Pl"
+,"state":"CA"
+,"zipcode":"12312"
+,"workphone":"(123) 1231231"}
+,{"groupname":"Directs"
+,"firstname":"Rob"
+,"lastname":"Roy"
+,"title":"Toy Manager"
+,"email":"rroy@test.com"
+,"address":""
 ,"state":""
 ,"zipcode":""
-,"workphone":"(820) 63604"}
-,{"groupname":"TAMs West"
-,"firstname":"Troy"
-,"lastname":"Stark"
-,"title":"Technical Account Manager"
-,"email":"tstark@rim.com"
-,"address":"254 Wissler Rd.,"
-,"state":"Ontario"
-,"zipcode":"N2K 2X4"
-,"workphone":"(801) 72151"}
-,{"groupname":"Channel"
-,"firstname":"Cerafin"
-,"lastname":"Castillo"
-,"title":""
-,"email":"cecastillo@rim.com"
+,"workphone":"(123) 1231231"}
+,{"groupname":"Directs"
+,"firstname":"Ron"
+,"lastname":"John"
+,"title":"Sales"
+,"email":"rjohn@test.com"
+,"address":"1232 Park Parkway"
+,"state":"CA"
+,"zipcode":"343434"
+,"workphone":"(123) 123123"}
+,{"groupname":"Directs"
+,"firstname":"Steve"
+,"lastname":"Wonder"
+,"title":"Piano Engineer"
+,"email":"pwonder@test.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(234) 24323"}
+,{"groupname":"Customer Services"
+,"firstname":"Big T"
+,"lastname":"Tacos"
+,"title":"Tester"
+,"email":"ttacos@test.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(234) 2343324"}
+,{"groupname":"Prof Services"
+,"firstname":"Berry"
+,"lastname":"Black"
+,"title":"Human computer"
+,"email":"test@test.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(123) 123131"}
+,{"groupname":"Prof Services"
+,"firstname":"Will"
+,"lastname":"Ferrell"
+,"title":"Blackberry Guy"
+,"email":"wferrell@test.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(123) 1312311"}
+,{"groupname":"Prof Services"
+,"firstname":"Mike"
+,"lastname":"Tyson"
+,"title":"Boxer"
+,"email":"mtyson@test.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(132) 123123"}
+,{"groupname":"WAAs"
+,"firstname":"Brent"
+,"lastname":"Thornton"
+,"title":"Wireless Application Architect"
+,"email":"bthornton@test.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"(123) 72095"}
+,{"groupname":"WAAs"
+,"firstname":"Jeff"
+,"lastname":"Bizzle"
+,"title":"Waa"
+,"email":"jbizzle@test.com"
+,"address":""
+,"state":""
+,"zipcode":""
+,"workphone":"123-123-1232"}
+,{"groupname":"WAAs"
+,"firstname":"Mo"
+,"lastname":"Town"
+,"title":"Waa"
+,"email":"motown@test.com"
 ,"address":""
 ,"state":""
 ,"zipcode":""
 ,"workphone":""}
-,{"groupname":"Admin"
-,"firstname":"Glenna"
-,"lastname":"Huth"
-,"title":"Executive Assistant"
-,"email":"ghuth@rim.com"
+,{"groupname":"WAAs"
+,"firstname":"OD"
+,"lastname":"Bizzle"
+,"title":"WAA"
+,"email":"odb@test.com"
 ,"address":""
 ,"state":""
 ,"zipcode":""
-,"workphone":"(801) 78828"}
-]};		
-
+,"workphone":""}
+]};	
 	processJSONPayload();	
-	setTimeout(function() {
-		alert ('People content loaded');
-	}, 2500); 
+//	setTimeout(function() {
+//		alert ('People content loaded');
+//	}, 2500); 
 }
+
+function testingLoadDocuments() {
+	gJSONPayload =[
+  {"filename":"test.pdf"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/test.pdf"} 	
+ ,{"filename":"testdoc.doc"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testdoc.doc"} 
+ ,{"filename":"testexcel.xls"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testexcel.xls"} 
+ ,{"filename":"testgif.gif"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testgif.gif"}		
+ ,{"filename":"testjpg.jpg"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testjpg.jpg"}
+ ,{"filename":"testpng.png"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testpng.png"}
+ ,{"filename":"testppt.ppt"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testppt.ppt"}
+ ,{"filename":"testxlsx.xlsx"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testxlsx.xlsx"}
+ ,{"filename":"testzip.zip"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testzip.zip"} 
+];
+	processJSONPayload();
+//	setTimeout(function() {
+//		alert ('Document content loaded');
+//	}, 1500); 
+}
+
 
 function testingLoadRSS() {
 	
@@ -513,9 +305,9 @@ function testingLoadRSS() {
     "detail": "All systems back online. report all discrepanices to anyone." }	
 	]};
 	processJSONPayload();
-	setTimeout(function() {
-		alert ('RSS content loaded');
-	}, 1500); 
+//	setTimeout(function() {
+//		alert ('RSS content loaded');
+//	}, 1500); 
 }
 
 function testingPleaseWait() {
@@ -535,3 +327,21 @@ function testingPleaseWait() {
 		}, 500); 
 	}
 }
+
+function testingSimulateSendPrimaryHTTPRequest(primaryURL, secondaryURL) {
+		switch (gDownloadRequest) {
+			case 'Config':
+				testingLoadConfig();					  	
+			  break;
+			case 'Contacts':
+				testingLoadContacts();				
+			  break;
+			case 'RSS':
+				testingLoadRSS();				
+			  break;
+			case 'Documents':
+				testingLoadDocuments();	
+			  break;
+		}	
+}
+
