@@ -40,31 +40,36 @@ var gUserRecordID = '1';
 //The next variables are used to hold information relative to the connection preferences
 //This allows persistent storage of data for the application
 var gConfigDateTime = '';
-var gConfigPrimaryURL = 'http://www.dagobaahserver.com/pbdr/updatecheck.ashx';
+var gConfigPrimaryURL = 'http://www.dagobahserver.com/pbdr/updatecheck.ashx';
 var gConfigPrimaryUserID = '';
 var gConfigPrimaryPassword = '';
-var gConfigSecondaryURL = 'http://www.dagobaahserver.com/pbdr/updatecheck.ashx';
+var gConfigSecondaryURL = 'http://www.dagobahserver.com/pbdr/updatecheck.ashx';
 var gConfigSecondaryUserID = '';
 var gConfigSecondaryPassword = '';
 var gContactsDateTime = '';
-var gContactsPrimaryURL = 'http://www.dagobaahserver.com/pbdr/Contacts.ashx';
+var gContactsPrimaryURL = 'http://www.dagobahserver.com/pbdr/Contacts.ashx';
 var gContactsPrimaryUserID = '';
 var gContactsPrimaryPassword = '';
-var gContactsSecondaryURL = 'http://www.dagobaahserver.com/pbdr/Contacts.ashx';
+var gContactsSecondaryURL = 'http://www.dagobahserver.com/pbdr/Contacts.ashx';
 var gContactsSecondaryUserID = '';
 var gContactsSecondaryPassword = '';
 var gDocumentsDateTime = '';
-var gDocumentsPrimaryURL = 'http://www.dagobaahserver.com/pbdr/Documents.ashx';
+var gDocumentsPrimaryURL = 'http://www.dagobahserver.com/pbdr/Documents.ashx';
 var gDocumentsPrimaryUserID = '';
 var gDocumentsPrimaryPassword = '';
-var gDocumentsSecondaryURL = 'http://www.dagobaahserver.com/pbdr/Documents.ashx';
+var gDocumentsSecondaryURL = 'http://www.dagobahserver.com/pbdr/Documents.ashx';
 var gDocumentsSecondaryUserID = '';
 var gDocumentsSecondaryPassword = '';
+//Delete these 3 lines when finished testing
+var gDocuments2PrimaryURL = 'http://www.dagobahserver.com/pbdr/Documents2.ashx';
+var gDocuments2SecondaryURL = 'http://www.dagobahserver.com/pbdr/Documents.ashx';
+var gUseSmallDocumentCollection = false;
+
 var gRSSDateTime = '';
-var gRSSPrimaryURL = 'http://www.dagobaahserver.com/pbdr/RSS.ashx';
+var gRSSPrimaryURL = 'http://www.dagobahserver.com/pbdr/RSS.ashx';
 var gRSSPrimaryUserID = '';
 var gRSSPrimaryPassword = '';
-var gRSSSecondaryURL = 'http://www.dagobaahserver.com/pbdr/RSS.ashx';
+var gRSSSecondaryURL = 'http://www.dagobahserver.com/pbdr/RSS.ashx';
 var gRSSSecondaryUserID = '';
 var gRSSSecondaryPassword = '';
 //The next variables are for sound
@@ -75,9 +80,9 @@ function browserDetection() {
 //*************************************************************
 //* This function will retrieve browser information
 //* Parms:
-//*		none
+//*		Nothing
 //* Value Returned: 
-//*		none
+//*		Nothing
 //*************************************************************
 
 	//Initialize our user agent string to lower case.
@@ -120,7 +125,9 @@ function displayScreen(screenName) {
 		
   writeLog('displayScreen Starting');
   if (gScreenDisplayed == '') {
-  	//Only hide all <div> areas when we first start.
+  	//Hide all <div> areas when we first start.
+ 		displayDownloadStatus('Hide');
+ 		$('#showMenuBar').hide();
  		$('#' + gScreenNameHome).hide();
  		$('#' + gScreenNameDocuments).hide();
  		$('#' + gScreenNameNoContacts).hide();
@@ -134,6 +141,7 @@ function displayScreen(screenName) {
 	hideMenuBar();
 	
 	if (screenName == gScreenNameHome) {
+		$('#showMenuBar').hide();
 		//If this is the home screen, we need to show it, then show the ropes hanging
 		if (gScreenDisplayed != '') {
 			$('#' + gScreenDisplayed).hide();			
@@ -146,6 +154,7 @@ function displayScreen(screenName) {
 			//If the previous screen was the home screen, pull the options ropes up
 			showOptions(false);	
 		}
+		$('#showMenuBar').show();	
 		switch (screenName) {
 			case gScreenNameDocuments:
 			  setTimeout(function() {
@@ -153,7 +162,7 @@ function displayScreen(screenName) {
 			  	$('#' + gScreenNameDocuments).fadeIn(1500);
 			  }, 1000); 
 			  break;
-			case gScreenNameNoContacts:			  	
+			case gScreenNameNoContacts:	  	
 			  setTimeout(function() {
 			  	$('#' + gScreenNameHome).fadeOut(500);
 			  	var element = document.getElementById(gScreenNameNoContacts);
@@ -202,8 +211,13 @@ function displayScreen(screenName) {
 			  }, 500); 
 			  break;
 			case gScreenNameSettings:	
-				hideMenuBar();	
-				$('#' + gScreenNameSettings).fadeIn(1500);
+				hideMenuBar();
+				if (gScreenDisplayed != gScreenNameSettings) {	
+					$('#' + gScreenDisplayed).fadeOut(1500);
+					setTimeout(function() {
+						$('#' + gScreenNameSettings).fadeIn(1500);
+					}, 500);
+				}
 				break;
 		}
 	}
@@ -258,7 +272,7 @@ function getStarted(msg) {
 //* Parms:
 //*		Success/Error messages to analyze from called functions
 //* Value Returned: 
-//*		none
+//*		Nothing
 //*************************************************************	
 
 	var errMsg = '';
@@ -275,16 +289,24 @@ function getStarted(msg) {
 		retrieveConfigSettings('','getStarted');
 	}
 	else if (msg == 'CONFIGSETTINGSRETRIEVED') {
-		validateConfigs();
 		setupHome();
 		displayScreen(gScreenNameHome);
 		manageMusic('Start', 'Intro');
-		if (gConfigsValid == true) {	
+		downloadConfig('','getStarted');
+		//getStarted('DOWNLOADCONFIGSUCCESS');
+	}
+	else if (msg == 'DOWNLOADCONFIGSUCCESS') {
+		validateConfigs();
+		if (gConfigsValid == true) {
+			gDownloadWindowDisplayed = true;  //Set to prevent errant clicking of options	
 			setTimeout(function() {
-				checkUpdates('');
+				downloadContent('');
 			}, 2500);			
 		}
 	}
+	else if (msg.substring(0,20) == 'DOWNLOADCONFIGERROR:') {
+		errMsg = msg.substring(20);
+	}	
 	else if (msg.substring(0,19) == 'USERSETTINGSFAILED:') {
 		errMsg = msg.substring(19);
 	}
@@ -385,15 +407,19 @@ function manageWait(method) {
 			gPleaseWaitRope.fallDown();
 			setTimeout(function() {
 				manageMusic('Start','Waiting');
+				displayDownloadStatus('Show');	
 			}, 500); 
 		}, 500); 
 	}
 	else {
 		gPleaseWaitRope.pullUp();
-		manageMusic('Stop','Waiting');
 		setTimeout(function() {
-			showOptions(true);
-		}, 1000); 
+			manageMusic('Stop','Waiting');
+			displayDownloadStatus('false');
+			setTimeout(function() {
+				showOptions(true);
+			}, 1000); 
+		}, 500);
 		gApplicationWaiting = false;
 	}
 	writeLog('manageWait Finished');	
@@ -449,7 +475,7 @@ function retrieveConfigSettings(msg, functionToCall) {
 //*		Success/Error messages to analyze from called functions
 //*		Function to call when finished
 //* Value Returned: 
-//*		none
+//*		Nothing
 //*************************************************************	
 
 	var errMsg = '';
@@ -559,7 +585,7 @@ function retrieveUserSettings(msg, functionToCall) {
 //*		Success/Error messages to analyze from called functions
 //*		Function to call when finished
 //* Value Returned: 
-//*		none
+//*		Nothing
 //*************************************************************	
 
 	var errMsg = '';
@@ -613,12 +639,12 @@ function retrieveUserSettings(msg, functionToCall) {
 
 function showMenuBar() {
 	if (gApplicationWaiting == false) {
-		document.getElementById("menuBar").className = "showMenuBar";
+		document.getElementById('menuBar').className = 'showMenuBar';
 	}	
 }
 
 function hideMenuBar() {
-	document.getElementById("menuBar").className = "hideMenuBar";
+	document.getElementById('menuBar').className = 'hideMenuBar';
 }	
 
 function validateConfigs() {
@@ -633,17 +659,17 @@ function validateConfigs() {
 	
 	var errMsg = '';
 	writeLog('validateConfigs Starting');
-	if (gDocumentsPrimaryURL == '' && gDocumentsSecondaryURL == '') {	
-		errMsg += '  No URL specified for documents lookup\n';
+	if (myTrim(gDocumentsPrimaryURL) == '') {	
+		errMsg += '  No primary URL specified for documents download\n';
 	}
-	if (gContactsPrimaryURL == '' && gContactsSecondaryURL == '') {	
-		errMsg += '  No URL specified for contacts lookup\n';
+	if (myTrim(gContactsPrimaryURL) == '') {	
+		errMsg += '  No primary URL specified for contacts download\n';
 	}
-	if (gRSSPrimaryURL == '' && gRSSSecondaryURL == '') {	
-		errMsg += '  No URL specified for RSS lookup\n';
+	if (myTrim(gRSSPrimaryURL) == '') {	
+		errMsg += '  No primary URL specified for RSS download\n';
 	}
-	if (gConfigPrimaryURL == '' && gConfigSecondaryURL == '') {	
-		errMsg += '  No URL specified for Config lookup\n';
+	if (myTrim(gConfigPrimaryURL) == '') {	
+		errMsg += '  No primary URL specified for Config download\n';
 	}
 	if (errMsg != '') {
 		gConfigsValid = false;

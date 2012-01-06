@@ -127,7 +127,6 @@ function buildContactsListing() {
 	}
 	
 	$('#contactslisting').empty();
-	//$('#listofentries').attr('data-filter', 'true');
 	for (counter = 0; counter < gContactRecords.length; ++counter) {
 		array = gContactRecords[counter].split(gDelim);	
 		displayContact = true;
@@ -190,40 +189,43 @@ function buildContactsScreen(msg, groupName) {
 //*************************************************************	
 	
 	var errMsg = '';
-	if (msg == '' || msg == undefined) {
-		writeLog('buildContactsScreen Starting');
-		gGroupNameSelected = groupName;	
-		var	sql = 'SELECT contactid, groupname, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts;
-		if (groupName != 'AllOfThem') {
-			sql += ' WHERE groupname like \'' + gGroupNameSelected + '\'';
+	if (gDownloadWindowDisplayed == false) {	
+		if (msg == '' || msg == undefined) {
+			writeLog('buildContactsScreen Starting');
+			gGroupNameSelected = groupName;	
+			var	sql = 'SELECT contactid, groupname, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts;
+			if (groupName != 'AllOfThem') {
+				sql += ' WHERE groupname like \'' + gGroupNameSelected + '\'';
+			}
+			if (gUserListingOrder == 'FirstName') {
+				sql += ' ORDER BY firstname, lastname';
+			}	
+			else {
+				sql += ' ORDER BY lastname, firstname';
+			}
+			dbGetRecords(sql, 'contacts', 'buildContactsScreen');
 		}
-		if (gUserListingOrder == 'FirstName') {
-			sql += ' ORDER BY firstname, lastname';
+		else if (msg == 'DBGETRECORDSSUCCESS') {
+			if (gContactRecords.length > 0 ) {
+				buildContactsListing();
+				displayScreen(gScreenNameContacts);
+			}
+			else {
+				errMsg = 'No contacts found for Group: ' + gGroupNameSelected;
+			}
+			writeLog('buildContactsScreen Finished');
+		}
+		else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
+			errMsg = msg.substring(18);
 		}	
 		else {
-			sql += ' ORDER BY lastname, firstname';
-		}
-		dbGetRecords(sql, 'contacts', 'buildContactsScreen');
+ 	 	errMsg = 'Invalid msg: ' + msg;
+		}	
+		if (errMsg != '') {
+			writeLog('buildContactsScreen Finished - ERROR - ' + errMsg);
+			displayMessage ('Error building contacts listing:\n' + errMsg + '\n\nPlease contact your administrator.');		
+		}	
 	}
-	else if (msg == 'DBGETRECORDSSUCCESS') {
-		if (gContactRecords.length > 0 ) {
-			buildContactsListing();
-			displayScreen(gScreenNameContacts);
-		}
-		else {
-			displayMessage ('No contacts found for Group: ' + gGroupNameSelected + '\n\nPlease contact your administrator.');
-		}
-		writeLog('buildContactsScreen Finished');
-	}
-	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
-		errMsg = msg.substring(18);
-	}	
-	else {
-  	errMsg = 'Invalid msg: ' + msg;
-	}	
-	if (errMsg != '') {
-		checkUpdates('CONTACTSLOADERROR:'+ errMsg);  //Go back to loading function			writeLog('buildContactsScreen Finished - ERROR - '+ errMsg);				
-	}	
 }
 
 function buildNoContactsScreen() {
@@ -256,44 +258,47 @@ function insertContactRecords(msg, functionToCall) {
 	var sql = '';
 	var errMsg = '';
 	if (msg == '') {
+		gContactCounter = 0;
 		gParentFunctionToCall = functionToCall;
   	writeLog('insertContactRecords Starting');
-		sql = 'DELETE FROM ' + gTableNameContacts + ' WHERE groupname = \'' + fieldPrepare(gContactPayloadGroupName) + '\'';
+		sql = 'DELETE FROM ' + gTableNameContacts;
 		dbDeleteRecord(sql, 'insertContactRecords');
 	}
 	else if (msg == 'DBDELETERECORDSUCCESS' || msg == 'DBADDRECORDSUCCESS') {
 		if (gContactCounter < gJSONPayload.Contacts.length) { 
-			if (gJSONPayload.Contacts[gContactCounter].groupname.toLowerCase() == gContactPayloadGroupName.toLowerCase()) {				
-				//Ensure the values added are in the order of which they were defined for the database
-				sql = 'INSERT INTO ' + gTableNameContacts;
-				//sql += '(contactid,firstname,lastname,title,company,email,pin,workphone,mobilephone,homephone,address,address2,city,state,zipcode,country)';
-				sql += '(contactid,groupname,firstname,lastname,title,company,email,pin,workphone,mobilephone,homephone,address,address2,city,state,zipcode,country)';		
-				sql += ' VALUES(null';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].groupname) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].firstname) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].lastname) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].title) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].company) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].email.toLowerCase()) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].pin) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].workphone) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].mobilephone) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].homephone) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].address) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].address2) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].city) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].state) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].zipcode) + '\'';
-				sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].country) + '\'';																																							
-				sql += ')';
-				gContactCounter ++;
-				gContactPayloadAddedCounter ++;
-				dbAddRecord(sql, 'insertContactRecords');
-			}
-			else {
-				gContactCounter ++;
-				insertContactRecords('DBADDRECORDSUCCESS');
-			}
+			//Ensure the values added are in the order of which they were defined for the database
+			sql = 'INSERT INTO ' + gTableNameContacts;
+			//sql += '(contactid,firstname,lastname,title,company,email,pin,workphone,mobilephone,homephone,address,address2,city,state,zipcode,country)';
+			sql += '(contactid,groupname,firstname,lastname,title,company,email,pin,workphone,mobilephone,homephone,address,address2,city,state,zipcode,country)';		
+			sql += ' VALUES(null';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].groupname) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].firstname) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].lastname) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].title) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].company) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].email.toLowerCase()) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].pin) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].workphone) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].mobilephone) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].homephone) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].address) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].address2) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].city) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].state) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].zipcode) + '\'';
+			sql += ', \'' + fieldPrepare(gJSONPayload.Contacts[gContactCounter].country) + '\'';																																							
+			sql += ')';
+			var groupName = gJSONPayload.Contacts[gContactCounter].groupname.replace("'","");  //Remove apostrophe as this affects our onclick for the group
+			var counter;
+			for (counter = 0; counter < gContactPayloadGroups.length; ++counter) {
+				var array = gContactPayloadGroups[counter].split(gDelim);
+				if (array[0].toLowerCase() == groupName.toLowerCase()) {
+					array[1] ++;
+					gContactPayloadGroups[counter] = array[0] + gDelim + array[1];
+				}				
+			}	
+			gContactCounter ++;
+			dbAddRecord(sql, 'insertContactRecords');
 		}
 		else {
 			writeLog('insertContactRecords Finished');
@@ -315,6 +320,7 @@ function insertContactRecords(msg, functionToCall) {
 	}
 }
 
+
 function processContactsPayload(msg) {
 //*************************************************************
 //* This function will insert the records received by a PUSH
@@ -328,10 +334,10 @@ function processContactsPayload(msg) {
 	var sql = '';
 	var errMsg = '';
 	if (msg == '') {
-  	writeLog('processContactPayload Starting');
+  	writeLog('processContactsPayload Starting');
   	var groupsFound = '';
   	var groupName;
-  	writeLog('  Analyzing JSON payload');
+  	writeLog('Analyzing JSON payload');
   	var counter;	
 		for (counter = 0; counter < gJSONPayload.Contacts.length; ++counter) {
 			//Validate that all required properties exist in the object and if not, make them blank.
@@ -402,32 +408,19 @@ function processContactsPayload(msg) {
 			groupName = gJSONPayload.Contacts[counter].groupname;
 			groupName = groupName.replace("'","");  //Remove apostrophe as this affects our onclick for the group
 			if (groupsFound.toLowerCase().indexOf(groupName.toLowerCase() + '<-->') == -1) {
-				groupsFound += groupName + '<-->'
+				groupsFound += groupName + '<-->';  //Add to array 
 			}
   	}
+ 		groupsFound = groupsFound.substr(0,groupsFound.length - 4);  //Remove last delimeter
+		gContactPayloadGroups = groupsFound.split('<-->')
+		for (counter = 0; counter < gContactPayloadGroups.length; ++counter) {
+			gContactPayloadGroups[counter] += gDelim + '0';
+		}	
+		writeLog('Processing ' + gJSONPayload.Contacts.length + ' Contacts in ' + gContactPayloadGroups.length + ' Groups');
+ 		insertContactRecords('','processContactsPayload');
 	}
-
-  if (msg == '' || msg == 'INSERTCONTACTSSUCCESS') {
-  	if (msg == '') {
-  		groupsFound = groupsFound.substr(0,groupsFound.length - 4);  //Remove last delimeter
-			gContactPayloadGroups = groupsFound.split('<-->')
-			writeLog('  Processing ' + gContactPayloadGroups.length + ' groups');
-			gGroupPayloadCounter = 0;
-  	}
-  	if (gGroupPayloadCounter < gContactPayloadGroups.length) { 
-  		gContactPayloadGroupName = gContactPayloadGroups[gGroupPayloadCounter];
-  		if (msg == 'INSERTCONTACTSSUCCESS') {
-    		gContactPayloadGroups[gGroupPayloadCounter - 1] = gContactPayloadGroups[gGroupPayloadCounter - 1] + gDelim + gContactPayloadAddedCounter.toString() + gDelim + getDate(gUserDateDisplay) + ' @ ' + getTime();
-  		}
-  		gContactCounter = 0;
-  		gContactPayloadAddedCounter = 0;
-  		insertContactRecords('','processContactsPayload');
-  	}
-  	else {
-  		gContactPayloadGroups[gGroupPayloadCounter - 1] =gContactPayloadGroups[gGroupPayloadCounter - 1] + gDelim + gContactPayloadAddedCounter.toString() + gDelim + getDate(gUserDateDisplay) + ' @ ' + getTime();
-  		updateGroups('', 'processContactsPayload');  	
-  	}
-  	gGroupPayloadCounter++;
+ 	else if (msg == 'INSERTCONTACTSSUCCESS') {
+ 		updateGroups('', 'processContactsPayload');  
   }
   else if (msg == 'UPDATEGROUPSSUCCESS') {
   	gContactsDateTime = getDate('yyyymmdd') + getTime('hhmmss');
@@ -435,8 +428,8 @@ function processContactsPayload(msg) {
 		dbUpdateRecord(sql, 'processContactsPayload'); 
 	} 
 	else if (msg == 'DBUPDATERECORDSUCCESS') {
-		writeLog('processContactPayload Finished');
-		checkUpdates('CONTACTSLOADED');  //Go back to loading function	
+		writeLog('processContactsPayload Finished');
+		window[gRequestingFunction]('CONTACTSLOADED');  //Go back to loading function	
 	}
 	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
 		errMsg = msg.substring(20);
@@ -451,7 +444,7 @@ function processContactsPayload(msg) {
 		errMsg = 'Invalid msg: ' + msg;
 	}
 	if (errMsg != '') {
-		writeLog('processContactPayload Finished - ERROR - ' + errMsg);
-		checkUpdates('CONTACTSLOADERROR:'+ errMsg);  //Go back to loading function	
+		writeLog('processContactsPayload Finished - ERROR - ' + errMsg);
+		window[gRequestingFunction]('CONTACTSLOADERROR:' + errMsg);  //Go back to loading function	
 	}
 }

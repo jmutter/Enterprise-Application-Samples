@@ -29,7 +29,8 @@ downloader = {
 		this.currentFile = 0;
 		this.FULL_DIR_PATH = savePath;
 		this.fileList = [];
-		
+		this.callBack = onComplete;
+				
 		//create the save directory if not created yet.
         if (!blackberry.io.dir.exists(this.FULL_DIR_PATH)) {
                 //debug("Creating new directory: " + this.FULL_DIR_PATH);
@@ -84,7 +85,6 @@ downloader = {
 		//this.fileList = fList;
 		
 		this.doDownload();
-		this.callBack = onComplete;
 	},
 	
 	doDownload: function(){
@@ -110,6 +110,7 @@ downloader = {
 				if (sizeInBytes > this.FILE_SIZE_LIMIT) {
 					// debug(this.fileList[this.currentFile].filename + ' -- file exceeds the limit, skipping.');
 					this.currentFile++;
+					updateDocumentsProgressBar();					
 					this.doDownload();
 				}else{
 					// Path could be one of http/https
@@ -118,6 +119,7 @@ downloader = {
 			}catch (e) {
 				// debug ("error in doDownload for file " + this.fileList[this.currentFile].filename + ": " + e);
 				this.currentFile++;
+				updateDocumentsProgressBar();
 				this.doDownload();
 			}
 		}else{

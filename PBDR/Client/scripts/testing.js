@@ -5,25 +5,29 @@
 
 //Global Variables
 var gTestingClearMethod = '';
-var gTestingWaitMethod = '';
 
-function testingClearContacts(msg) {
+function testingClearTables(msg) {
 	
 	var errMsg = '';
 	var sql = '';
 	if (msg == '') {
 		gTestingClearMethod = 'Groups';
 		sql = 'DELETE FROM ' + gTableNameGroups;
-		dbDeleteRecord(sql, 'testingClearContacts');
+		dbDeleteRecord(sql, 'testingClearTables');
 	}
 	else if (msg == 'DBDELETERECORDSUCCESS') {
 		if (gTestingClearMethod == 'Groups') {
 			gTestingClearMethod = 'Contacts';
 			sql = 'DELETE FROM ' + gTableNameContacts;
-			dbDeleteRecord(sql, 'testingClearContacts');
+			dbDeleteRecord(sql, 'testingClearTables');
+		}
+		else if (gTestingClearMethod == 'Contacts') {
+			gTestingClearMethod = 'RSS';
+			sql = 'DELETE FROM ' + gTableNameRSS;
+			dbDeleteRecord(sql, 'testingClearTables');
 		}
 		else {
-			buildGroupsScreen('');
+			alert ('Tables cleared');
 		}
 	}	
 	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
@@ -37,28 +41,7 @@ function testingClearContacts(msg) {
 	}		
 }
 
-function testingClearRSS(msg) {
-	
-	var errMsg = '';
-	if (msg == '') {
-		var sql = 'DELETE FROM ' + gTableNameRSS;
-		dbDeleteRecord(sql, 'testingClearRSS');
-	}
-	else if (msg == 'DBDELETERECORDSUCCESS') {
-		buildRSSScreen('');
-	}	
-	else if (msg.substring(0,20) == 'DBDELETERECORDERROR:') {
-		errMsg = msg.substring(20);
-	}
-	else {
-  	errMsg = 'Invalid msg: ' + msg;
-	}	
-	if (errMsg != '') {
-		alert ('Error deleting ' + gTestingClearMethod + '\n' + errMsg);
-	}		
-}
-
-function testingLoadConfig() {
+function testingDownloadConfig() {
 	
 	gJSONPayload = {"Updates" : [   
   {"contacts" : "20111208193900" ,
@@ -67,25 +50,34 @@ function testingLoadConfig() {
   "configuration": "20111208193900"}
 	],"Config" : [   
   { "configprimaryurl" : "http://www.dagobahserver.com/pbdr/updatecheck.ashx" ,
+  "configprimaryuserid": "",
+  "configprimarypassword": "",
   "configsecondaryurl": "http://www.dagobahserver.com/pbdr/updatecheck.ashx",
-  "configuserid": "",
-  "configpassword": "",
+  "configsecondaryuserid": "",
+  "configsecondarypassword": "",
   "contactsprimaryurl" : "http://www.dagobahserver.com/pbdr/Contacts.ashx" ,
+  "contactsprimaryuserid": "",
+  "contactsprimarypassword": "",
   "contactssecondaryurl": "http://www.dagobahserver.com/pbdr/Contacts.ashx",
-  "contactuserid": "",
-  "contactpassword": "",
+  "contactssecondaryuserid": "",
+  "contactssecondarypassword": "",
   "documentsprimaryurl" : "http://www.dagobahserver.com/pbdr/Documents.ashx" ,
+  "documentsprimaryuserid": "",
+  "documentsprimarypassword": "",  
   "documentssecondaryurl": "http://www.dagobahserver.com/pbdr/Documents.ashx",
+  "documentssecondaryuserid": "",
+  "documentssecondarypassword": "",
   "rssprimaryurl" : "http://www.dagobahserver.com/pbdr/Rss.ashx" ,
-  "rsssecondaryurl": "http://www.dagobahserver.com/pbdr/Rss.ashx"}
+  "rssprimaryuserid": "",
+  "rssprimarypassword": "",  
+  "rsssecondaryurl": "http://www.dagobahserver.com/pbdr/Rss.ashx",
+  "rsssecondaryuserid": "",
+  "rsssecondarypassword": "",}
 	]};	
 	processJSONPayload();
-//	setTimeout(function() {
-//		alert ('Config content loaded');
-//	}, 1500); 
 }
 
-function testingLoadContacts() {
+function testingDownloadContacts() {
 	//Build payload from text and call processPayload
 	gJSONPayload = {"Contacts":[
 {"groupname":"Directs"
@@ -252,12 +244,20 @@ function testingLoadContacts() {
 ,"workphone":""}
 ]};	
 	processJSONPayload();	
-//	setTimeout(function() {
-//		alert ('People content loaded');
-//	}, 2500); 
 }
 
-function testingLoadDocuments() {
+function testingDownloadContent() {
+	hideMenuBar();
+	setTimeout(function() {
+ 		displayScreen(gScreenNameHome);
+		setTimeout(function() {
+			downloadContent('');
+		}, 1000); 	
+	}, 500); 	
+}
+
+
+function testingDownloadDocuments() {
 	gJSONPayload =[
   {"filename":"test.pdf"
   	,"url":"http://www.dagobahserver.com/pbdr/docs/test.pdf"} 	
@@ -279,13 +279,9 @@ function testingLoadDocuments() {
   	,"url":"http://www.dagobahserver.com/pbdr/docs/testzip.zip"} 
 ];
 	processJSONPayload();
-//	setTimeout(function() {
-//		alert ('Document content loaded');
-//	}, 1500); 
 }
 
-
-function testingLoadRSS() {
+function testingDownloadRSS() {
 	
 	gJSONPayload = {"RSS":[   
   	{"id" : 1 ,
@@ -305,43 +301,22 @@ function testingLoadRSS() {
     "detail": "All systems back online. report all discrepanices to anyone." }	
 	]};
 	processJSONPayload();
-//	setTimeout(function() {
-//		alert ('RSS content loaded');
-//	}, 1500); 
 }
 
-function testingPleaseWait() {
-	if (gTestingWaitMethod == '' || gTestingWaitMethod == 'Hidden') {
-		showOptions(false);	 
-		manageMusic('Stop');
-		setTimeout(function() {
-			manageWait('Show');
-		}, 500); 
-		gTestingWaitMethod = 'Shown';		
-	}
-	else {	
-		gTestingWaitMethod = 'Hidden';		
-		manageWait('Hide');
-		setTimeout(function() {
-			showOptions(true);	 
-		}, 500); 
-	}
-}
+function testingSendPrimaryHTTPRequest(primaryURL, secondaryURL) {
 
-function testingSimulateSendPrimaryHTTPRequest(primaryURL, secondaryURL) {
-		switch (gDownloadRequest) {
-			case 'Config':
-				testingLoadConfig();					  	
-			  break;
-			case 'Contacts':
-				testingLoadContacts();				
-			  break;
-			case 'RSS':
-				testingLoadRSS();				
-			  break;
-			case 'Documents':
-				testingLoadDocuments();	
-			  break;
-		}	
+	switch (gDownloadRequest) {
+		case 'Config':
+			testingDownloadConfig();					  	
+		  break;
+		case 'Contacts':
+			testingDownloadContacts();				
+		  break;
+		case 'RSS':
+			testingDownloadRSS();				
+		  break;
+		case 'Documents':
+			testingDownloadDocuments();	
+		  break;
+	}	
 }
-

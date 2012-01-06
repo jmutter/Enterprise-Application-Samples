@@ -34,39 +34,41 @@ function buildRSSScreen(msg) {
 //*************************************************************	
 	
 	var errMsg = '';
-	if (msg == '' || msg == undefined) {
-		manageMusic('Stop');
-		writeLog('buildRSSScreen Starting');
-		var	sql = 'SELECT rssid, feedid, title, detail FROM ' + gTableNameRSS;
-		dbGetRecords(sql, 'rss', 'buildRSSScreen');
-	}
-	else if (msg == 'DBGETRECORDSSUCCESS') {
-		if (gRSSRecords.length == 0) {
-			displayScreen(gScreenNameNoRSS);
+	if (gDownloadWindowDisplayed == false) {	
+		if (msg == '' || msg == undefined) {
+			manageMusic('Stop');
+			writeLog('buildRSSScreen Starting');
+			var	sql = 'SELECT rssid, feedid, title, detail FROM ' + gTableNameRSS;
+			dbGetRecords(sql, 'rss', 'buildRSSScreen');
 		}
+		else if (msg == 'DBGETRECORDSSUCCESS') {
+			if (gRSSRecords.length == 0) {
+				displayScreen(gScreenNameNoRSS);
+			}
+			else {
+				var array;
+				for (counter = 0; counter < gRSSRecords.length; ++counter) {	
+					array = gRSSRecords[counter].split(gDelim);	
+					//array[0] = unique id from database
+					//array[1] = unique id from feed
+					//array[2] = title
+					//array[3] = detail
+					//Use the above information to display in a listview of some kind
+				}			
+				displayScreen(gScreenNameRSS);
+			}
+			writeLog('buildRSSScreen Finished');
+		}
+		else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
+			errMsg = msg.substring(18);
+		}	
 		else {
-			var array;
-			for (counter = 0; counter < gRSSRecords.length; ++counter) {	
-				array = gRSSRecords[counter].split(gDelim);	
-				//array[0] = unique id from database
-				//array[1] = unique id from feed
-				//array[2] = title
-				//array[3] = detail
-				//Use the above information to display in a listview of some kind
-			}			
-			displayScreen(gScreenNameRSS);
-		}
-		writeLog('buildRSSScreen Finished');
+ 	 	errMsg = 'Invalid msg: ' + msg;
+		}	
+		if (errMsg != '') {
+			writeLog('buildRSSScreen Finished - ERROR - '+ errMsg);
+		}	
 	}
-	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
-		errMsg = msg.substring(18);
-	}	
-	else {
-  	errMsg = 'Invalid msg: ' + msg;
-	}	
-	if (errMsg != '') {
-		writeLog('buildRSSScreen Finished - ERROR - '+ errMsg);
-	}	
 }
 
 function processRSSPayload(msg) {
@@ -116,7 +118,7 @@ function processRSSPayload(msg) {
 	}
 	else if (msg == 'DBUPDATERECORDSUCCESS') {	
 		writeLog('processRSSPayload Finished');
-		checkUpdates('RSSLOADED');  //Go back to loading function
+		window[gRequestingFunction]('RSSLOADED');  //Go back to loading function
 	}
 	else if (msg.substring(0,20) == 'DBUPDATERECORDERROR:') {
 		errMsg = msg.substring(20);
@@ -132,6 +134,6 @@ function processRSSPayload(msg) {
 	}
 	if (errMsg != '') {
 		writeLog('processRSSPayload Finished - ERROR - ' + errMsg);
-		checkUpdates('RSSLOADERROR:'+ errMsg);  //Go back to loading function	
+		window[gRequestingFunction]('RSSLOADERROR:'+ errMsg);  //Go back to loading function	
 	}	
 }

@@ -19,6 +19,7 @@ function convertDateTime(dateTime, dateFormat) {
 //*************************************************************	
 
 	var returnValue = ''
+	dateTime = myTrim(dateTime);
 	if (dateTime.length != 14) {
 		returnValue = 'Unknown';
 	}
@@ -93,7 +94,7 @@ function getTime(format) {
 //*************************************************************
 //* This function retrieve the current time in a consistent format
 //* Parms:
-//*		None
+//*		Nothing
 //* Value Returned: 
 //*		Formatted time
 //*************************************************************	

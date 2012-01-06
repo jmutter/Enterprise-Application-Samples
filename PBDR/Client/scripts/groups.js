@@ -35,8 +35,7 @@ function buildGroupsScreen(msg) {
 			writeLog('Processing ' + gGroupRecords.length + ' groups');
 			var counter = 0;
 			var groupArray;	
-			$('#grouplisting').empty();
-			//$('#listofentries').removeAttr('data-filter');
+			$('#groupslisting').empty();
 			document.getElementById('listheader').innerHTML = '<label>Groups</label>';
 			var html = '';
 			if (gUserShowAllGroup == 'True') {
@@ -47,17 +46,16 @@ function buildGroupsScreen(msg) {
 				}		
   			html = '<li data-theme="e" style="font-size:10pt"><a onclick="buildContactsScreen(\'\',\'AllOfThem\');">' + 'All' + '</a> <span class="ui-li-count">' + totalUsers + '</span>';
 			  html += '</li>';
-			 	$('#grouplisting').append(html);
+			 	$('#groupslisting').append(html);
 			}
 		  for (counter = 0; counter < gGroupRecords.length; ++counter) {
  		   groupArray = gGroupRecords[counter].split(gDelim);  
 		    html = '<li data-theme="e" style="font-size:10pt"><a onclick="buildContactsScreen(\'\',\'' + groupArray[0] + '\');">' + groupArray[0] + '</a> <span class="ui-li-count">' + groupArray[1] + '</span>';
 				html += '</li>';
-	 			$('#grouplisting').append(html);
+	 			$('#groupslisting').append(html);
 			}
-			//$('#listofentries').listview('refresh');		
-			$('#grouplisting').listview('refresh');		
-			writeLog('buildGroupsScreen Finished');			
+			$('#groupslisting').listview('refresh');		
+			writeLog('buildGroupsScreen Finished');	
 			displayScreen(gScreenNameGroups);
 		}	
 	}
