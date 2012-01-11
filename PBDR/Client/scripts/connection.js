@@ -115,53 +115,60 @@ function downloadContent(msg) {
 	var proceedWithDownload = true;
 	var errMsg = '';
 	if (msg == '') {
-		gDownloadWindowDisplayed = true;
-		gRequestingFunction = 'downloadContent';
-		gProgressBarOverallMaximum = 3;
-		gProgressBarOverallCounter = 0;
-		gProgressBarOverallPercentage = gProgressBarOverallMaximum / 100;
-		var display = 'The content of this application was last updated:\n';
-		var dateTime = '';
-		if (gDocumentsDateTime == '') {
-			dateTime = 'Never';
-		}
-		else {
-			dateTime = convertDateTime(gDocumentsDateTime, gUserDateDisplay);	
-		}
-		display += '\n    Documents:';
-		display += '\n        Local:  ' + dateTime;
-		display += '\n        Server: ' + convertDateTime(gDocumentsServerDateTime, gUserDateDisplay);		
-		if (gContactsDateTime == '') {
-			dateTime = 'Never';
-		}
-		else {
-			dateTime = convertDateTime(gContactsDateTime, gUserDateDisplay);	
-		}
-		display += '\n    Contacts:';
-		display += '\n        Local:  ' + dateTime;
-		display += '\n        Server: ' + convertDateTime(gContactsServerDateTime, gUserDateDisplay);	
-		if (gRSSDateTime == '') {
-			dateTime = 'Never';
-		}
-		else {
-			dateTime = convertDateTime(gRSSDateTime, gUserDateDisplay);	
-		}
-		display += '\n    RSS:';
-		display += '\n        Local:  ' + dateTime;
-		display += '\n        Server: ' + convertDateTime(gRSSServerDateTime, gUserDateDisplay);		
-				
-		display += '\n\nWould you like to request the latest information now?';	
-		proceedWithDownload = confirm(display);		
-	
- 		if (proceedWithDownload == true) {
-			//When completed testing remove these 5 lines
-			gUseSmallDocumentCollection == false;
-			var answer = confirm ('Do you want to download the large document collection?');
-			if (answer == false) {
-				gUseSmallDocumentCollection == true;
-			}	
- 			manageMusic('Stop'); 	
- 		}		
+		if (blackberry.system.hasDataCoverage() == true) {			
+			gDownloadWindowDisplayed = true;
+			gRequestingFunction = 'downloadContent';
+			gProgressBarOverallMaximum = 3;
+			document.getElementById('overallprogressbarheader').innerText = 'Overall (' + gProgressBarOverallMaximum + ' Types)';		
+			gProgressBarOverallCounter = 0;
+			gProgressBarOverallPercentage = gProgressBarOverallMaximum / 100;
+			var display = 'The content of this application was last updated:\n';
+			var dateTime = '';
+			if (gDocumentsDateTime == '') {
+				dateTime = 'Never';
+			}
+			else {
+				dateTime = convertDateTime(gDocumentsDateTime, gUserDateDisplay);	
+			}
+			display += '\n    Documents:';
+			display += '\n        Local:  ' + dateTime;
+			display += '\n        Server: ' + convertDateTime(gDocumentsServerDateTime, gUserDateDisplay);		
+			if (gContactsDateTime == '') {
+				dateTime = 'Never';
+			}
+			else {
+				dateTime = convertDateTime(gContactsDateTime, gUserDateDisplay);	
+			}
+			display += '\n    Contacts:';
+			display += '\n        Local:  ' + dateTime;
+			display += '\n        Server: ' + convertDateTime(gContactsServerDateTime, gUserDateDisplay);	
+			if (gRSSDateTime == '') {
+				dateTime = 'Never';
+			}
+			else {
+				dateTime = convertDateTime(gRSSDateTime, gUserDateDisplay);	
+			}
+			display += '\n    RSS:';
+			display += '\n        Local:  ' + dateTime;
+			display += '\n        Server: ' + convertDateTime(gRSSServerDateTime, gUserDateDisplay);		
+					
+			display += '\n\nWould you like to request the latest information now?';	
+			proceedWithDownload = confirm(display);		
+		
+	 		if (proceedWithDownload == true) {
+				//When completed testing remove these 5 lines
+				gUseSmallDocumentCollection = false;
+				var answer = confirm ('Do you want to download the large document collection?');
+				if (answer == false) {
+					gUseSmallDocumentCollection = true;
+				}	
+	 			manageMusic('Stop'); 	
+	 		}		
+ 		}
+ 		else {
+ 			displayMessage ('There doesn\'t appear to be sufficient coverage to perform the server lookup.\n\nYou will only have access to the current content on the device.')
+ 			proceedWithDownload = false;
+ 		}
  		gDownloadRequest = '';
  		gDownloadWindowDisplayed = false;
  	}
@@ -202,41 +209,54 @@ function downloadContent(msg) {
 			case '':
 				manageWait('Show');
 			  gDownloadRequest = 'Contacts';
-			  testingSendPrimaryHTTPRequest(gContactsPrimaryURL, gContactsSecondaryURL);				  
-			  //sendPrimaryHTTPRequest(gContactsPrimaryURL, gContactsSecondaryURL);						  	
+				setTimeout(function() {		
+			  	//testingSendPrimaryHTTPRequest(gContactsPrimaryURL, gContactsSecondaryURL);				  
+			  	sendPrimaryHTTPRequest(gContactsPrimaryURL, gContactsSecondaryURL);						  	
+			  }, 1000);
 			  break;
 			case 'Contacts':
-				updateOverAllProgressBar();			
+				updateOverAllProgressBar();	
 			  gDownloadRequest = 'RSS';
-			  testingSendPrimaryHTTPRequest(gRSSPrimaryURL, gRSSSecondaryURL);	
-			  //sendPrimaryHTTPRequest(gRSSPrimaryURL, gRSSSecondaryURL);						  	
+				setTimeout(function() {	
+					hideDownloadingOption('Contacts');
+					setTimeout(function() {				
+				  	//testingSendPrimaryHTTPRequest(gRSSPrimaryURL, gRSSSecondaryURL);	
+				  	sendPrimaryHTTPRequest(gRSSPrimaryURL, gRSSSecondaryURL);	
+			  	}, 1000); 
+			  }, 1000); 						  	
 			  break;
 			case 'RSS':
 				updateOverAllProgressBar();
-	 			$('#documentsbar').fadeIn(1000);  //Show our additional progress bar that is only needed for documents				
+	 			$('#documentsbar').show();  //Show our additional progress bar that is only needed for documents				
 			  gDownloadRequest = 'Documents';
-			  testingSendPrimaryHTTPRequest(gRSSPrimaryURL, gRSSSecondaryURL);	
-//			  sendPrimaryHTTPRequest(gDocumentsPrimaryURL, gDocumentsSecondaryURL);	
+				setTimeout(function() {	
+					hideDownloadingOption('RSS');
+					setTimeout(function() {
+				  	//testingSendPrimaryHTTPRequest(gRSSPrimaryURL, gRSSSecondaryURL);	
+//				  	sendPrimaryHTTPRequest(gDocumentsPrimaryURL, gDocumentsSecondaryURL);	
 				//When completed testing remove these 7 lines and uncomment the line above
-//				if (gUseSmallDocumentCollection == false) {
-//				  sendPrimaryHTTPRequest(gDocumentsPrimaryURL, gDocumentsSecondaryURL);	
-//				}
-//				else {
-//				  sendPrimaryHTTPRequest(gDocuments2PrimaryURL, gDocuments2SecondaryURL);	
-//				}
+						if (gUseSmallDocumentCollection == false) {
+						  sendPrimaryHTTPRequest(gDocumentsPrimaryURL, gDocumentsSecondaryURL);	
+						}
+						else {
+					  	sendPrimaryHTTPRequest(gDocuments2PrimaryURL, gDocuments2SecondaryURL);	
+						}	
+			  	}, 1000); 
+			  }, 1000); 
 			  break;
 			case 'Documents':
 				updateOverAllProgressBar();
+				hideDownloadingOption('Documents');
 				setTimeout(function() {
 					if (gDownloadResults != '') {
-				  	gDownloadResults = 'Contacts, RSS, and Document downloads were attempted.\n\nOne or more issues/errors occurred while downloading and updating the information:' + gDownloadResults;
-			  		displayMessage (gDownloadResults);
-			  	}	
-			  	else {
-			  		displayMessage ('The latest Contacts, RSS, and Documents have been downloaded.');
-			  	}	
+					 	gDownloadResults = 'Contacts, RSS, and Document downloads were attempted.\n\nOne or more issues/errors occurred while downloading and updating the information:' + gDownloadResults;
+				  	displayMessage (gDownloadResults);
+				  }	
+				  else {
+				  	displayMessage ('The latest Contacts, RSS, and Documents have been downloaded.');
+				  }	
 					manageWait('Hide');
-				}, 500);		  
+				}, 1000);		  
 			  break;
 		}
 	}

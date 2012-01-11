@@ -21,7 +21,6 @@ function buildGroupsScreen(msg) {
 	
 	var errMsg = '';
 	if (msg == '') {
-		manageMusic('Stop');
 		writeLog('buildGroupsScreen Starting');
 		var	sql = 'SELECT groupname, contactrecords, recordsreceived FROM ' + gTableNameGroups + ' ORDER BY groupname';
 		dbGetRecords(sql, 'groups', 'buildGroupsScreen');
@@ -36,7 +35,7 @@ function buildGroupsScreen(msg) {
 			var counter = 0;
 			var groupArray;	
 			$('#groupslisting').empty();
-			document.getElementById('listheader').innerHTML = '<label>Groups</label>';
+			document.getElementById('listheader').innerHTML = '<label>Groups (' + convertDateTime(gContactsDateTime, gUserDateDisplay) + ')</label>';
 			var html = '';
 			if (gUserShowAllGroup == 'True') {
 				var totalUsers = 0;

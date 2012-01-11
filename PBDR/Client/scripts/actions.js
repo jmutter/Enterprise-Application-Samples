@@ -126,8 +126,8 @@ function displayScreen(screenName) {
   writeLog('displayScreen Starting');
   if (gScreenDisplayed == '') {
   	//Hide all <div> areas when we first start.
- 		displayDownloadStatus('Hide');
- 		$('#showMenuBar').hide();
+		displayDownloadStatus('false'); 
+		$('#showMenuBarButton').hide();			 	
  		$('#' + gScreenNameHome).hide();
  		$('#' + gScreenNameDocuments).hide();
  		$('#' + gScreenNameNoContacts).hide();
@@ -138,10 +138,10 @@ function displayScreen(screenName) {
 		$('#' + gScreenNameSettings).hide();
 	}
 	
-	hideMenuBar();
+ 	menuBar('Hide');
 	
 	if (screenName == gScreenNameHome) {
-		$('#showMenuBar').hide();
+		$('#showMenuBarButton').hide();	
 		//If this is the home screen, we need to show it, then show the ropes hanging
 		if (gScreenDisplayed != '') {
 			$('#' + gScreenDisplayed).hide();			
@@ -154,7 +154,7 @@ function displayScreen(screenName) {
 			//If the previous screen was the home screen, pull the options ropes up
 			showOptions(false);	
 		}
-		$('#showMenuBar').show();	
+		//$('#showMenuBarButton').show();	
 		switch (screenName) {
 			case gScreenNameDocuments:
 			  setTimeout(function() {
@@ -247,13 +247,25 @@ function formLoad() {
  	//}
 
 	//Detect browser type
+	displayScreen('');  //Ensure all screens are hidden until we figure out what to display
+	
 	browserDetection();
 	
+	//Apply the appropriate backgrounds to our screens
 	buildNoContactsScreen();
 	buildNoRSSScreen();
-	
-	displayScreen('');  //Ensure all screens are hidden until we figure out what to display
-
+	var width = screen.availWidth + 1; 
+	var height = screen.availHeight + 1; 
+	document.getElementById(gScreenNameGroups).style.backgroundImage = "url(images/background.png)";
+	document.getElementById(gScreenNameGroups).style.width = width + "px";
+	document.getElementById(gScreenNameGroups).style.height = height + "px";
+	document.getElementById(gScreenNameContacts).style.backgroundImage = "url(images/background.png)";
+	document.getElementById(gScreenNameContacts).style.width = width + "px";
+	document.getElementById(gScreenNameContacts).style.height = height + "px";	
+	document.getElementById(gScreenNameRSS).style.backgroundImage = "url(images/background.png)";
+	document.getElementById(gScreenNameRSS).style.width = width + "px";
+	document.getElementById(gScreenNameRSS).style.height = height + "px";	
+		
  	//gDebugMode = true;
 	writeLog('Application starting');		
 
@@ -290,18 +302,17 @@ function getStarted(msg) {
 	}
 	else if (msg == 'CONFIGSETTINGSRETRIEVED') {
 		setupHome();
+		gDownloadWindowDisplayed = true;  //Set to prevent clicking of options swipe down	
 		displayScreen(gScreenNameHome);
 		manageMusic('Start', 'Intro');
 		downloadConfig('','getStarted');
-		//getStarted('DOWNLOADCONFIGSUCCESS');
 	}
 	else if (msg == 'DOWNLOADCONFIGSUCCESS') {
 		validateConfigs();
 		if (gConfigsValid == true) {
-			gDownloadWindowDisplayed = true;  //Set to prevent errant clicking of options	
 			setTimeout(function() {
 				downloadContent('');
-			}, 2500);			
+			}, 1500);			
 		}
 	}
 	else if (msg.substring(0,20) == 'DOWNLOADCONFIGERROR:') {
@@ -404,25 +415,51 @@ function manageWait(method) {
 		gApplicationWaiting = true;
 		showOptions(false);
 		setTimeout(function() {
-			gPleaseWaitRope.fallDown();
+			gDownloadingContactsRope.fallDown();
+			gDownloadingRSSRope.fallDown();			
+			gDownloadingDocumentsRope.fallDown();
+			manageMusic('Start','Waiting');
 			setTimeout(function() {
-				manageMusic('Start','Waiting');
-				displayDownloadStatus('Show');	
-			}, 500); 
+				gPleaseWaitRope.fallDown();
+				//displayDownloadStatus('Show');	
+			}, 1000); 
 		}, 500); 
 	}
-	else {
-		gPleaseWaitRope.pullUp();
+	else  {
 		setTimeout(function() {
-			manageMusic('Stop','Waiting');
-			displayDownloadStatus('false');
+			gDownloadingContactsRope.pullUp();
+			gDownloadingRSSRope.pullUp();			
+			gDownloadingDocumentsRope.pullUp();
+			gPleaseWaitRope.pullUp();
 			setTimeout(function() {
-				showOptions(true);
-			}, 1000); 
+				manageMusic('Stop','Waiting');
+				displayDownloadStatus('false');
+				setTimeout(function() {
+					showOptions(true);
+				}, 1000); 
+			}, 500);
 		}, 500);
 		gApplicationWaiting = false;
 	}
 	writeLog('manageWait Finished');	
+}
+
+function menuBar(method) {
+//*************************************************************
+//* This function will show or hide the menu bar based on the 
+//* method requested.
+//* Parms:
+//*   Method to perform on the menuBar (Show or Hide)
+//* Value Returned: 
+//*		Nothing
+//*************************************************************		
+	
+	if (method.toLowerCase() == 'show') {
+		document.getElementById('menuBar').className = 'showMenuBar';
+	}
+	else {
+		document.getElementById('menuBar').className = 'hideMenuBar';
+	}
 }
 
 function orientationChangeDetected() {
@@ -463,8 +500,37 @@ function registerPBEvents() {
   writeLog('  onForeground');	
 	blackberry.app.event.onForeground(handleForeground);	
   writeLog('  onSwipeDown');	
-	blackberry.app.event.onSwipeDown(showMenuBar);
+	blackberry.app.event.onSwipeDown(swipeDownShowMenuBar);
   writeLog('registerPBEvents Starting');
+}
+
+function requestDisplay(visualToDisplay) {
+//*************************************************************
+//* This function will display the requested option so we have 
+//* a consistent start point to control any UI elements
+//* Parms:
+//*		Option to be displayed
+//* Value Returned: 
+//*		Nothing
+//*************************************************************	
+	
+	if (gDownloadWindowDisplayed == false) {
+		manageMusic('Stop');	
+		switch (visualToDisplay.toLowerCase()) {
+			case 'menubar':
+				menuBar('Show');
+			  break;
+			case 'documents':
+				buildDocumentsScreen();
+			  break;
+			case 'groups':
+				buildGroupsScreen('');
+			  break;
+			case 'rss':
+				buildRSSScreen('');
+			  break;
+		}
+	}  
 }
 
 function retrieveConfigSettings(msg, functionToCall) {
@@ -637,15 +703,21 @@ function retrieveUserSettings(msg, functionToCall) {
 	}
 } 
 
-function showMenuBar() {
-	if (gApplicationWaiting == false) {
-		document.getElementById('menuBar').className = 'showMenuBar';
-	}	
+function swipeDownShowMenuBar() {
+//*************************************************************
+//* This function is called when the user makes the swiping 
+//* gesture from the bezel to bring up our menu bar.  Since the
+//* registration of the API event call won't allow parameters
+//* to be passed to a function, this had to be created to call
+//* the appropriate function with the correct parameter.
+//* Parms:
+//*   Nothing
+//* Value Returned: 
+//*		Nothing
+//*************************************************************
+	
+	requestDisplay('MenuBar')
 }
-
-function hideMenuBar() {
-	document.getElementById('menuBar').className = 'hideMenuBar';
-}	
 
 function validateConfigs() {
 //*************************************************************

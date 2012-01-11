@@ -18,7 +18,7 @@ function cancelSettings() {
 	displayScreen(gScreenNameGroups);
 }
 
-function displaySettings() {
+function buildSettingsScreen() {
 //*************************************************************
 //* This function will setup and display the options screen.
 //* Parms:

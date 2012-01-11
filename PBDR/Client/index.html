@@ -7,26 +7,26 @@
 		<title>PlayBook Disaster Recovery</title>
   	<!--Style Sheets-->
     <link rel="stylesheet"  href="scripts/jquery.mobile/jquery.mobile-1.0a4.1.min.css"/>    
-    
+		<link rel="stylesheet" type="text/css" href="styles/home.css"/>
+ 	 	<link rel="stylesheet" type="text/css" href="styles/styles.css"/>
+ 	 	    
   	<!--
   	<link rel="stylesheet" type="text/css" href="styles/jquery-ui.css"> 
   	-->
   	
     <!--JQuery and JQuery Mobile javascript Libraries-->
    	<script type="text/javascript" src="scripts/jquery/jquery-1.6.min.js"></script> 
+		<script type="text/javascript" src="scripts/jquery/jquery.xdomainajax.js"></script> 
     <script type="text/javascript" src="scripts/thirdparty/jquery-ui-1.8.9.custom.min.js"></script>
     <script type="text/javascript" src="scripts/thirdparty/jquery.easing.1.3.js"></script>
-		<script type="text/javascript" src="scripts/jquery/jquery.xdomainajax.js"></script> 
-		<script type="text/javascript" src="scripts/thirdparty/rope.js"></script>
-		<link rel="stylesheet" type="text/css" href="styles/home.css" />
-
     <script type="text/javascript" src="scripts/jquery.mobile/jquery.mobile-1.0a4.1.min.js"></script>
    	<script type="text/javascript" src="scripts/jquery/jquery_collapse.js"></script>	
 		<script type="text/javascript" src="scripts/jquery/jquery-ui.min.js"></script>		
-		
- 		<!-- -->
+
+    <!--Third Party Javascript Libraries-->
+		<script type="text/javascript" src="scripts/thirdparty/rope.js"></script>
+				
     <!--Our Javascript Libraries-->
- 	 	<link rel="stylesheet"  href="styles/styles.css"/>
 	  <script type="text/javascript" src="scripts/actions.js"></script>
  	 	<script type="text/javascript" src="scripts/database.js"></script>
 		<script type="text/javascript" src="scripts/connection.js"></script>
@@ -43,19 +43,7 @@
 		<!-- Custom JS -->	 
 		<script type="text/javascript">
 			$(document).ready(function() {
-				buildHomeScreen();	
-							
-				$('.panel').hide();
-					
-				$('.panelTitle').collapser({
-					target: 'next',
-					effect: 'slide',
-					changeText: 0,
-					expandClass: 'expIco',
-					collapseClass: 'collIco'
-				}, function(){
-					$('.panel').slideUp();
-				});
+				buildHomeScreen();
 			});
 		</script>
 		<!-- Custom JS -->	 	
@@ -70,14 +58,17 @@
 				<section class="stage">
 					<div id="graphics" style="display:none">
 						<svg id="my_path" width="1024px" height="600px" style="position:fixed; top:0px; z-index: 1110;" version="1.1" xmlns="http://www.w3.org/2000/svg"> 
-				 			<image id="imgDocuments" width="175" height="150" xlink:href="images/documents.png" onclick="buildDocumentsScreen()"/>
-							<image id="imgContacts" width="233" height="150" xlink:href="images/rolodex.png" onclick="buildGroupsScreen('')"/>
-							<image id="imgNewsFeeds" width="130" height="110" xlink:href="images/rss.png" onclick="buildRSSScreen('')"/>	
+				 			<image id="imgDocuments" width="175" height="150" xlink:href="images/documents.png" onclick="requestDisplay('Documents')"/>
+							<image id="imgPeople" width="233" height="150" xlink:href="images/contact.png" onclick="requestDisplay('Groups')"/>
+							<image id="imgNewsFeeds" width="130" height="110" xlink:href="images/rss.png" onclick="requestDisplay('RSS')"/>	
 							<image id="txtDocuments" width="200" height="150" xlink:href="images/txtdocuments.png"/>
-							<image id="txtContacts" width="200" height="150" xlink:href="images/txtpeople.png"/>
+							<image id="txtPeople" width="200" height="150" xlink:href="images/txtpeople.png"/>
 							<image id="txtNewsFeeds" width="200" height="150" xlink:href="images/txtnewsfeeds.png"/> 		
 							<image id="imgPleaseWait" width="250" height="200" xlink:href="images/pleasewait.png"/>	
 							<image id="imgStopMusic" width="70" height="70" xlink:href="images/stopmusic.png" onclick="manageMusic('Stop')"/>	
+							<image id="imgDownloadingDocuments" width="64" height="64" xlink:href="images/downloadingdocuments.png"/>	
+							<image id="imgDownloadingContacts" width="64" height="64" xlink:href="images/downloadingcontacts.png"/>	
+							<image id="imgDownloadingRSS" width="64" height="64" xlink:href="images/downloadingrss.png"/>									
 				 		</svg>
 					</div>			
 					<div id="main">
@@ -89,16 +80,16 @@
 				</section>
 			</div>			
 			
-			<div id="showMenuBar" data-role="controlgroup" data-type="horizontal">
-				<a data-role="button" data-theme="a" onclick="showMenuBar('')">Swipe Down</a>
+			<div id="showMenuBarButton" data-role="controlgroup" data-type="horizontal">
+				<a data-role="button" data-theme="a" onclick="requestDisplay('MenuBar')">Swipe Down</a>
 			</div>
 
-			<div id="menuBar" onclick="hideMenuBar()">
+			<div id="menuBar" onclick="menuBar('Hide')">
 				<ul class="menuBarButton">
 					<li onclick="displayScreen('home')">Home</li>					
 				</ul>
 				<ul class="menuBarButton">
-					<li onclick="displaySettings()">Settings</li>					
+					<li onclick="buildSettingsScreen()">Settings</li>					
 				</ul>
 				<ul class="menuBarButton">
 					<li onclick="testingClearTables('')">Clear Tables</li>					
@@ -106,6 +97,7 @@
 				<ul class="menuBarButton">
 					<li onclick="testingDownloadContent('')">Update Now</li>					
 				</ul>
+				<img src="images/cancel.png" onclick="menuBar('Hide')" class="menuBarImage">
 			</div>  			
 			
 			<div id="documents">
@@ -119,8 +111,8 @@
 			</div>
 
 			<div id="groups" data-theme="b">
-				<div data-role="header" data-theme="b">
-					<h1 id="listheader">Groups</h1>				
+				<div data-role="header" data-theme="a">
+					<h1 id="listheader"></h1>				
 				</div> 			
 				<div data-role="content" data-theme="b">				
 					<ul id="groupslisting" data-role="listview" class="ui-listview" data-inset="true">
@@ -144,8 +136,10 @@
 				<!--Content will be created via buildNoRSSScreen() function -->
 			</div>
 
-			<div id="rss">
-				<!--Content will be created via buildRSSScreen() function -->
+			<div id="rss" data-theme="a">
+				<ul id="rsslisting" data-role="listview" class="ui-listview" data-inset="true" role="listbox">
+					<!--Content will be created via buildRSSScreen() function -->					
+				</ul>
 			</div>
 			
 			<div id="settings">				
@@ -180,7 +174,7 @@
 				
 			<div id="downloadstatus" class="progressBox">
 				<center class="headertext">Download Status</center>
-				<label class="text">Overall (3 types)</label>
+				<label id="overallprogressbarheader" class="text">Overall</label>
 				<div class="progressBar">
 					<div id="overallprogress" class="progressLevel1">&nbsp;</div>
 				</div>

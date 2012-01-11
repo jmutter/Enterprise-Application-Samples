@@ -6,6 +6,9 @@
 //Global Variables
 var gDocumentRope;
 var gDocumentTextRope;
+var gDownloadingContactsRope;
+var gDownloadingDocumentsRope;
+var gDownloadingRSSRope;
 var gPeopleRope;
 var gPeopleTextRope;
 var gPleaseWaitRope;
@@ -33,29 +36,32 @@ function buildHomeScreen() {
 	//var ropeHandler = new RopeHandler({"fps":10, "timeStep":1/5});
 	var ropeHandler = new RopeHandler({"fps":2, "timeStep":1/10});
 	
-	//Documents
-	gDocumentRope = ropeHandler.createRope({"length":250, "width":4,"anchorX":150,"anchorY":0, "lock":false, "color":"#333","attachElement":"imgDocuments", "attachX":45, "attachY":61, "angle":8});
-	gDocumentTextRope = ropeHandler.createRope({"length":75, "width":1,"anchorX":150,"anchorY":20, "lock":false, "color":"#333", "attachElement":"txtDocuments", "attachX":50, "attachY":40, "angle":3 });		
-	gDocumentRope.attachRope(gDocumentTextRope, "20", "33");
-	
   //People
-	gPeopleRope = ropeHandler.createRope({"length":255, "width":4,"anchorX":475,"anchorY":-460, "lock":false, "color":"#333","attachElement":"imgContacts", "attachX":105, "attachY":70, "angle":10});
-	gPeopleTextRope = ropeHandler.createRope({"length":30, "width":1,"anchorX":150,"anchorY":200, "lock":false, "color":"#333", "attachElement":"txtContacts", "attachX":75, "attachY":9});		
+	gPeopleRope = ropeHandler.createRope({"length":250, "width":3,"anchorX":190,"anchorY":-480, "lock":false, "color":"white","attachElement":"imgPeople", "attachX":105, "attachY":70, "angle":10});
+	gPeopleTextRope = ropeHandler.createRope({"length":30, "width":1,"anchorX":150,"anchorY":200, "lock":false, "color":"#333", "attachElement":"txtPeople", "attachX":75, "attachY":9});		
 	gPeopleRope.attachRope(gPeopleTextRope, "0", "39");
 
+	//Documents
+	gDocumentRope = ropeHandler.createRope({"length":250, "width":3,"anchorX":475,"anchorY":-480, "lock":false, "color":"white","attachElement":"imgDocuments", "attachX":45, "attachY":61, "angle":8});
+	gDocumentTextRope = ropeHandler.createRope({"length":70, "width":1,"anchorX":150,"anchorY":20, "lock":false, "color":"#333", "attachElement":"txtDocuments", "attachX":50, "attachY":40, "angle":3 });		
+	gDocumentRope.attachRope(gDocumentTextRope, "20", "33");
+	
   //News Feeds
-	gRSSRope = ropeHandler.createRope({"length":270, "width":4,"anchorX":810,"anchorY":-480, "lock":false, "color":"#333","attachElement":"imgNewsFeeds", "attachX":90, "attachY":61, "angle":5});
+	gRSSRope = ropeHandler.createRope({"length":270, "width":3,"anchorX":810,"anchorY":-480, "lock":false, "color":"white","attachElement":"imgNewsFeeds", "attachX":90, "attachY":61, "angle":5});
 	gRSSTextRope = ropeHandler.createRope({"length":30, "width":1,"anchorX":150,"anchorY":200, "lock":false, "color":"#333", "attachElement":"txtNewsFeeds", "attachX":97, "attachY":0, "angle":5 });		
 	gRSSRope.attachRope(gRSSTextRope, "5", "15");
 
 	//Turn off music
 	var xLocation = screen.width - 60;
-	gStopMusicRope = ropeHandler.createRope({"length":100, "width":4,"anchorX":xLocation,"anchorY":-480, "lock":false, "color":"#333","attachElement":"imgStopMusic", "attachX":28, "attachY":15, "angle":8});
+	gStopMusicRope = ropeHandler.createRope({"length":100, "width":3,"anchorX":xLocation,"anchorY":0, "lock":false, "color":"white","attachElement":"imgStopMusic", "attachX":28, "attachY":15, "angle":8});
  
 	//Please Wait	
 	xLocation = (screen.width / 2) - 60;
-	gPleaseWaitRope = ropeHandler.createRope({"length":175, "width":4,"anchorX":xLocation,"anchorY":-480, "lock":false, "color":"#333","attachElement":"imgPleaseWait", "attachX":45, "attachY":61, "angle":8});
-
+	gPleaseWaitRope = ropeHandler.createRope({"length":175, "width":3,"anchorX":xLocation,"anchorY":-600, "lock":false, "color":"white","attachElement":"imgPleaseWait", "attachX":45, "attachY":61, "angle":8});
+	gDownloadingContactsRope = ropeHandler.createRope({"length":150, "width":2,"anchorX":130,"anchorY":-600, "lock":false, "color":"white", "attachElement":"imgDownloadingContacts", "attachX":20, "attachY":50, "angle":5 });		
+	gDownloadingRSSRope = ropeHandler.createRope({"length":160, "width":2,"anchorX":220,"anchorY":-600, "lock":false, "color":"white", "attachElement":"imgDownloadingRSS", "attachX":20, "attachY":50, "angle":5 });		
+	gDownloadingDocumentsRope = ropeHandler.createRope({"length":165, "width":2,"anchorX":315,"anchorY":-600, "lock":false, "color":"white", "attachElement":"imgDownloadingDocuments", "attachX":20, "attachY":50, "angle":5 });		
+		
 	document.getElementById('data').innerHTML = '<label style="font-size:60%">Disaster Recovery</label>';
 	document.getElementById('graphics').style.display="block";
 }
@@ -145,6 +151,28 @@ function setupHome() {
 	}, 100);
 }
 
+function hideDownloadingOption(option) {
+//*************************************************************
+//* This function will show or hide the 3 main options by lowering
+//* or pulling up the rope.
+//* Parms:
+//*   name of rope to pull up
+//* Value Returned: 
+//*		Nothing
+//*************************************************************	
+	
+	option = option.toLowerCase();
+	if (option == 'contacts') {
+		gDownloadingContactsRope.pullUp();
+	}
+	if (option == 'documents') {
+		gDownloadingDocumentsRope.pullUp();
+	}
+	if (option == 'rss') {
+		gDownloadingRSSRope.pullUp();
+	}		
+}
+
 function showOptions(visible) {
 //*************************************************************
 //* This function will show or hide the 3 main options by lowering
@@ -167,7 +195,6 @@ function showOptions(visible) {
 		gRSSRope.pullUp();
 	}	
 }
-
 
 /**
  * Native handler for mouse down event.

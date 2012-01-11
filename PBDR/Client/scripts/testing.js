@@ -247,7 +247,7 @@ function testingDownloadContacts() {
 }
 
 function testingDownloadContent() {
-	hideMenuBar();
+	menuBar('Hide');
 	setTimeout(function() {
  		displayScreen(gScreenNameHome);
 		setTimeout(function() {
@@ -255,7 +255,6 @@ function testingDownloadContent() {
 		}, 1000); 	
 	}, 500); 	
 }
-
 
 function testingDownloadDocuments() {
 	gJSONPayload =[
