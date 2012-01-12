@@ -1,0 +1,85 @@
+/********* STRUCTURE *********/
+/****************************/
+
+/************************ 1. GENERAL TYPOGRAPHY ****************************/
+/***************************************************************************/
+
+	/* 1. Reset CSS
+	------------------------------------------------------*/
+
+	ul,ol,li,h1,h2,h3,h4,h5,h6,form,p,a,img{ margin: 0; padding: 0; border: 0; }
+	ul,li{ list-style-type: none; }
+
+	/* 2. Body & html
+	------------------------------------------------------*/
+
+	body, html {
+	padding:0;
+	margin:0;
+	font-family: BBAlpha Sans;
+	font-size: 13pt;
+	color: #848393; 
+	background-color: #dcdce1; 
+	overflow:visible;
+}
+	
+	
+	/* 3. Headings
+	------------------------------------------------------*/
+
+	/* 4. Lists styles
+	------------------------------------------------------*/
+
+	/* 5. Links
+	------------------------------------------------------*/
+	
+	/* 6. Text
+	------------------------------------------------------*/
+
+	.shadow{ text-shadow: 0px 1px 0px #e9e9ed; float: left;}
+
+	/* 7. Buttons
+	------------------------------------------------------*/
+
+	
+
+/************************** 2. GENERAL LAYOUT ******************************/
+/***************************************************************************/
+
+
+	/* 1. Header
+	------------------------------------------------------*/
+	.top{ width: 100%; height: 54px; background: url(../images/bg_header.png) repeat-x; }
+	
+	.butt_black{ margin: 8px 20px 0 0px; }
+	.butt_black:hover{	color:White; 	}
+	.butt_black.right{ float: right; }
+	.butt_black.left{ float: left; }
+
+	/* 2. Middle
+	------------------------------------------------------*/
+	.wrapper {
+		min-height: 100%;
+		height: auto !important;
+		height: 100%;
+		margin: 0 auto 0em;
+	}
+	
+	
+	
+/* 4. Footer
+	------------------------------------------------------*/
+
+	#footer {
+		 position: fixed;
+		  right: 0;
+		  top: 95%;
+		  width: 20em;
+		  margin-top: -2.5em;
+	}
+	#copyright{ float: left; margin: 12px 0 0  20px;  }
+
+	
+
+
+	
