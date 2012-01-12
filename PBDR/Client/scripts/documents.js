@@ -19,65 +19,61 @@ function buildDocumentsScreen() {
 //*		Nothing
 //*************************************************************				
 		
-	if (gDownloadWindowDisplayed == false) {
-		manageMusic('Stop');		
+	var localFileList = downloader.getCurrentFileList(FULL_DIR_PATH);		
+	var JSONPayload = JSON.parse(localFileList);	
+	
+	var html = '';
+	var iconImage = '';
 		
-		var localFileList = downloader.getCurrentFileList(FULL_DIR_PATH);		
-		var JSONPayload = JSON.parse(localFileList);	
+	//clear out the listview before populating
+	$('#documentslisting').empty();
+	
+	for (var counter = 0; counter < JSONPayload.length; counter++) {		
+		var docType = JSONPayload[counter].ext;  
+		var fModified = JSONPayload[counter].dateModified; 
+		var fName = JSONPayload[counter].filename; 
+		var fPath = JSONPayload[counter].path; 
 		
-		var html = '';
-		var iconImage = '';
+		if (docType == ".pdf") {
+			iconImage = "images/pdf.png";
+		}
+		else if (docType == ".doc" || docType == ".docx") {
+			iconImage = "images/msword.png";
+		}
+		else if (docType == ".mov")	{
+			iconImage = "images/movie.png";
+		}
+		else if (docType == ".xls" || docType == ".xlsx")	{
+			iconImage = "images/msxls.png";
+		}
+		else if (docType == ".gif")	{
+			iconImage = "images/imagesico.png";
+		}
+		else if (docType == ".png")	{
+			iconImage = "images/imagesico.png";
+		}
+		else if (docType == ".jpg")	{
+			iconImage = "images/imagesico.png";
+		}
+		else if (docType == ".ppt" || docType == ".pptx")	{
+			iconImage = "images/msppt.png";
+		}
+		else if (docType == ".zip")	{
+			iconImage = "images/winzip.png";
+		}
+		else if (docType == ".mp3")	{
+			iconImage = "images/audio.png";
+		}
+		else {
+			iconImage = "images/unknownfile.png";
+		}
 			
-		//clear out the listview before populating
-		$('#documentslisting').empty();
+		html = '<li  onclick="launchFile(\'' + fPath + '\');">' + '<img src=\"' + iconImage + '\" />' + '<h3>' + fName + '</h3>' + '<p>' + fModified + '</p></li>';
 		
-		for (var counter = 0; counter < JSONPayload.length; counter++) {		
-			var docType = JSONPayload[counter].ext;  
-			var fModified = JSONPayload[counter].dateModified; 
-			var fName = JSONPayload[counter].filename; 
-			var fPath = JSONPayload[counter].path; 
-			
-			if (docType == ".pdf") {
-				iconImage = "images/pdf.png";
-			}
-			else if (docType == ".doc" || docType == ".docx") {
-				iconImage = "images/msword.png";
-			}
-			else if (docType == ".mov")	{
-				iconImage = "images/movie.png";
-			}
-			else if (docType == ".xls" || docType == ".xlsx")	{
-				iconImage = "images/msxls.png";
-			}
-			else if (docType == ".gif")	{
-				iconImage = "images/imagesico.png";
-			}
-			else if (docType == ".png")	{
-				iconImage = "images/imagesico.png";
-			}
-			else if (docType == ".jpg")	{
-				iconImage = "images/imagesico.png";
-			}
-			else if (docType == ".ppt" || docType == ".pptx")	{
-				iconImage = "images/msppt.png";
-			}
-			else if (docType == ".zip")	{
-				iconImage = "images/winzip.png";
-			}
-			else if (docType == ".mp3")	{
-				iconImage = "images/audio.png";
-			}
-			else {
-				iconImage = "images/unknownfile.png";
-			}
-			
-			html = '<li  onclick="launchFile(\'' + fPath + '\');">' + '<img src=\"' + iconImage + '\" />' + '<h3>' + fName + '</h3>' + '<p>' + fModified + '</p></li>';
-			
-			$('#documentslisting').append(html);
-			$('#documentslisting').listview("refresh");	
-		}		
-		displayScreen(gScreenNameDocuments);
-	}
+		$('#documentslisting').append(html);
+		$('#documentslisting').listview("refresh");	
+	}		
+	displayScreen(gScreenNameDocuments);
 }
 
 function launchFile (filePath) {
@@ -152,8 +148,8 @@ function processDocumentsPayload() {
 	gProgressBarDocumentsMaximum	= gJSONPayload.length;
 	document.getElementById('documentprogressbarheader').innerText = 'Documents (' + gProgressBarDocumentsMaximum + ')';
 	gProgressBarDocumentsPercentage = gProgressBarDocumentsMaximum / 100;
-	//downloader.startDownloader(gJSONPayload, FULL_DIR_PATH, documentsDownloaded);
-	documentsDownloaded();
+	downloader.startDownloader(gJSONPayload, FULL_DIR_PATH, documentsDownloaded);
+	//documentsDownloaded();
 }
 
 function debug(str, cleartext){

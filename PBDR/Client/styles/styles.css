@@ -144,9 +144,13 @@ ul.section li.category h3 {
 	left:0px; 
 	top:-3em;
 	z-index:1000; 
-	width:100%;
+	width:96%;
 	padding: 0.25em;
 	clear: both;
+	margin-left:1%;
+	margin-right:1%;
+	border-bottom-left-radius: .35em;
+	border-bottom-right-radius: .35em;
 			
 	border-bottom: solid 2px black;
 	font-size: 1.5em;
@@ -155,9 +159,10 @@ ul.section li.category h3 {
 		linear,
 		left bottom,
 		left top,
-		color-stop(0.42, rgb(86,136,222)),
-		color-stop(0.71, rgb(135,203,255)),
-		color-stop(0.86, rgb(172,220,242))
+		color-stop(0.33, rgb(96,99,69)),
+		color-stop(0.66, rgb(160,168,91)),
+		color-stop(0.99, rgb(220,242,17))
+
 	);
 }
 	
@@ -171,8 +176,9 @@ ul.section li.category h3 {
 #menuBar ul li { 
 	float: left; 
 	margin-right: 0.5em; 
-	padding: 0.25em; 
-	background-color: #96999e;
+	padding: 0.30em; 
+	background-color: #FFFFFF;
+	/*background-color: #96999e;*/
 	border-radius: 0.5em;
 	cursor: pointer; 
 	text-shadow: rgb(122,121,121) 3px 3px 3px;
@@ -180,20 +186,25 @@ ul.section li.category h3 {
 
 /* Position groups of buttons on each side of the menuBar */
 .menuBarButton { 
-	font-size: 60%;
+	font-size: 80%;  
 	float: left;			
+}
+.menuBarImage { 
+
+	float: right;	
+	vertical-align: middle;
 }
 
 /* Progress Bar descriptors */
-
 .progressBox {
 	margin: 15px 10px 0 10px;
-	padding: .25em, .25em, .25em .25em;
+	padding: .25em, .25em, .25em, .25em;
 	position:absolute;
 	top:25px;
 	width: 300px;
 	height: 150px;
 	color: #EFEFEF;
+	opacity: 0.6;	
 	text-shadow: 1px 1px 1px black;
 	text-indent: 20px;	
 	border: solid 1px #666;

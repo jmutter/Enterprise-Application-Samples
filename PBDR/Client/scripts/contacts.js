@@ -189,43 +189,41 @@ function buildContactsScreen(msg, groupName) {
 //*************************************************************	
 	
 	var errMsg = '';
-	if (gDownloadWindowDisplayed == false) {	
-		if (msg == '' || msg == undefined) {
-			writeLog('buildContactsScreen Starting');
-			gGroupNameSelected = groupName;	
-			var	sql = 'SELECT contactid, groupname, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts;
-			if (groupName != 'AllOfThem') {
-				sql += ' WHERE groupname like \'' + gGroupNameSelected + '\'';
-			}
-			if (gUserListingOrder == 'FirstName') {
-				sql += ' ORDER BY firstname, lastname';
-			}	
-			else {
-				sql += ' ORDER BY lastname, firstname';
-			}
-			dbGetRecords(sql, 'contacts', 'buildContactsScreen');
+	if (msg == '' || msg == undefined) {
+		writeLog('buildContactsScreen Starting');
+		gGroupNameSelected = groupName;	
+		var	sql = 'SELECT contactid, groupname, firstname, lastname, title, company, email, pin, workphone, mobilephone, homephone, address, address2, city, state, zipcode, country FROM ' + gTableNameContacts;
+		if (groupName != 'AllOfThem') {
+			sql += ' WHERE groupname like \'' + gGroupNameSelected + '\'';
 		}
-		else if (msg == 'DBGETRECORDSSUCCESS') {
-			if (gContactRecords.length > 0 ) {
-				buildContactsListing();
-				displayScreen(gScreenNameContacts);
-			}
-			else {
-				errMsg = 'No contacts found for Group: ' + gGroupNameSelected;
-			}
-			writeLog('buildContactsScreen Finished');
-		}
-		else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
-			errMsg = msg.substring(18);
+		if (gUserListingOrder == 'FirstName') {
+			sql += ' ORDER BY firstname, lastname';
 		}	
 		else {
- 	 	errMsg = 'Invalid msg: ' + msg;
-		}	
-		if (errMsg != '') {
-			writeLog('buildContactsScreen Finished - ERROR - ' + errMsg);
-			displayMessage ('Error building contacts listing:\n' + errMsg + '\n\nPlease contact your administrator.');		
-		}	
+			sql += ' ORDER BY lastname, firstname';
+		}
+		dbGetRecords(sql, 'contacts', 'buildContactsScreen');
 	}
+	else if (msg == 'DBGETRECORDSSUCCESS') {
+		if (gContactRecords.length > 0 ) {
+			buildContactsListing();
+			displayScreen(gScreenNameContacts);
+		}
+		else {
+			errMsg = 'No contacts found for Group: ' + gGroupNameSelected;
+		}
+		writeLog('buildContactsScreen Finished');
+	}
+	else if (msg.substring(0,18) == 'DBGETRECORDSERROR:') {
+		errMsg = msg.substring(18);
+	}	
+	else {
+	 	errMsg = 'Invalid msg: ' + msg;
+	}	
+	if (errMsg != '') {
+		writeLog('buildContactsScreen Finished - ERROR - ' + errMsg);
+		displayMessage ('Error building contacts listing:\n' + errMsg + '\n\nPlease contact your administrator.');		
+	}	
 }
 
 function buildNoContactsScreen() {
