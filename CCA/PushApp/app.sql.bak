@@ -1,0 +1,71 @@
+create table "CONFIG_BESLIST"
+(
+	"BESHOST" VARCHAR(50) not null primary key,
+	"BESPORT" INTEGER,
+	"DEFAULTPUSH"	INTEGER default 8080,
+	"APPPORT" INTEGER
+);
+
+create table "CONFIG_WEBLIST"
+(
+  "WEBHOST" VARCHAR(50) not null primary key,
+	"WEBPORT" INTEGER,
+	"DEFAULTPORT"	INTEGER default 80,
+	"VIRTUALDIR" VARCHAR(100)
+);
+
+create table "CSV_RECIPIENTS"
+(
+	"EMAIL"	VARCHAR(50) not null primary key,
+	"USERBES"	VARCHAR(100),
+  "SENTDATE"	VARCHAR(50) 
+);
+
+create table "CSV_PUSHCONTACTS"
+(
+		"LASTNAME" VARCHAR(30), 
+		"FIRSTNAME" VARCHAR(30),
+		"EMAIL" VARCHAR(35),
+		"HOMEPHONE" VARCHAR(20), 
+		"WORKPHONE" VARCHAR(20),
+		"MOBILEPHONE" VARCHAR(20), 
+		"DEVICEPIN" VARCHAR(15), 
+    "ADDRESS1" VARCHAR(50),
+    "ADDRESS2" VARCHAR(50),
+    "CITY" VARCHAR(25),
+    "STATE" VARCHAR(2),
+    "ZIP" INTEGER,
+    "COUNTRY" VARCHAR(5),
+    "TITLE" VARCHAR(30),
+    "COMPANY" VARCHAR(50)
+
+);
+
+create table "CSV_PUSHCALL"
+(
+          ecBridgeNum VARCHAR(30),
+          ecAcceptURL VARCHAR(100),
+          ecDeclineURL VARCHAR(100),
+          ecDetails VARCHAR(150),
+          ecCallDateTime  VARCHAR(30),
+          ecEmailAddress  VARCHAR(35)
+
+);
+
+create table "CSV_PUSHNOTIFICATION"
+(
+						ecAcceptURL VARCHAR(100),         
+            ecDetails VARCHAR(150)
+);
+
+create table "IDTEST"
+(
+			ID INTEGER not null primary key,
+			
+
+
+);
+
+insert into CONFIG_BESLIST values ('localhost', 8080, 8080, 1234);
+insert into CONFIG_WEBLIST values ('localhost', 8080, 8080, 'C:\inetpub\wwwroot\...');
+
