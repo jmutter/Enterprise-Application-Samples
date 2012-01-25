@@ -90,15 +90,9 @@ function launchFile (filePath) {
     blackberry.io.file.open(filePath);	               
 	}
 	else {
-		displayMessage('Selected document does not exist on the file system');
+		displayMessage('<p>Selected document does not exist on the file system.</p>', 'OkOnly');
 	}	
 }
-
-//function getFileList(){
-//
-//	var fileList = downloader.getCurrentFileList(FULL_DIR_PATH);	
-//	return fileList;
-//}
 
 function documentsDownloaded(msg) {
 //*************************************************************
@@ -148,8 +142,12 @@ function processDocumentsPayload() {
 	gProgressBarDocumentsMaximum	= gJSONPayload.length;
 	document.getElementById('documentprogressbarheader').innerText = 'Documents (' + gProgressBarDocumentsMaximum + ')';
 	gProgressBarDocumentsPercentage = gProgressBarDocumentsMaximum / 100;
-	downloader.startDownloader(gJSONPayload, FULL_DIR_PATH, documentsDownloaded);
-	//documentsDownloaded();
+	if (gTestingMode == true) {
+		documentsDownloaded();
+	}
+	else {
+		downloader.startDownloader(gJSONPayload, FULL_DIR_PATH, documentsDownloaded);
+	}
 }
 
 function debug(str, cleartext){

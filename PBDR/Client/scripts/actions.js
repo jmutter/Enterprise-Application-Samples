@@ -25,12 +25,13 @@ var gScreenNameNoContacts = 'nocontacts';
 var gScreenNameNoRSS = 'norss';
 var gScreenNameRSS = 'rss';
 var gScreenNameSettings = 'settings';
-var gTestingMode = true;
 var gTroubleShootingMode = false;
 //The next variables are used to hold information relative to the user preferences
 //This allows persistent storage of data for the user
 var gUserDateDisplay = 'MM/DD/YYYY'; //MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD for displaying dates
 var gUserListingOrder = 'LastName';  //LastName or FirstName for ordering the display of contacts
+var gUserPlayWaitingMusic = 'True';  //True or False for playing music during downlaod of files
+var gUserPlayIntroMusic = 'True';  //True or False for playing music at introduction
 var gUserShowAllGroup = 'False';  //True or False for adding the All group to the group listing
 var gUserShowCompanyOnContactBar = 'False';  //True or False for adding the company name (if supplied) on the contact name bar
 var gUserShowContactDividers = 'True';  //True or False for creating dividers to separate alphabetic differences between names
@@ -60,11 +61,6 @@ var gDocumentsPrimaryPassword = '';
 var gDocumentsSecondaryURL = 'http://www.dagobahserver.com/pbdr/Documents.ashx';
 var gDocumentsSecondaryUserID = '';
 var gDocumentsSecondaryPassword = '';
-//Delete these 3 lines when finished testing
-var gDocuments2PrimaryURL = 'http://www.dagobahserver.com/pbdr/Documents2.ashx';
-var gDocuments2SecondaryURL = 'http://www.dagobahserver.com/pbdr/Documents.ashx';
-var gUseSmallDocumentCollection = false;
-
 var gRSSDateTime = '';
 var gRSSPrimaryURL = 'http://www.dagobahserver.com/pbdr/RSS.ashx';
 var gRSSPrimaryUserID = '';
@@ -100,20 +96,82 @@ function browserDetection() {
 	}
 }
 
-function displayMessage(message) {
-//*************************************************************
-//* This function will display the requested message using the 
-//* appropriate method based on environment.
-//* Parms:
-//*		Message to be displayed
-//* Value Returned: 
-//*		Nothing
-//*************************************************************	
-	
-  alert (message);
+var timer;
+function dialogWobble () {
+  
+  var dialog = document.getElementById('dialog');
+  dialog.className = 'wobble';
+  clearTimeout(timer);
 }
 
-function displayScreen(screenName) {
+function displayMessage(content, dialogType, returnFunction) {
+//*************************************************************
+//* This function will display a message using the requested parameters.
+//* The attempt is to simulate the Javascript alert() function by 
+//* making this appear modal or synchronous.  To accomplish this,
+//* a callback function is required in order for this to wait and complete.
+//* If no dialogType is supplied, and alert is simply issued.
+//* Parms:
+//*		Content of message
+//*   Type of dialog (okOnly or YesNo)
+//*   Function to call when a button has been clicked
+//* Value Returned: 
+//*		Type of button clicked as a parameter to the function requested
+//*************************************************************
+	
+	menuBar('Hide');
+	if (dialogType == undefined ) {
+		alert (content);
+	}
+	else {
+		if (content.substring(0,1) != '<') {
+			content = content.replace("\n", '</p><p>');
+			content = '<p>' + content + '</p>';
+		}
+
+		$('#yesnobuttons').hide();
+		$('#okbutton').hide();
+		if(dialogType.toLowerCase() == 'yesno') {
+			$('#yesnobuttons').show();
+		}
+		else {
+			$('#okbutton').show();
+		}	
+		$('#dialog').modal({
+			//closeHTML: "<a href='#' title='Close' class='modal-close'>x</a>",
+			position: ["20%",],
+			overlayId: 'overlay',
+			containerId: 'dialog', 
+			onShow: function (dialog) {
+				var modal = this;
+				$('.content', dialog.data[0]).append(content);	
+				//Need the timer to allow code to complete to setup the click functions for our buttons	
+        timer = setTimeout(dialogWobble, 100);
+				//Setup the classes for when the user clicks a button
+				$('.ok', dialog.data[0]).click(function () {
+					if ($.isFunction(returnFunction)) {
+						returnFunction('USERCLICKEDOK');
+					}
+					$.modal.close();  //Close the dialog 
+				});
+				$('.yes', dialog.data[0]).click(function () {
+					if ($.isFunction(returnFunction)) {
+						returnFunction('USERCLICKEDYES');
+					}
+					$.modal.close();  //close the dialog 
+				});
+				$('.no', dialog.data[0]).click(function () {
+					if ($.isFunction(returnFunction)) {
+						returnFunction('USERCLICKEDNO');
+					}
+					$.modal.close();  //Close the dialog 
+				});				
+			}
+		});
+	}	
+}
+
+function displayScreen(screenName, displayHomeScreenRopes) {
 //*************************************************************
 //* This function will display the appropriate screen by 
 //* referencing the div that is associated with it
@@ -126,8 +184,7 @@ function displayScreen(screenName) {
   writeLog('displayScreen Starting');
   if (gScreenDisplayed == '') {
   	//Hide all <div> areas when we first start.
-		displayDownloadStatus('false'); 
-		$('#showMenuBarButton').hide();			 	
+		displayDownloadStatus('false'); 	
  		$('#' + gScreenNameHome).hide();
  		$('#' + gScreenNameDocuments).hide();
  		$('#' + gScreenNameNoContacts).hide();
@@ -141,87 +198,101 @@ function displayScreen(screenName) {
  	menuBar('Hide');
 	
 	if (screenName == gScreenNameHome) {
-		$('#showMenuBarButton').hide();	
 		//If this is the home screen, we need to show it, then show the ropes hanging
 		if (gScreenDisplayed != '') {
 			$('#' + gScreenDisplayed).hide();			
 		}
  		$('#' + gScreenNameHome).show();
-		showOptions(true);	 		
+ 		if (displayHomeScreenRopes == undefined || displayHomeScreenRopes == true) {
+			showOptions(true);	 		
+		}
 	}
 	else {
-		if (gScreenDisplayed == gScreenNameHome) {
+		if (gScreenDisplayed == gScreenNameHome && screenName != gScreenNameSettings) {
 			//If the previous screen was the home screen, pull the options ropes up
 			showOptions(false);	
 		}
-		//$('#showMenuBarButton').show();	
 		switch (screenName) {
 			case gScreenNameDocuments:
+				manageMusic('Stop');
 			  setTimeout(function() {
 			  	$('#' + gScreenNameHome).fadeOut(750);
 			  	$('#' + gScreenNameDocuments).fadeIn(1500);
 			  }, 1000); 
 			  break;
 			case gScreenNameNoContacts:	  	
+				manageMusic('Stop');
+			  $('#' + gScreenNameHome).hide();
 			  setTimeout(function() {
-			  	$('#' + gScreenNameHome).fadeOut(500);
 			  	var element = document.getElementById(gScreenNameNoContacts);
 			  	element.onclick = null;  //Disable the onclick so they don't accidentally press the screen
-			  	$('#' + gScreenNameNoContacts).show(1500);
+			  	$('#' + gScreenNameNoContacts).slideUp(1000);
 			  	setTimeout(function() {
 			  		element.onclick = function() {displayScreen(gScreenNameHome);};  //Add the onclick after 1.5 seconds of wait
 			  	}, 1500); 
 			  }, 500); 
 			  break;
 			case gScreenNameGroups:
-			  if (gScreenDisplayed == gScreenNameContacts) {
-					$('#' + gScreenNameContacts).fadeOut(1000);
+				manageMusic('Stop');			
+			  if (gScreenDisplayed == gScreenNameHome) {
 			  	setTimeout(function() {
-			  		$('#' + gScreenNameGroups).show(1500);
-			  	}, 1000);  
+			  		$('#' + gScreenNameHome).hide();
+			  		$('#' + gScreenNameGroups).show(500);		
+			  	}, 500);  
 			  }
 			  else {
-			  	setTimeout(function() {
-			  		$('#' + gScreenNameHome).fadeOut(500);
-			  		$('#' + gScreenNameGroups).show(1500);		
-			  	}, 500);  
+					$('#' + gScreenNameContacts).hide();
+			  	$('#' + gScreenNameGroups).show(750);
 				}
 			  break;
-			case gScreenNameContacts:	
-				$('#' + gScreenNameGroups).fadeOut(500);
-				setTimeout(function() {
-				 	$('#' + gScreenNameContacts).fadeIn(1500);  
-				  }, 500);
-				  break;
-			case gScreenNameNoRSS:			  	
+			case gScreenNameContacts:		
+				$('#' + gScreenNameGroups).hide();
+				$('#' + gScreenNameContacts).fadeIn(1000);  
+				break;
+			case gScreenNameNoRSS:		
+				manageMusic('Stop');				  	
+			  $('#' + gScreenNameHome).hide();
 			  setTimeout(function() {
-			  	$('#' + gScreenNameHome).fadeOut(500);
 			  	var element = document.getElementById(gScreenNameNoRSS);
 			  	element.onclick = null;  //Disable the onclick so they don't accidentally press the screen
-			  	$('#' + gScreenNameNoRSS).show(1500);
+			  	$('#' + gScreenNameNoRSS).slideUp(1000);
 			  	setTimeout(function() {
 			  		element.onclick = function() {displayScreen(gScreenNameHome);};  //Add the onclick after 1.5 seconds of wait
 			  	}, 1500); 
 			  }, 500); 
 			  break;
-			case gScreenNameRSS:	
+			case gScreenNameRSS:
+				manageMusic('Stop');				
 			  setTimeout(function() {
-			  	$('#' + gScreenNameHome).fadeOut(500);
-			  	$('#' + gScreenNameRSS).show(1500);		 	  	
-			  }, 500); 
+			  	$('#' + gScreenNameHome).hide();
+			  	$('#' + gScreenNameRSS).show(500);		
+			  }, 500);  
 			  break;
 			case gScreenNameSettings:	
-				hideMenuBar();
 				if (gScreenDisplayed != gScreenNameSettings) {	
-					$('#' + gScreenDisplayed).fadeOut(1500);
-					setTimeout(function() {
-						$('#' + gScreenNameSettings).fadeIn(1500);
+					setTimeout(function() {				
+						$('#settings').modal({
+							//closeHTML: "<a href='#' title='Close' class='modal-close'>x</a>",
+							position: ["7%",],
+							overlayId: 'overlay',
+							containerId: 'settings', 
+							onShow: function (settings) {
+								var modal = this;
+								//Setup the classes for when the user clicks close button
+								$('.settingsCloseButton', settings.data[0]).click(function () {
+									saveSettings('');
+									$.modal.close();  //Close the dialog 
+								});						
+							}
+						});
 					}, 500);
 				}
 				break;
 		}
 	}
-	gScreenDisplayed = screenName;
+	if (screenName != gScreenNameSettings) {
+		gScreenDisplayed = screenName;
+	}
   writeLog('displayScreen Finished');
 }
 
@@ -235,20 +306,18 @@ function formLoad() {
 //*		Nothing
 //*************************************************************	
 
-  //if (gTestingMode == true) {
- 	// 	displayMessage ('You are running in TEST mode.\nCertain pieces of code work differently based on this mode.\nEnsure you set the value appropriately prior to deployment');
- 	//  var answer = confirm ('Do you wish to have log messages displayed in alerts for trouble shooting?');
-	//	if (answer == true) {
-  // 		answer = confirm ('Are you sure?');
-	//		if (answer == true) {
-	//			gTroubleShootingMode = true;
-	//		}	
-	//	}
- 	//}
+	writeLog('Application starting');		
 
-	//Detect browser type
 	displayScreen('');  //Ensure all screens are hidden until we figure out what to display
 	
+	//Ensure unneeded ropes are pulled up
+	gDownloadingContactsRope.pullUp();
+	gDownloadingRSSRope.pullUp();			
+	gDownloadingDocumentsRope.pullUp();
+	gPleaseWaitRope.pullUp();
+	gStopMusicRope.pullUp();		
+	
+	//Detect browser type	
 	browserDetection();
 	
 	//Apply the appropriate backgrounds to our screens
@@ -266,8 +335,7 @@ function formLoad() {
 	document.getElementById(gScreenNameRSS).style.width = width + "px";
 	document.getElementById(gScreenNameRSS).style.height = height + "px";	
 		
- 	//gDebugMode = true;
-	writeLog('Application starting');		
+
 
   //Register required BlackBerry events
   registerPBEvents();
@@ -300,20 +368,20 @@ function getStarted(msg) {
 	else if (msg == 'USERSETTINGSRETRIEVED') {
 		retrieveConfigSettings('','getStarted');
 	}
-	else if (msg == 'CONFIGSETTINGSRETRIEVED') {
+	else if (msg == 'CONFIGSETTINGSRETRIEVED') {		
 		setupHome();
-		gDownloadWindowDisplayed = true;  //Set to prevent clicking of options swipe down	
 		displayScreen(gScreenNameHome);
 		manageMusic('Start', 'Intro');
-		downloadConfig('','getStarted');
-	}
-	else if (msg == 'DOWNLOADCONFIGSUCCESS') {
 		validateConfigs();
+		//If database configuration values were read and accessible, let's proceed
 		if (gConfigsValid == true) {
 			setTimeout(function() {
-				downloadContent('');
-			}, 1500);			
-		}
+				downloadConfig('','getStarted');				
+			}, 1000);		
+		}	
+	}
+	else if (msg == 'DOWNLOADCONFIGSUCCESS') {
+		downloadContent('');
 	}
 	else if (msg.substring(0,20) == 'DOWNLOADCONFIGERROR:') {
 		errMsg = msg.substring(20);
@@ -331,6 +399,7 @@ function getStarted(msg) {
 		errMsg = ('Invalid msg: ' + msg); 	
 	} 
 	if (errMsg != '') {
+		displayMessage('<p>Error starting PBDR application:<\p>' + errMsg + '<p><\p><p>Please exit and restart.  If this problem persists, please contact your Administrator<\p>', 'OkOnly');
 		writeLog('getStarted Finished - ERROR - ' + errMsg);	
 	}
 } 
@@ -378,13 +447,13 @@ function manageMusic(method, song) {
 	if (song == undefined) {
 		song = '';
 	}
-
 	if (method.toLowerCase() == 'start') {
-		gStopMusicRope.fallDown();
-		if (song.toLowerCase() == 'intro') {
+		if (song.toLowerCase() == 'intro' && gUserPlayIntroMusic == 'True') {
+			gStopMusicRope.fallDown();
 			gSoundIntro.play();
 		}
-		else {
+		else if (song.toLowerCase() == 'waiting' && gUserPlayWaitingMusic == 'True') {
+			gStopMusicRope.fallDown();
 			gSoundWait.play();
 		}
 	}
@@ -455,7 +524,9 @@ function menuBar(method) {
 //*************************************************************		
 	
 	if (method.toLowerCase() == 'show') {
-		document.getElementById('menuBar').className = 'showMenuBar';
+		if (gScreenDisplayed != gScreenNameSettings) {
+			document.getElementById('menuBar').className = 'showMenuBar';
+		}
 	}
 	else {
 		document.getElementById('menuBar').className = 'hideMenuBar';
@@ -496,7 +567,7 @@ function registerPBEvents() {
   
   writeLog('registerPBEvents Starting');
   writeLog('  onBackGround');
-	blackberry.app.event.onBackground(handleBackground);
+	//blackberry.app.event.onBackground(handleBackground);
   writeLog('  onForeground');	
 	blackberry.app.event.onForeground(handleForeground);	
   writeLog('  onSwipeDown');	
@@ -514,22 +585,19 @@ function requestDisplay(visualToDisplay) {
 //*		Nothing
 //*************************************************************	
 	
-	if (gDownloadWindowDisplayed == false) {
-		manageMusic('Stop');	
-		switch (visualToDisplay.toLowerCase()) {
-			case 'menubar':
-				menuBar('Show');
-			  break;
-			case 'documents':
-				buildDocumentsScreen();
-			  break;
-			case 'groups':
-				buildGroupsScreen('');
-			  break;
-			case 'rss':
-				buildRSSScreen('');
-			  break;
-		}
+	switch (visualToDisplay.toLowerCase()) {
+		case 'menubar':
+			menuBar('Show');
+		  break;
+		case 'documents':
+			buildDocumentsScreen();
+		  break;
+		case 'groups':		
+			buildGroupsScreen('');
+		  break;
+		case 'rss':
+			buildRSSScreen('');
+		  break;
 	}  
 }
 
@@ -659,15 +727,15 @@ function retrieveUserSettings(msg, functionToCall) {
 	if (msg == '') {	
 		gParentFunctionToCall = functionToCall;	
 		writeLog('retrieveUserSettings Starting');
-		sql = 'SELECT showallgroup, listingorder, showcontactdividers, showtitleoncontactbar, showcompanyoncontactbar, datedisplay FROM ' + gTableNameUser + ' WHERE recordid = \'' + gUserRecordID + '\'';
+		sql = 'SELECT showallgroup, listingorder, showcontactdividers, showtitleoncontactbar, showcompanyoncontactbar, datedisplay, playintromusic, playwaitingmusic FROM ' + gTableNameUser + ' WHERE recordid = \'' + gUserRecordID + '\'';
 		dbGetRecord(sql, 'retrieveUserSettings');
 	}
 	else if (msg == 'DBGETRECORDSUCCESS') {
 		if (gDBRecordRetrieved == '') {		
 		  sql = 'INSERT INTO ' + gTableNameUser;
-		  sql += '(recordid, showallgroup, listingorder, showcontactdividers, showtitleoncontactbar, showcompanyoncontactbar, datedisplay)';
+		  sql += '(recordid, showallgroup, listingorder, showcontactdividers, showtitleoncontactbar, showcompanyoncontactbar, datedisplay, playintromusic, playwaitingmusic)';
 		  sql += ' VALUES(\'' + gUserRecordID + '\',\'' + gUserShowAllGroup + '\',\'' + gUserListingOrder + '\',\'' + gUserShowContactDividers + '\',\'';
-		  sql += gUserShowTitleOnContactBar + '\',\'' + gUserShowCompanyOnContactBar + '\',\'' + gUserDateDisplay + '\')'; 	  
+		  sql += gUserShowTitleOnContactBar + '\',\'' + gUserShowCompanyOnContactBar + '\',\'' + gUserDateDisplay + '\',\'' + gUserPlayIntroMusic + '\',\'' + gUserPlayWaitingMusic + '\')'; 	  
 		  dbAddRecord(sql, 'retrieveUserSettings');		
 		}
 		else {
@@ -684,6 +752,8 @@ function retrieveUserSettings(msg, functionToCall) {
 		  gUserShowTitleOnContactBar = array[3];
 		  gUserShowCompanyOnContactBar = array[4];
 		  gUserDateDisplay = array[5];
+		  gUserPlayIntroMusic = array[6];
+		  gUserPlayWaitingMusic = array[7];
 		}	
 		writeLog('retrieveUserSettings Finished');
 		window[gParentFunctionToCall]('USERSETTINGSRETRIEVED');
@@ -745,8 +815,8 @@ function validateConfigs() {
 	}
 	if (errMsg != '') {
 		gConfigsValid = false;
-		errMsg = 'Unable to properly start this application!\nCritical error(s) were found:\n' + errMsg + '\n\nPlease contact your Administrator';
-		displayMessage (errMsg);
+		errMsg = '<p>Unable to properly start this application!</p><p>Critical error(s) were found:</p>' + errMsg + '<p>Please contact your Administrator</p>';
+		displayMessage (errMsg,'OkOnly');
 	}	
 	writeLog('validateConfigs Finished');
 }

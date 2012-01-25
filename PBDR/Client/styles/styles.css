@@ -1,134 +1,16 @@
-/**
- * Global styles shared by all pages.
-*/
+/*******************************************/
+/* Global styles shared by all pages*/
+/*******************************************/
 body {
 	font-family: Calibri, Arial;
 	font-size: 100%;
+	background: black;	
 }
 
-.sectionHeaderAbout {
-	margin: 15px 10px 0 10px;
-	padding: .25em, .25em, .25em .25em;
-	color: #EFEFEF;
-	text-shadow: 1px 1px 1px black;
-	text-indent: 20px;		
-	border: solid 1px #666;
-	border-top-left-radius: .25em;
-	border-top-right-radius: .25em;
-	border-bottom-left-radius: 0em;
-	border-bottom-right-radius: 0em;
-	background-image: 
-		-webkit-gradient(linear, center bottom, center top, from(black), color-stop(50%,#6D6968), to(#6D7B8D));
-	clear: both;
-}
 
-.sectionHeaderOptions {
-	margin: 15px 10px 0 10px;
-	padding: .25em, .25em, .25em .25em;
-	color: #EFEFEF;
-	text-shadow: 1px 1px 1px black;
-	text-indent: 20px;	
-	border: solid 1px #666;
-	border-top-left-radius: .25em;
-	border-top-right-radius: .25em;
-	border-bottom-left-radius: 0em;
-	border-bottom-right-radius: 0em;
-	background-image: -webkit-gradient(
-		linear,
-		left bottom,
-		left top,
-		color-stop(0.42, rgb(86,136,222)),
-		color-stop(0.71, rgb(135,203,255)),
-		color-stop(0.86, rgb(172,220,242))
-	);	
-	clear: both;
-}
-
-.sectionHeaderImage {
-	float: right;
-}
-
-.sectionContentAbout {
-	list-style: none;
-	margin: 0 10px 0 10px;
-	padding: 0;
-
-	border-bottom-left-radius: .25em;
-	border-bottom-right-radius: .25em;
-	border-left: solid 1px #666;
-	border-right: solid 1px #666;
-	border-bottom: solid 1px #666;
-
-	background-color: #C0C0C0;
-	clear: both;
-}
-
-.sectionContentOptions {
-	list-style: none;
-	margin: 0 10px 0 10px;
-	padding: 0;
-
-	border-bottom-left-radius: .25em;
-	border-bottom-right-radius: .25em;
-	border-left: solid 1px #666;
-	border-right: solid 1px #666;
-	border-bottom: solid 1px #666;
-
-	background-color: #C6DEFF;
-	clear: both;
-}
-
-.radiobutton {
-	text-indent: 20px;
-}
-
-.checkbox {
-	text-indent: 10px;
-}
-
-ul.section li {
-	padding: 0 0.5em;
-	clear: both;
-	color: #A65F00;
-	color: #FF9200;
-	color: #66A3D2;
-	color: #444;
-}
-
-ul.section li.category {
-	font-weight: bold;
-	border-top: solid 1px #66A3D2;
-	border-bottom: solid 1px #66A3D2;
-	border-top: solid 1px #666;
-	border-bottom: solid 1px #666;
-
-	background-color: #0C61A4;
-	color: #66A3D2;
-	color: #FF9200;
-	text-shadow: 1px 1px 1px #666;
-	margin-top: 0.0em;
-	margin-bottom: 0.0em;	
-	
-	background: #4f85bb; /* Old browsers */
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#4f85bb), color-stop(100%,#4f85bb)); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(top, #4f85bb 0%,#4f85bb 100%); /* Chrome10+,Safari5.1+ */
-	background: linear-gradient(top, #4f85bb 0%,#4f85bb 100%); /* W3C */	
-}
-ul.section li.category h3 {
-	display:inline;
-	color: #FF9200;
-}
-
-.marquee {
-	height:80px;
-	background-color:ffff33;
-	font-family:Arial;
-	font-size:22pt;
-	color:#780000;
-	font-weight:bold;
-}
-
-/* Use CSS3 transition to produce an animation effect for opening/closing the menuBar from the top bezel */
+/*******************************************/
+/* Menubar styling */
+/*******************************************/
 .showMenuBar {
 	-webkit-transition: all 0.5s ease-in-out;
 	-webkit-transform: translate(0, 3em);		
@@ -149,8 +31,6 @@ ul.section li.category h3 {
 	clear: both;
 	margin-left:1%;
 	margin-right:1%;
-	border-bottom-left-radius: .35em;
-	border-bottom-right-radius: .35em;
 			
 	border-bottom: solid 2px black;
 	font-size: 1.5em;
@@ -162,11 +42,9 @@ ul.section li.category h3 {
 		color-stop(0.33, rgb(96,99,69)),
 		color-stop(0.66, rgb(160,168,91)),
 		color-stop(0.99, rgb(220,242,17))
-
 	);
 }
 	
-/* Use list elements to define and organize 'buttons' that the user can interact with from the menuBar */
 #menuBar ul { 
 	list-style: none; 
 	margin: 0; 
@@ -178,40 +56,200 @@ ul.section li.category h3 {
 	margin-right: 0.5em; 
 	padding: 0.30em; 
 	background-color: #FFFFFF;
-	/*background-color: #96999e;*/
 	border-radius: 0.5em;
 	cursor: pointer; 
-	text-shadow: rgb(122,121,121) 3px 3px 3px;
 }
 
 /* Position groups of buttons on each side of the menuBar */
 .menuBarButton { 
-	font-size: 80%;  
 	float: left;			
 }
 .menuBarImage { 
-
 	float: right;	
 	vertical-align: middle;
 }
 
-/* Progress Bar descriptors */
-.progressBox {
-	margin: 15px 10px 0 10px;
-	padding: .25em, .25em, .25em, .25em;
-	position:absolute;
-	top:25px;
-	width: 300px;
-	height: 150px;
-	color: #EFEFEF;
-	opacity: 0.6;	
-	text-shadow: 1px 1px 1px black;
-	text-indent: 20px;	
-	border: solid 1px #666;
+
+/*******************************************/
+/*Dialog box styling */
+/*******************************************/
+#dialog {
+  /*Hide by default*/
+  display: none;	
+  /*Set sizing to allow inside div placement*/
+	position: relative;
+  /*Assign the appropriate background*/
+	background-image: url('../images/backgroundnotewithpin.png');
+  
+  /*Set size to size of background image*/
+  width: 360px; 
+  height: 270px;
+} 
+
+#overlay {
+  /*Hide by default*/
+  display: none;	
+
+	/*Set cursor to look like nothing can be clicked if hovering over this div*/
+	cursor: wait; 
+	
+  /*Set postion to ensure it covers the page*/
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%;
+  
+  /*Set to esure overlay is behinde the div, but over everything else*/
+  z-index: 3000; 
+     
+  /*Set transparency for various browsers*/
+  /*
+  filter:alpha(opacity=50); 
+  -moz-opacity: 0.5; 
+  -khtml-opacity: 0.5; */
+  opacity: 0; 
+  
+  /*Set background colour*/
+  background: #000000; 
+}
+
+#content {
+	color: #000000;
+	position: absolute;
+	top: 50px;
+	left: 10px;
+	text-align: left; 
+	font: 12px 'Comic Sans MS', Verdana, Arial;
+	width: 96%;
+	height: 60%;
+	/*Set to allow vertical scroll bar only when needed*/
+	overflow-y: auto;
+	overflow-x: hidden;		
+}
+
+#buttons div:hover {
+  color: #000;  
+}
+
+#yesnobuttons {
+  /*Hide by default*/
+  display: none;	
+}
+
+#okbutton {
+  /*Hide by default*/
+  display: none;	
+}
+
+.buttonrow {
+  /*Setup location for buttons*/
+	float: right; 	
+	margin-right: 12px;
+	position: relative;
+	top: 230px;
+}
+
+.buttonrow div {
+  /*Setup location for buttons*/
 	border-top-left-radius: .35em;
 	border-top-right-radius: .35em;
 	border-bottom-left-radius: .35em;
 	border-bottom-right-radius: .35em;
+
+	float: right; 
+	margin-left: 7px; 
+	width: 45px; 
+	height: 26px; 
+	color: #fff; 
+	font: 18px 'Calibri', Verdana, Arial;
+	font-weight: bold; 
+	text-align: center;
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0.33, rgb(96,99,69)),
+		color-stop(0.66, rgb(160,168,91)),
+		color-stop(0.99, rgb(220,242,17))
+
+	);
+	border: 1px solid #000; 
+	cursor: pointer;
+} 
+
+
+/*******************************************/
+/*Wobble effect styling*/ 
+/*******************************************/
+@-webkit-keyframes alice-wobble {
+  0% {
+    -webkit-transform: rotate(5deg);
+  }
+  50% {
+    -webkit-transform: rotate(-5deg);
+  }
+}
+
+.wobble {
+  -webkit-animation-name: alice-wobble;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-iteration-count: 1; /* 1 (default) | n | infinite */
+  -webkit-animation-direction: alternate; /* normal (default) | alternate */
+  -webkit-animation-timing-function: ease-in-out; /* ease (default) | linear | ease-in | ease-out | ease-in-out */
+
+  -webkit-animation-delay: 0; /* 0 (default) | n | now */
+  -webkit-animation-fill-mode: both; /* both (default) | none | forwards | backwards */
+  -webkit-animation-play-state: running; /* running (default) | paused */
+}
+
+
+/*******************************************/
+/*Settings effect styling*/ 
+/*******************************************/
+#settings {
+  /*Hide by default*/
+  display: none;	
+  /*Set sizing to allow inside div placement*/
+	position: relative;
+  /*Assign the appropriate background*/
+	background-image: url('../images/backgroundwrinkledpaper.png');
+  /*border: 2px solid #fff;*/
+  /*Set size to size of background image*/
+  width: 700px; 
+  height: 500px;
+  overflow-y: auto;
+	overflow-x: hidden;		
+}
+
+.settingsHeading {
+	margin-top: 5px;
+}
+
+.settingsHeadingText {
+	margin-left: 190px;
+	color: #000000; 
+	font: 26px 'Calibri', Verdana, Arial;
+	font-weight: bold;  
+}
+
+#settingsHeadingCloseButton {	
+	margin-left: 10px;
+	cursor: pointer;
+}
+
+.sectionHeaderSettings {
+	margin: 15px 10px 0 10px;
+	width: 650px;
+	padding: .25em, .25em, .25em .25em;
+	color: #EFEFEF;
+	text-shadow: 1px 1px 1px black;
+	text-indent: 20px;	
+	border: solid 1px #666;
+	border-top-left-radius: .25em;
+	border-top-right-radius: .25em;
+	border-bottom-left-radius: .25em;
+	border-bottom-right-radius: .25em;
 	background-image: -webkit-gradient(
 		linear,
 		left bottom,
@@ -221,29 +259,46 @@ ul.section li.category h3 {
 		color-stop(0.86, rgb(172,220,242))
 	);	
 	clear: both;
-}
-.progressBar {
-	border: solid 1px black;
-	background-color: white;
-	clear: both;
+	cursor: pointer;
 }
 
-.progressLevel1 {
-	background-color: lime;
-	display: block;
+.sectionHeaderImage {
+	float: right;
 }
 
-.progressLevel2 {
-	background-color: yellow;
-	display: block;
+.element {
+  /*Setup location for buttons*/
+	border: 2px solid #000; 
+	border-top-left-radius: .5em;
+	border-top-right-radius: .5em;
+	border-bottom-left-radius: .5em;
+	border-bottom-right-radius: .5em;
+	float: left;
+	margin-left: 20%;
+	margin-bottom: 10px;
+	width: 70%; 
+	height: 36px; 
+	background:#fff;
+	cursor: pointer;
 }
 
-.headertext {
-	font-size: 100%;
-	color: black;
+.elementtext {
+	float: left;
+  margin-top: 3px;
+	margin-left: 13px;
+	color: #000000; 
+	font: 18px 'Calibri', Verdana, Arial;
+	font-weight: bold; 
 }
 
-.text {
-	font-size: 80%;
-	color: black;
+.elementimage {
+	float: right;
+  margin-top: -7px;
+	margin-right: 3px;
+}
+
+.legend {
+	color: #1569C7;
+	font: 22px 'Comic Sans MS', Verdana, Arial;
+	font-weight: bold;
 }

@@ -9,7 +9,6 @@ var gContactsServerDateTime = '';
 var gDocumentsServerDateTime = '';
 var gDownloadRequest = '';
 var gDownloadResults = '';
-var gDownloadWindowDisplayed = false;
 var gJSONPayload;
 var gProgressBarDocumentsCounter = 0;
 var gProgressBarDocumentsMaximum = 0;
@@ -19,6 +18,8 @@ var gProgressBarOverallMaximum = 0;
 var gProgressBarOverallPercentage = 0;
 var gRequestingFunction = '';
 var gRSSServerDateTime = '';
+var gScreenDisplayedAtDownload = '';
+var gServerTimeout = 10000;
 
 function displayDownloadStatus(method) {
 //*************************************************************
@@ -67,8 +68,12 @@ function downloadConfig(msg, functionToCall) {
 		gRequestingFunction = 'downloadConfig';	
 		gDownloadRequest = 'Config';	
 		if (blackberry.system.hasDataCoverage() == true) {	
-			testingSendPrimaryHTTPRequest(gConfigPrimaryURL, gConfigSecondaryURL);	
-		  //sendPrimaryHTTPRequest(gConfigPrimaryURL, gConfigSecondaryURL);	
+			if (gTestingMode == true) {
+				testingSendPrimaryHTTPRequest(gConfigPrimaryURL, gConfigSecondaryURL);	
+			}
+			else {			
+			  sendPrimaryHTTPRequest(gConfigPrimaryURL, gConfigSecondaryURL);	
+			}
  		}
  		else {		
 			window[gParentFunctionToCall]('DOWNLOADCONFIGSUCCESS'); 
@@ -78,7 +83,7 @@ function downloadConfig(msg, functionToCall) {
 		window[gParentFunctionToCall]('DOWNLOADCONFIGSUCCESS');  		
 	}
  	else if (msg.substring(0,30) == 'SENDSECONDARYHTTPREQUESTERROR:') {
-		errMsg = 'Unable to contact server(s): ' + msg.substring(30);
+		errMsg = 'Unable to contact configuration server(s): ' + msg.substring(30);
 	}
  	else if (msg.substring(0,24) == 'PROCESSJSONPAYLOADERROR:') {
 		errMsg = msg.substring(24);
@@ -112,74 +117,102 @@ function downloadContent(msg) {
 //*		Nothing
 //*************************************************************	
 	
-	var proceedWithDownload = true;
+	var proceedWithDownload = false;
 	var errMsg = '';
 	if (msg == '') {
 		if (blackberry.system.hasDataCoverage() == true) {			
-			gDownloadWindowDisplayed = true;
-			gRequestingFunction = 'downloadContent';
 			gProgressBarOverallMaximum = 3;
 			document.getElementById('overallprogressbarheader').innerText = 'Overall (' + gProgressBarOverallMaximum + ' Types)';		
 			gProgressBarOverallCounter = 0;
 			gProgressBarOverallPercentage = gProgressBarOverallMaximum / 100;
-			var display = 'The content of this application was last updated:\n';
-			var dateTime = '';
+
+			var display = '<p>The following table shows when the content of this application was last updated.</p>'; 
+			display += '<p>Would you like to request the latest information?</p>';
+			display += '<table width="95%" border="2">';
+			display += '<tr>';
+	  	display += '<td style="text-align:left; font-weight:bold" colspan="2">Documents:</td>';
+			display += '</tr>';
+			display += '<tr>';
+	  	display += '<td style="text-align:right">Local:</td>';
 			if (gDocumentsDateTime == '') {
 				dateTime = 'Never';
 			}
 			else {
 				dateTime = convertDateTime(gDocumentsDateTime, gUserDateDisplay);	
 			}
-			display += '\n    Documents:';
-			display += '\n        Local:  ' + dateTime;
-			display += '\n        Server: ' + convertDateTime(gDocumentsServerDateTime, gUserDateDisplay);		
+	  	display += '<td>' + dateTime + '</td>';
+			display += '</tr>';
+			display += '<tr>';
+	  	display += '<td style="text-align:right">Server:</td>';
+	  	display += '<td>' + convertDateTime(gDocumentsServerDateTime, gUserDateDisplay) + '</td>';
+			display += '</tr>';
+			display += '<tr>';
+	  	display += '<td style="text-align:left; font-weight:bold" colspan="2">Contacts:</td>';
+			display += '</tr>';
+			display += '<tr>';
+	  	display += '<td style="text-align:right">Local:</td>';
 			if (gContactsDateTime == '') {
 				dateTime = 'Never';
 			}
 			else {
 				dateTime = convertDateTime(gContactsDateTime, gUserDateDisplay);	
 			}
-			display += '\n    Contacts:';
-			display += '\n        Local:  ' + dateTime;
-			display += '\n        Server: ' + convertDateTime(gContactsServerDateTime, gUserDateDisplay);	
+	  	display += '<td>' + dateTime + '</td>';
+			display += '</tr>';
+			display += '<tr>';
+	  	display += '<td style="text-align:right">Server:</td>';
+	  	display += '<td>' + convertDateTime(gContactsServerDateTime, gUserDateDisplay) + '</td>';
+			display += '</tr>';
+			display += '<tr>';
+	  	display += '<td style="text-align:left; font-weight:bold" colspan="2">RSS:</td>';
+			display += '</tr>';
+			display += '<tr>';
+	  	display += '<td style="text-align:right">Local:</td>';
 			if (gRSSDateTime == '') {
 				dateTime = 'Never';
 			}
 			else {
 				dateTime = convertDateTime(gRSSDateTime, gUserDateDisplay);	
 			}
-			display += '\n    RSS:';
-			display += '\n        Local:  ' + dateTime;
-			display += '\n        Server: ' + convertDateTime(gRSSServerDateTime, gUserDateDisplay);		
-					
-			display += '\n\nWould you like to request the latest information now?';	
-			proceedWithDownload = confirm(display);		
-		
-	 		if (proceedWithDownload == true) {
-				//When completed testing remove these 5 lines
-				gUseSmallDocumentCollection = false;
-				var answer = confirm ('Do you want to download the large document collection?');
-				if (answer == false) {
-					gUseSmallDocumentCollection = true;
-				}	
-	 			manageMusic('Stop'); 	
-	 		}		
+	  	display += '<td>' + dateTime + '</td>';
+			display += '</tr>';
+			display += '<tr>';
+	  	display += '<td style="text-align:right">Server:</td>';
+	  	display += '<td>' + convertDateTime(gRSSServerDateTime, gUserDateDisplay) + '</td>';
+			display += '</tr>';			
+			display += '</table>';
+			displayMessage(display, 'YesNo', downloadContent);
+			
+			//proceedWithDownload = confirm(display);			
+	 		//if (proceedWithDownload == true) {
+	 			//manageMusic('Stop'); 	
+	 		//}		
  		}
  		else {
- 			displayMessage ('There doesn\'t appear to be sufficient coverage to perform the server lookup.\n\nYou will only have access to the current content on the device.')
+ 			displayMessage ('<p>There doesn\'t appear to be sufficient coverage to perform the server lookup.</p><p>You will only have access to the current content on the device.</p>', 'OkOnly', downloadContent)
  			proceedWithDownload = false;
  		}
- 		gDownloadRequest = '';
- 		gDownloadWindowDisplayed = false;
  	}
+ 	else if (msg == 'USERCLICKEDYES') {
+ 		manageMusic('Stop','Intro');
+		gRequestingFunction = 'downloadContent';
+ 		gDownloadRequest = '';
+		proceedWithDownload = true;
+	}
+ 	else if (msg == 'USERCLICKEDNO') {
+		proceedWithDownload = false;
+	}
+ 	else if (msg == 'USERCLICKEDOK') {
+		proceedWithDownload = false;
+	}
  	else if (msg == 'CONTACTSLOADED') {
-		//Nothing to do
+		proceedWithDownload = true;
 	}
  	else if (msg == 'RSSLOADED') {
-		//Nothing to do
+		proceedWithDownload = true;
 	}	
  	else if (msg == 'DOCUMENTSLOADED') {
-		//Nothing to do
+		proceedWithDownload = true;
 	}	
  	else if (msg.substring(0,30) == 'SENDSECONDARYHTTPREQUESTERROR:') {
 		//errMsg = msg.substring(30);
@@ -201,61 +234,77 @@ function downloadContent(msg) {
  		errMsg = 'Invalid msg: ' + msg;
  	} 	
  	if (errMsg != '') {
- 		gDownloadResults += '\n    ' + gDownloadRequest + ' - ' + errMsg;
+ 		gDownloadResults += '<p>    ' + gDownloadRequest + ' - ' + errMsg + '</p>';
+		proceedWithDownload = true;
  	}		
 
- 	if (proceedWithDownload == true) {
+ 	if (proceedWithDownload == false) {
+ 		gDownloadRequest = '';
+ 	} 	
+ 	else {
 		switch (gDownloadRequest) {
 			case '':
+				gDownloadResults = '';
+				gScreenDisplayedAtDownload = gScreenDisplayed;
+				displayScreen(gScreenNameHome,'NoStrings');
 				manageWait('Show');
 			  gDownloadRequest = 'Contacts';
 				setTimeout(function() {		
-			  	//testingSendPrimaryHTTPRequest(gContactsPrimaryURL, gContactsSecondaryURL);				  
-			  	sendPrimaryHTTPRequest(gContactsPrimaryURL, gContactsSecondaryURL);						  	
+					if (gTestingMode == true) {					
+			  		testingSendPrimaryHTTPRequest(gContactsPrimaryURL, gContactsSecondaryURL);				  
+				  }
+				  else {
+				  	sendPrimaryHTTPRequest(gContactsPrimaryURL, gContactsSecondaryURL);						  	
+				  }
 			  }, 1000);
 			  break;
 			case 'Contacts':
 				updateOverAllProgressBar();	
 			  gDownloadRequest = 'RSS';
-				setTimeout(function() {	
-					hideDownloadingOption('Contacts');
-					setTimeout(function() {				
-				  	//testingSendPrimaryHTTPRequest(gRSSPrimaryURL, gRSSSecondaryURL);	
-				  	sendPrimaryHTTPRequest(gRSSPrimaryURL, gRSSSecondaryURL);	
-			  	}, 1000); 
-			  }, 1000); 						  	
+				hideDownloadingOption('Contacts');
+				setTimeout(function() {		
+					if (gTestingMode == true) {							
+				  	testingSendPrimaryHTTPRequest(gRSSPrimaryURL, gRSSSecondaryURL);	
+				  }
+				  else {
+			 		 	sendPrimaryHTTPRequest(gRSSPrimaryURL, gRSSSecondaryURL);	
+			 		}
+		  	}, 1000); 						  	
 			  break;
 			case 'RSS':
 				updateOverAllProgressBar();
 	 			$('#documentsbar').show();  //Show our additional progress bar that is only needed for documents				
 			  gDownloadRequest = 'Documents';
-				setTimeout(function() {	
-					hideDownloadingOption('RSS');
-					setTimeout(function() {
-				  	//testingSendPrimaryHTTPRequest(gRSSPrimaryURL, gRSSSecondaryURL);	
-//				  	sendPrimaryHTTPRequest(gDocumentsPrimaryURL, gDocumentsSecondaryURL);	
-				//When completed testing remove these 7 lines and uncomment the line above
-						if (gUseSmallDocumentCollection == false) {
+				hideDownloadingOption('RSS');
+				setTimeout(function() {
+					if (gTestingMode == true) {
+			 			testingSendPrimaryHTTPRequest(gRSSPrimaryURL, gRSSSecondaryURL);	
+			 		}
+			 		else {
+					  //sendPrimaryHTTPRequest(gDocumentsPrimaryURL, gDocumentsSecondaryURL);	
+						//When completed testing remove these 7 lines and uncomment the line above
+						if (gTestingSmallDocumentCollection == false) {
 						  sendPrimaryHTTPRequest(gDocumentsPrimaryURL, gDocumentsSecondaryURL);	
 						}
 						else {
-					  	sendPrimaryHTTPRequest(gDocuments2PrimaryURL, gDocuments2SecondaryURL);	
+				  		sendPrimaryHTTPRequest(gTestingDocuments2PrimaryURL, gTestingDocuments2SecondaryURL);	
 						}	
-			  	}, 1000); 
-			  }, 1000); 
+					}
+		  	}, 1000); 
 			  break;
 			case 'Documents':
 				updateOverAllProgressBar();
 				hideDownloadingOption('Documents');
 				setTimeout(function() {
 					if (gDownloadResults != '') {
-					 	gDownloadResults = 'Contacts, RSS, and Document downloads were attempted.\n\nOne or more issues/errors occurred while downloading and updating the information:' + gDownloadResults;
-				  	displayMessage (gDownloadResults);
-				  }	
-				  else {
-				  	displayMessage ('The latest Contacts, RSS, and Documents have been downloaded.');
+					 	gDownloadResults = '<p>Contacts, RSS, and Document downloads were attempted.</p><p>One or more issues/errors occurred while downloading and updating the information:</p>' + gDownloadResults;
+					 	gDownloadResults = gDownloadResults + '<p><\p><p>If this problem persists, please contact your Administrator<\p>';
+				  	displayMessage (gDownloadResults,'OkOnly');
 				  }	
 					manageWait('Hide');
+					setTimeout(function() {
+						displayScreen(gScreenDisplayedAtDownload);
+					}, 1000);	
 				}, 1000);		  
 			  break;
 		}
@@ -512,6 +561,70 @@ function processJSONPayload() {
 	}	
 }
 
+function sendPrimaryHTTPReques(primaryURL, secondaryURL) {	
+//*************************************************************
+//* This function will attempt to download a JSON file using 
+//* the primary URL parameter.  If it fails, it will call the 
+//* secondary URL function.
+//* Parms:
+//*		primary URL to call
+//*		secondary URL to pass to next function
+//* Value Returned: 
+//*		Nothing
+//*************************************************************
+	
+	var httpRequest = $.ajax({
+    url : primaryURL,
+    dataType : "jsonp",
+    timeout : gServerTimeout
+	});
+
+	httpRequest.success(function(data) {
+		gJSONPayload = data;
+		alert (data);
+		//processJSONPayload();
+	});
+
+	httpRequest.error(function(XMLHttpRequest, status, error) {
+		alert (error);
+		//sendSecondaryHTTPRequest(secondaryURL);
+	});
+}
+
+function sendSecondaryHTTPReques(secondaryURL) {	
+//*************************************************************
+//* This function will attempt to download a JSON file using 
+//* the primary URL parameter.  If it fails, it will call the 
+//* secondary URL function.
+//* Parms:
+//*		primary URL to call
+//*		secondary URL to pass to next function
+//* Value Returned: 
+//*		Nothing
+//*************************************************************
+		
+	if (secondaryURL != '') {
+		var httpRequest = $.ajax({
+	    url : secondaryURL,
+ 	   dataType : "jsonp",
+ 	   timeout : gServerTimeout
+		});
+	
+		httpRequest.success(function(data) {
+			gJSONPayload = data;
+			processJSONPayload();
+		});
+	
+		httpRequest.error(function(XMLHttpRequest, status, error) {
+			window[gRequestingFunction]('SENDSECONDARYHTTPREQUESTERROR:' + error);  		
+		});
+	}
+	else {
+		window[gRequestingFunction]('SENDSECONDARYHTTPREQUESTERROR:No secondary URL in database'); 
+	}	
+}
+
+
 function sendPrimaryHTTPRequest(primaryURL, secondaryURL) {	
 //*************************************************************
 //* This function will attempt to download a JSON file using 
@@ -522,15 +635,16 @@ function sendPrimaryHTTPRequest(primaryURL, secondaryURL) {
 //*		secondary URL to pass to next function
 //* Value Returned: 
 //*		Nothing
-//*************************************************************		
-	
+//*************************************************************
+		
 	var request = $.getJSON(primaryURL, function(data) {
 		gJSONPayload = data;
 		})
 		.success(function() { 
 			processJSONPayload();
 		})
-		.error (function() {	
+		//.error (function() {	
+		.error (function (XMLHttpRequest, status, error) {
 			sendSecondaryHTTPRequest(secondaryURL);
 		})
 		.complete(function() { 
@@ -556,8 +670,8 @@ function sendSecondaryHTTPRequest(secondaryURL) {
 			.success(function() { 
 				processJSONPayload();
 			})		
-			.error (function (XMLHttpRequest, textStatus, errorThrown) {
-				window[gRequestingFunction]('SENDSECONDARYHTTPREQUESTERROR:' + errorThrown);                                                 
+			.error (function (XMLHttpRequest, status, error) {
+				window[gRequestingFunction]('SENDSECONDARYHTTPREQUESTERROR:' + error);                                                 
       })
 			.complete(function() { 
 				//Nothing to do here
