@@ -67,18 +67,16 @@ public class EmergencyCallPush extends SwingWorker<String, Void> {
     }
     
    
-    
     @Override
-    //protected String doInBackground() {
     protected String doInBackground() {
         //sometimes the initial delay can be long,
         //so let the user know we're working on it.
         //by giving a little progress    
         String pushId = "";
         Date date = new Date();
-        System.out.println(dateFormat.format(date));
-
-            //Get recipients objects from database 
+        String strBESServer = "";
+        int responseCode = -99;
+          //Get recipients objects from database 
           recipients = recListDao.getListEntries();
           //get Bes List from database;
           besList = besListDao.getListEntries();
@@ -90,63 +88,84 @@ public class EmergencyCallPush extends SwingWorker<String, Void> {
             if(!this.isCancelled()) {
              
               recipientCheck: for(RecipientObject ro : recipients) {
-                try {  
-                      HashMap<String, URL> urlList = new HashMap();
-                      int responseCode = -99;
-                      for(int b=0; b<besList.size(); b++){
+                
+                  try {  
+                    
+                    if(ro.getMatched().matches("Y")){
+                         // ecPanel.printToResults("\n Matched " + ro.getMatched());
+                          String[] strMatchedValue = ro.getUserBes().split(":");
+                          URL builtURL = getPushURL(strMatchedValue[0], strMatchedValue[1], 
+                                                    ro.getRecEmail(), strAppPort);
+                           
+                          pushId = "pushID:" + _r.nextInt();
+                          responseCode  =  userCallPush(pushId, builtURL);
+                         
+                          if(responseCode == 200){
 
-                          URL builtURL = getPushURL(besList.get(b).getServerHost(), besList.get(b).getServerPort(),
-                                  ro.getRecEmail(), strAppPort);
-                          urlList.put(besList.get(b).getServerHost() + ":" + besList.get(b).getServerPort(), builtURL);
-                      }
-                                                   
-                       pushBES: for(Map.Entry<String, URL> entry : urlList.entrySet()){
-                                pushId = "pushID:" + _r.nextInt();
+                                ecPanel.printToResults("\nMATCH:  USER-> " + ro.getRecEmail() + "    BES-> " + ro.getUserBes() );
+                                recListDao.editRecord(new RecipientObject
+                                                                 (ro.getRecEmail(), ro.getUserBes(), "Y", dateFormat.format(date) , ro.getId()));
+                                continue recipientCheck;
                                 
-                                String strBESServer = "";
-                                
-                                if (urlList.containsKey(ro.getUserBes())){
-                                   // System.out.println("CONTAINS KEY" );
-                                    responseCode  = userCallPush(pushId, urlList.get(new String(ro.getUserBes())));
-                                   // ecPanel.printToResults("\nExisting USER BES Defined Trying First......... " + ro.getRecEmail() + "   on BES: " + ro.getUserBes() );
-                                    strBESServer = ro.getUserBes();
-                                
-                                } else {
-                                    responseCode = userCallPush(pushId, entry.getValue());
-                                    strBESServer = entry.getKey();
-                                }
-                               
-                                if(responseCode == 200){
-                                   
-                                    ecPanel.printToResults("\nCall Sent:    USER: " + ro.getRecEmail() + "    BES: " + strBESServer );
-                                    
-                                    recListDao.editRecord(new RecipientObject
-                                                         (ro.getRecEmail(), strBESServer, dateFormat.format(date) , ro.getId()));
-                                    
-                                    
-                                    
-                                    continue recipientCheck;
-                               
-                                } else {
-                                    ecPanel.printToResults("\nDidn't match USER: " + ro.getRecEmail() + " on BES: " + strBESServer );
-                                    recListDao.editRecord(new RecipientObject
-                                                            (ro.getRecEmail(), "ERROR CODE: " + responseCode, (String)dateFormat.format(date) , ro.getId()));
-                                }
-                              }
+                           } else {
+                               ecPanel.printToResults("\nUSER NOT FOUND ON PREVIOUS MATCHED BES: " + ro.getRecEmail() + "   on BES: " + strBESServer);
+                               recListDao.editRecord(new RecipientObject
+                                              (ro.getRecEmail(), "ERROR CODE: " + responseCode, "N", (String)dateFormat.format(date) , ro.getId())); 
+                               ro.setMatched("N");
                               
+                          }
+                    }
+                    if(ro.getMatched().matches("N")) {
+                          
+                          HashMap<String, URL> urlList = new HashMap();
+                          responseCode = -99;
+                         
+                          for(int b=0; b<besList.size(); b++){
+                                                            
+                          // WE PUSHING TO BROWSER CACHE ONLY FOR TESTING WHETHER BES KNOWS THE PEEP.
+                           URL builtURL = getPushURL(besList.get(b).getServerHost(), besList.get(b).getServerPort(),
+                                  ro.getRecEmail(), strAppPort);
 
-                        }catch (Exception ex ){
-                            ecPanel.printToResults("\nException during BES Validation: " + ex.getMessage());
-                        }
-                        
-                       } //end for loop: recipients
-               } //check for canceled thread
+                           urlList.put(besList.get(b).getServerHost() + ":" + besList.get(b).getServerPort(), builtURL);
+                          }
+                                        
+                    puahBES: for(Map.Entry<String, URL> entry : urlList.entrySet()){
+                        pushId = "pushID:" + _r.nextInt();
+
+                         strBESServer = "";
+                         responseCode = userCallPush(pushId, entry.getValue());
+                         strBESServer = entry.getKey();
+
+                         if(responseCode == 200){
+
+                            ecPanel.printToResults("\nMATCH:    USER: " + ro.getRecEmail() + "    BES: " + strBESServer );
+                            recListDao.editRecord(new RecipientObject
+                                             (ro.getRecEmail(), strBESServer, "Y", dateFormat.format(date) , ro.getId()));
+
+                        continue recipientCheck;
+
+                         } else {
+                             ecPanel.printToResults("\nUSER NOT FOUND " + ro.getRecEmail() + "   on BES: " + strBESServer);
+                             recListDao.editRecord(new RecipientObject
+                                                (ro.getRecEmail(), "ERROR CODE: " + responseCode, "N", (String)dateFormat.format(date) , ro.getId()));                                        }
+                     }//end for loop
+                 }
+
+                }catch (Exception ex ){
+                    ecPanel.printToResults("\nException during BES Validation: " + ex.getMessage());
+                }
+
+               } //end for loop: recipients
+       } //check for canceled thread
        } else {
             ecPanel.printToResults("\n\nYou must have at least 1 Recipient and 1 BES entered.");
        }
                    
             return pushId;
     }
+    
+    
+    
     
     
     @Override
@@ -172,11 +191,11 @@ public class EmergencyCallPush extends SwingWorker<String, Void> {
 
         } catch (ExecutionException ex) {
             System.out.println("\nContacts Push THREAD Thread Execution Exception: " + ex.getMessage());
-            ex.printStackTrace();
 
+            
         } catch (InterruptedException ex) {
             System.out.println("\nCall Push THREAD Thread Interrupted Exception: " + ex.getMessage());
-            ex.printStackTrace();
+
         }
         if (recipients.isEmpty()) {
             ecPanel.printToResults("\nDidn't retrieve anything from file in DONE() thread.");
@@ -208,14 +227,14 @@ public class EmergencyCallPush extends SwingWorker<String, Void> {
             
           } catch(Exception ex) {
             System.out.println("EXCEPTION GETTING JSON STRING: " + ex.getMessage());
-            ex.printStackTrace();
-        }
+
+          }
     
         String jsonString = "{\"Source\":[{\"machinename\":\""+ machineName + "\"}],";
         jsonString += "\"Confirmation\":[{\"url\":\"" + confirmURL + "\"}],";
         jsonString += "\"EmergencyCall\":" + list1.toString() + "}";
         
-        System.out.println("Call JSON STRING: " + jsonString);
+       // System.out.println("Call JSON STRING: " + jsonString);
         
         return jsonString;
     
@@ -250,16 +269,16 @@ public class EmergencyCallPush extends SwingWorker<String, Void> {
          
          }catch (MalformedURLException ex){
             System.out.println("Malformed URL Exception in EmergencyCallPush: " + ex.getMessage());
-            ecPanel.printToResults("\nMalformed URL Exception in EmergencyCallPush" + ex.getMessage());
+         //   ecPanel.printToResults("\nMalformed URL Exception in EmergencyCallPush" + ex.getMessage());
          
          } catch (UnknownHostException ex) {
             System.out.println("UnknownHostException Exception in EmergencyCallPush: " + ex.getMessage());
-             ecPanel.printToResults("\nUnknownHostException: " + ex.getMessage() );
+          //   ecPanel.printToResults("\nUnknownHostException: " + ex.getMessage() );
        
         } catch (ConnectException ex) {
             // Unable to connect to the MDS
            System.out.println("ConnectException Exception in EmergencyCallPush: " + ex.getMessage());
-             ecPanel.printToResults("\nConnectException: " + ex.getMessage() );
+          //   ecPanel.printToResults("\nConnectException: " + ex.getMessage() );
          
          }catch (Exception ex ){
              System.out.println("Exception in EmergencyCallPush: " + ex.getMessage());

@@ -22,7 +22,6 @@ package eclserver.renderers;
 
 import java.awt.Component;
 import javax.swing.JList;
-import javax.swing.ListCellRenderer;
 import javax.swing.DefaultListCellRenderer;
 
 import eclserver.db.objects.AddressObject;
@@ -36,6 +35,7 @@ public class ContactsListRenderer extends DefaultListCellRenderer {
     public ContactsListRenderer()   {
     }
 
+    @Override
     public Component getListCellRendererComponent(JList list, Object value, 
             int index, boolean isSelected, boolean cellHasFocus) {
         super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);

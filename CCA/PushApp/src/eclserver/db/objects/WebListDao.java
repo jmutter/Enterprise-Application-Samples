@@ -68,7 +68,9 @@ public class WebListDao {
             }
             
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
+            
+            System.out.println("You had a SQL Exception my man! : " + sqle.getMessage());
+        
         }
         return id;
     }
@@ -86,7 +88,8 @@ public class WebListDao {
             stmtUpdateExistingRecord.executeUpdate();
             bEdited = true;
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("You had a SQL Exception my man! : " + sqle.getMessage());
+
         }
         return bEdited;
         
@@ -101,7 +104,7 @@ public class WebListDao {
             stmtDeleteWEB.executeUpdate();
             bDeleted = true;
         } catch (SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("You had a SQL Exception my man! : " + sqle.getMessage());
         }
         
         return bDeleted;
@@ -132,7 +135,7 @@ public class WebListDao {
        //     System.out.println("Completed BES List retrieval");
                     
         } catch (SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("You had a SQL Exception my man! : " + sqle.getMessage());
             
         }
         
@@ -152,7 +155,7 @@ public class WebListDao {
                 serverObject = new ServerObject(webHost, webPort, id);
             }
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("You had a SQL Exception my man! : " + sqle.getMessage());
         }
         
         return serverObject;

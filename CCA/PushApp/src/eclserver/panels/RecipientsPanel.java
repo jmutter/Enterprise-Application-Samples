@@ -567,7 +567,7 @@ private void contactsListValueChanged(javax.swing.event.ListSelectionEvent evt) 
        recipientsResultsArea.append(value + "\n");
    }
    
-   
+   @Override
    public void actionPerformed(ActionEvent e) {
         String actionCommand = e.getActionCommand();
   //      System.out.println("ActionEvent: " + actionCommand);

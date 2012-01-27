@@ -71,8 +71,9 @@ public class RecipientBESMatch extends SwingWorker<String, Void> {
       
       String pushId = "";
       Date date = new Date();
-      System.out.println(dateFormat.format(date));
-
+//      System.out.println(dateFormat.format(date));
+      String strBESServer = "";
+      int responseCode = -99;
       //Get recipients objects from database 
       recipients = recListDao.getListEntries();
       //get Bes List from database;
@@ -87,58 +88,78 @@ public class RecipientBESMatch extends SwingWorker<String, Void> {
               recipientCheck: for(RecipientObject ro : recipients) {
                                             
                   try {
+               //       recPanel.printToResults("details:  matched: " + ro.getMatched() +
+               //               " email " + ro.getRecEmail() + " userBES: " + ro.getUserBes() );
+                      if(ro.getMatched().matches("Y")){
+                          recPanel.printToResults(" Matched " + ro.getMatched());
+                          String[] strMatchedValue = ro.getUserBes().split(":");
+                          URL builtURL = getPushURL(strMatchedValue[0], strMatchedValue[1],
+                                   ro.getRecEmail(), "7874");
+                           
+                          pushId = "pushID:" + _r.nextInt();
+                          responseCode  = userBesCheck(pushId, builtURL);
+                         
+                          if(responseCode == 200){
+
+                                recPanel.printToResults("MATCH:  USER-> " + ro.getRecEmail() + "    BES-> " + ro.getUserBes() );
+                                recListDao.editRecord(new RecipientObject
+                                                                 (ro.getRecEmail(), ro.getUserBes(), "Y", dateFormat.format(date) , ro.getId()));
+                                continue recipientCheck;
+                                
+                           } else {
+                               recPanel.printToResults("USER NOT FOUND ON PREVIOUS MATCHED BES: " + ro.getRecEmail() + "   on BES: " + strBESServer);
+                               recListDao.editRecord(new RecipientObject
+                                              (ro.getRecEmail(), "ERROR CODE: " + responseCode, "N", (String)dateFormat.format(date) , ro.getId())); 
+                               ro.setMatched("N");
+                              
+                          }
+                      }
+                      
+                      if(ro.getMatched().matches("N")) {
+                          
                           HashMap<String, URL> urlList = new HashMap();
-                          int responseCode = -99;
+                          responseCode = -99;
+                         
                           for(int b=0; b<besList.size(); b++){
                                                             
-                           //   URL builtURL = getPushURL(besList.get(b).getServerHost(), besList.get(b).getServerPort(),
-                           //           ro.getRecEmail(), strAppPort);
-                           // WE PUSHING TO BROWSER CACHE ONLY FOR TESTING WHETHER BES KNOWS THE PEEP.
-                              URL builtURL = getPushURL(besList.get(b).getServerHost(), besList.get(b).getServerPort(),
-                                      ro.getRecEmail(), "7874");
-                              urlList.put(besList.get(b).getServerHost() + ":" + besList.get(b).getServerPort(), builtURL);
+                          // WE PUSHING TO BROWSER CACHE ONLY FOR TESTING WHETHER BES KNOWS THE PEEP.
+                           URL builtURL = getPushURL(besList.get(b).getServerHost(), besList.get(b).getServerPort(),
+                                   ro.getRecEmail(), "7874");
+                           urlList.put(besList.get(b).getServerHost() + ":" + besList.get(b).getServerPort(), builtURL);
                           }
-                   
+                                        
                     validateBES: for(Map.Entry<String, URL> entry : urlList.entrySet()){
-                                pushId = "pushID:" + _r.nextInt();
-                                
-                                String strBESServer = "";
-                                
-                                if (urlList.containsKey(ro.getUserBes())){
-                                  //  System.out.println("CONTAINS KEY" );
-                                    responseCode  = userBesCheck(pushId, urlList.get(new String(ro.getUserBes())));
-                                   //  recPanel.printToResults("\nExisting USER BES Defined Trying First......... " + ro.getRecEmail() + "   on BES: " + ro.getUserBes() );
-                                    strBESServer = ro.getUserBes();
-                                
-                                } else {
-                                    responseCode = userBesCheck(pushId, entry.getValue());
-                                    strBESServer = entry.getKey();
-                                }
-                               
-                                if(responseCode == 200){
-                                    
-                                    recPanel.printToResults("MATCH:    USER: " + ro.getRecEmail() + "    BES: " + strBESServer );
-                                    recListDao.editRecord(new RecipientObject
-                                                         (ro.getRecEmail(), strBESServer, dateFormat.format(date) , ro.getId()));
-                                                
-                                    continue recipientCheck;
-                                    
-                                } else {
-                                    recPanel.printToResults("USER NOT FOUND " + ro.getRecEmail() + "   on BES: " + strBESServer);
-                                    recListDao.editRecord(new RecipientObject
-                                                            (ro.getRecEmail(), "ERROR CODE: " + responseCode, (String)dateFormat.format(date) , ro.getId()));
-                                }
-                              }
-                               
-                        }catch (MalformedURLException mue){
-                            recPanel.printToResults("Malformed Exception during BES Validation: " + mue.getMessage());
+                        pushId = "pushID:" + _r.nextInt();
 
-                        }catch (Exception ex ){
-                             recPanel.printToResults("Exception during BES Validation: " + ex.getMessage());
-                        }
-                        
-                       } //end for loop: recipients
-               } //check for canceled thread
+                         strBESServer = "";
+                         responseCode = userBesCheck(pushId, entry.getValue());
+                         strBESServer = entry.getKey();
+
+                         if(responseCode == 200){
+
+                            recPanel.printToResults("MATCH:    USER: " + ro.getRecEmail() + "    BES: " + strBESServer );
+                            recListDao.editRecord(new RecipientObject
+                                             (ro.getRecEmail(), strBESServer, "Y", dateFormat.format(date) , ro.getId()));
+
+                        continue recipientCheck;
+
+                         } else {
+                             recPanel.printToResults("USER NOT FOUND " + ro.getRecEmail() + "   on BES: " + strBESServer);
+                             recListDao.editRecord(new RecipientObject
+                                                (ro.getRecEmail(), "ERROR CODE: " + responseCode, "N", (String)dateFormat.format(date) , ro.getId()));                                        }
+                     }//end for loop
+                 }
+                      
+                  
+                }catch (MalformedURLException mue){
+                    recPanel.printToResults("Malformed Exception during BES Validation: " + mue.getMessage());
+
+                }catch (Exception ex ){
+                     recPanel.printToResults("Exception during BES Validation: "  + ex.getMessage());
+                }
+
+               } //end for loop: recipients
+       } //check for canceled thread
        } else {
             recPanel.printToResults("You must have at least 1 Recipient and 1 BES entered.");
        }
@@ -156,25 +177,25 @@ public class RecipientBESMatch extends SwingWorker<String, Void> {
             
             try {
                 
-                recipients = recListDao.getListEntries();
-                ActionEvent callReload = new ActionEvent(new Object[] { "Reload Recs" }, 1, "RELOAD_RECS" );
-                recPanel.actionPerformed(callReload);
-                recPanel.setRecipientsListEntries(recipients);
+               
                   
                 String recCompleted = (String) get();
                 
                 System.out.println("BES MATCH THREAD: " + recCompleted);
+                
+                 recipients = recListDao.getListEntries();
+                ActionEvent callReload = new ActionEvent(new Object[] { "Reload Recs" }, 1, "RELOAD_RECS" );
+                recPanel.actionPerformed(callReload);
+                recPanel.setRecipientsListEntries(recipients);
                 
                 recPanel.printToResults("\nCompleted Verifying USER BES.  Check the list above for any exceptions. "
                         + "You should correct those before performing any sort of push");
 
         } catch (ExecutionException ex) {
             System.out.println("RecipientsBESMatch Thread Execution Exception: " + ex.getMessage());
-            ex.printStackTrace();
 
         } catch (InterruptedException ex) {
             System.out.println("RecipientsBESMatch Thread Interrupted Exception: " + ex.getMessage());
-            ex.printStackTrace();
         }
         if (recipients.isEmpty()) {
             recPanel.printToResults("Didn't retrieve anything from file in DONE() thread.");
@@ -204,16 +225,16 @@ public class RecipientBESMatch extends SwingWorker<String, Void> {
          
          }catch (MalformedURLException ex){
             System.out.println("Malformed URL Exception in BesMatch: " + ex.getMessage());
-            recPanel.printToResults("\nMalformed URL Exception in BesMatch" + ex.getMessage());
+        //    recPanel.printToResults("\nMalformed URL Exception in BesMatch" + ex.getMessage());
          
          } catch (UnknownHostException ex) {
             System.out.println("UnknownHostException Exception in BesMatch: " + ex.getMessage());
-             recPanel.printToResults("\nUnknownHostException: " + ex.getMessage() );
+         //    recPanel.printToResults("\nUnknownHostException: " + ex.getMessage() );
        
         } catch (ConnectException ex) {
             // Unable to connect to the MDS
            System.out.println("ConnectException Exception in BesMatch: " + ex.getMessage());
-             recPanel.printToResults("\nConnectException: " + ex.getMessage() );
+             //recPanel.printToResults("\nConnectException: " + ex.getMessage() );
          
          }catch (Exception ex ){
              System.out.println("Exception in BES Match: " + ex.getMessage());

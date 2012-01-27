@@ -124,7 +124,6 @@ import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
                  System.out.println("ContactsLoader IOException:  " + ex.getMessage());
                 } catch (Exception e) {
                 System.out.println("Major failure in ContactsLoader Thread. " + e.getMessage());
-                e.printStackTrace();
 
             } 
         

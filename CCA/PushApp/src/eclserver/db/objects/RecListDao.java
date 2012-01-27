@@ -66,7 +66,8 @@ public class RecListDao {
             stmtSaveNewRecord.clearParameters();
             stmtSaveNewRecord.setString(1, record.getRecEmail());
             stmtSaveNewRecord.setString(2, record.getUserBes());
-            stmtSaveNewRecord.setString(3, record.getSyncDate());
+            stmtSaveNewRecord.setString(3, record.getMatched());
+            stmtSaveNewRecord.setString(4, record.getSyncDate());
             int rowCount = stmtSaveNewRecord.executeUpdate();
             ResultSet results = stmtSaveNewRecord.getGeneratedKeys();
             if (results.next()) {
@@ -74,7 +75,6 @@ public class RecListDao {
             }
             
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
             System.out.println("SQLException in RecDao.saverecord: " + sqle.getMessage());
         }
         return id;
@@ -89,12 +89,13 @@ public class RecListDao {
             
             stmtUpdateExistingRecord.setString(1, record.getRecEmail());
             stmtUpdateExistingRecord.setString(2, record.getUserBes());
-             stmtUpdateExistingRecord.setString(3, record.getSyncDate());
-            stmtUpdateExistingRecord.setInt(4, record.getId());
+            stmtUpdateExistingRecord.setString(3, record.getMatched());
+             stmtUpdateExistingRecord.setString(4, record.getSyncDate());
+            stmtUpdateExistingRecord.setInt(5, record.getId());
             stmtUpdateExistingRecord.executeUpdate();
             bEdited = true;
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLException in RecDao.editRecord: " + sqle.getMessage());
         }
         return bEdited;
         
@@ -109,7 +110,7 @@ public class RecListDao {
             stmtDeleteREC.executeUpdate();
             bDeleted = true;
         } catch (SQLException sqle) {
-            sqle.printStackTrace();
+           System.out.println("SQLException in RecDao.deleteRecord: " + sqle.getMessage());
         }
         
         return bDeleted;
@@ -127,7 +128,6 @@ public class RecListDao {
             bDeleted = true;
         }catch (SQLException sqle){
             System.out.println("Error nuking addresses: " + sqle.getMessage());
-            sqle.printStackTrace();
         }
         return bDeleted;
     }
@@ -145,16 +145,17 @@ public class RecListDao {
                 int id = results.getInt(1);
                 String bEmail = results.getString(2);
                 String bUserBes = results.getString(3);
-                String bSyncDate = results.getString(3);
+                String bMatched = results.getString(4);
+                String bSyncDate = results.getString(5);
 
                 System.out.println("Retrieving details for: " + bEmail + ":" + bUserBes);
-                RecipientObject entry = new RecipientObject(bEmail, bUserBes, bSyncDate, id);
+                RecipientObject entry = new RecipientObject(bEmail, bUserBes, bMatched, bSyncDate, id);
                 listEntries.add(entry);
             }
             System.out.println("Completed Recipient List retrieval");
                     
         } catch (SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLException in RecDao.getListEntries: " + sqle.getMessage());
             
         }
         
@@ -170,12 +171,13 @@ public class RecListDao {
             if (result.next()) {
                 String recEmail = result.getString("EMAIL");
                 String recUserBes = result.getString("USERBES");
+                String recMatched = result.getString("MATCHED");
                  String recSyncDate = result.getString("SENTDATE");
                 int id = result.getInt("ID");
-                recObject = new RecipientObject(recEmail, recUserBes, recSyncDate, id);
+                recObject = new RecipientObject(recEmail, recUserBes, recMatched, recSyncDate, id);
             }
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLException in RecDao.getREC: " + sqle.getMessage());
         }
         
         return recObject;
@@ -206,18 +208,19 @@ public class RecListDao {
     
     private static final String strSaveRecipient =
             "INSERT INTO SAMPLE.CSV_RECIPIENTS " +
-            "   (EMAIL, USERBES, SENTDATE) " +
-            "VALUES (?, ?, ?)";
+            "   (EMAIL, USERBES, MATCHED, SENTDATE) " +
+            "VALUES (?, ?, ?, ?)";
     
     
     private static final String strGetRECListEntries =
-            "SELECT ID, EMAIL, USERBES, SENTDATE FROM SAMPLE.CSV_RECIPIENTS "  +
+            "SELECT ID, EMAIL, USERBES, MATCHED, SENTDATE FROM SAMPLE.CSV_RECIPIENTS "  +
             "ORDER BY EMAIL ASC";
     
     private static final String strUpdateREC =
             "UPDATE SAMPLE.CSV_RECIPIENTS " +
             "SET EMAIL = ?, " +
             "    USERBES = ?, " +
+            "    MATCHED = ?, " +
             "    SENTDATE = ? " +
             "WHERE ID = ?";
     

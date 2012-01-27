@@ -15,7 +15,6 @@
 */
 
 package eclserver.panels;
-import java.awt.event.ActionListener;
 
 import eclserver.db.objects.RecipientObject;
 
@@ -114,9 +113,9 @@ public class RecipientPanel extends javax.swing.JPanel {
     }
     
     public int getId() {
-        int id = this.id;
+        int id1 = this.id;
         recipient.setId(id);
-        return id;
+        return id1;
     }
     
     public void setRecipient(RecipientObject recipient) {
@@ -128,7 +127,7 @@ public class RecipientPanel extends javax.swing.JPanel {
     }
     
     public RecipientObject getRecipient() {
-        RecipientObject rObj = new RecipientObject(getRecEmail(),getRecUserBes(), null, getId());
+        RecipientObject rObj = new RecipientObject(getRecEmail(),getRecUserBes(), "N", null, getId());
         return rObj;
     }
     

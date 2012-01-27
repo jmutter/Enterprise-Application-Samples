@@ -20,7 +20,6 @@ import eclserver.db.objects.RecipientObject;
 import eclserver.renderers.RecipientsListRenderer;
 import java.util.List;
 import javax.swing.DefaultListModel;
-import javax.swing.ListModel;
 import javax.swing.event.ListSelectionListener;
 
 /**
@@ -109,7 +108,6 @@ public class RecipientsListPanel extends javax.swing.JPanel {
             model.clear();
          } catch (Exception ex){
              System.out.println("Error clearing Recipients List Panel: " + ex.getMessage());
-             ex.printStackTrace();
          }
     }
             

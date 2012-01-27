@@ -22,7 +22,6 @@ package eclserver.renderers;
 
 import java.awt.Component;
 import javax.swing.JList;
-import javax.swing.ListCellRenderer;
 import javax.swing.DefaultListCellRenderer;
 
 import eclserver.db.objects.RecipientObject;

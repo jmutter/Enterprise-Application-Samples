@@ -68,7 +68,7 @@ public class BesListDao {
             }
             
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLEXCEPTION in BesListDao.saveRecord " + sqle.getMessage());
         }         
         
         return id;
@@ -87,7 +87,7 @@ public class BesListDao {
             stmtUpdateExistingRecord.executeUpdate();
             bEdited = true;
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
+           System.out.println("SQLEXCEPTION in BesListDao.editRecord " + sqle.getMessage());
         }
         return bEdited;
         
@@ -102,7 +102,7 @@ public class BesListDao {
             stmtDeleteBES.executeUpdate();
             bDeleted = true;
         } catch (SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLEXCEPTION in BesListDao.deleteRecord " + sqle.getMessage());
         }
         
         return bDeleted;
@@ -165,7 +165,7 @@ public class BesListDao {
                 serverObject = new ServerObject(besHost, besPort, id);
             }
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLEXCEPTION in BesListDao.getBES " + sqle.getMessage());
         } 
         
         return serverObject;

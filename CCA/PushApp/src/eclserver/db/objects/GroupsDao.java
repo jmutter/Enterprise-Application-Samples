@@ -66,7 +66,7 @@ public class GroupsDao {
             }
             
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLEXCEPTION in GroupsDao.saveRecord: " + sqle.getMessage());
         }
         return id;
     }
@@ -83,7 +83,7 @@ public class GroupsDao {
             stmtUpdateExistingRecord.executeUpdate();
             bEdited = true;
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLEXCEPTION in GroupsDao.editRecord: " + sqle.getMessage());
         }
         return bEdited;
         
@@ -98,7 +98,7 @@ public class GroupsDao {
             stmtDeleteRecord.executeUpdate();
             bDeleted = true;
         } catch (SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLEXCEPTION in GroupsDao.deleteRecord: " + sqle.getMessage());
         }
         
         return bDeleted;
@@ -128,7 +128,7 @@ public class GroupsDao {
             System.out.println("Completed Groups retrieval");
                     
         } catch (SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLEXCEPTION in GroupsDao.getListEntries: " + sqle.getMessage());
             
         }
         
@@ -147,7 +147,7 @@ public class GroupsDao {
                 groupObject = new GroupObject(groupName, id);
             }
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLEXCEPTION in GroupsDao.getBES: " + sqle.getMessage());
         }
         
         return groupObject;

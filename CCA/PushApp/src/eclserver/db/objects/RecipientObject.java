@@ -28,17 +28,18 @@ public class RecipientObject {
     }
     
     public RecipientObject(String recEmail){
-        this(recEmail, "", "", -1);
+        this(recEmail, "", "", "", -1);
     }
          
-    public RecipientObject(String recEmail, String recUserBes, String recSyncDate) {
+    public RecipientObject(String recEmail, String recUserBes, String recMatched, String recSyncDate) {
         
-        this(recEmail, recUserBes, recSyncDate,  -1);
+        this(recEmail, recUserBes, recMatched, recSyncDate,  -1);
     }
     
-    public RecipientObject(String recEmail, String recUserBes, String recSyncDate, int id) {
+    public RecipientObject(String recEmail, String recUserBes, String recMatched, String recSyncDate, int id) {
         this.recEmail = recEmail;
         this.recUserBes = recUserBes;
+        this.recMatched = recMatched;
         this.recSyncDate = recSyncDate;
         this.id = id;
     }
@@ -57,6 +58,15 @@ public class RecipientObject {
     
     public String getUserBes() {
         return recUserBes;
+    }
+    
+    
+    public void setMatched(String value){
+        this.recMatched = value;
+    }
+    
+    public String getMatched() {
+        return recMatched;
     }
     
     public void setSyncDate(String value){
@@ -101,6 +111,7 @@ public class RecipientObject {
             RecipientObject thatRecipientObject = (RecipientObject) other;
             if ((recEmail == null ? thatRecipientObject.recEmail == null : recEmail.equalsIgnoreCase(thatRecipientObject.recEmail)) &&
                     (recUserBes == null ? thatRecipientObject.recUserBes == null : recUserBes.equalsIgnoreCase(thatRecipientObject.recUserBes)) &&
+                    (recMatched == null ? thatRecipientObject.recMatched == null : recMatched.equalsIgnoreCase(thatRecipientObject.recMatched)) && 
                     (recSyncDate == null ? thatRecipientObject.recSyncDate == null : recSyncDate.equalsIgnoreCase(thatRecipientObject.recSyncDate))) {
                 // don't use id in determining equality                
                 bEqual = true;
@@ -113,6 +124,7 @@ public class RecipientObject {
     
     private String recEmail;
     private String recUserBes;
+    private String recMatched;
     private String recSyncDate;
     private int id;
     

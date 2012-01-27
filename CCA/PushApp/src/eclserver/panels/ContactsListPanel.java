@@ -108,7 +108,7 @@ public class ContactsListPanel extends javax.swing.JPanel {
             model.clear();
          } catch (Exception ex){
              System.out.println("Error clearing Contacts List Panel: " + ex.getMessage());
-             ex.printStackTrace();
+
          }
     }
             

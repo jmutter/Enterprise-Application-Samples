@@ -15,7 +15,7 @@
 */
 
 package eclserver.panels;
-import java.awt.event.ActionListener;
+
 
 import eclserver.db.objects.AddressObject;
 
@@ -552,9 +552,9 @@ public class ContactPanel extends javax.swing.JPanel {
     }
     
     int getId() {
-        int id = this.id;
+        int id1 = this.id;
         address.setId(id);
-        return id;
+        return id1;
     }
 
     

@@ -77,7 +77,7 @@ public class ConnectionFactory {
         try {
             dbProperties.load(dbPropInputStream);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.out.println("IOEXCEPTION in ConnectionFactory.loadDBProperties " + ex.getMessage());
         }
         return dbProperties;
     }
@@ -87,14 +87,14 @@ public class ConnectionFactory {
         try {
             Class.forName(driverName);
         } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
+           System.out.println("CLASSNOTFOUND in ConnectionFactory.loadDatabaseDriver " + ex.getMessage());
         }
         
     }
      
      private boolean createDatabase() {
         boolean bCreated = false;
-        Connection dbConnection = null;
+         dbConnection = null;
         
         String dbUrl = getDatabaseUrl();
         dbProperties.put("create", "true");
@@ -124,7 +124,7 @@ public class ConnectionFactory {
             statement.execute(strCreatePUSHNOTIFICATIONTable);
             bCreatedTables = true;
         } catch (SQLException ex) {
-            ex.printStackTrace();
+           System.out.println("SQLEXCEPTION in ConnectionFactory.createTables " + ex.getMessage());
         }
         
         return bCreatedTables;
@@ -240,8 +240,8 @@ public void disconnect() {
         loadScreenProperties();
     
     }
-    catch (Exception e ) {
-        e.printStackTrace();
+    catch (Exception ex ) {
+       System.out.println("EXCEPTION in ConnectionFactory.saveProperties " + ex.getMessage());
     }
 }
     
@@ -276,6 +276,7 @@ public void disconnect() {
 	"   ID     INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
         "   EMAIL    VARCHAR(50), " +
         "   USERBES    VARCHAR(255), " +
+        "   MATCHED     VARCHAR(1), " +    
 	"   SENTDATE     VARCHAR(50) " +
         ")";
     

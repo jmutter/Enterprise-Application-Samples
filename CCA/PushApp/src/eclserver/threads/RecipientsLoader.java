@@ -87,9 +87,12 @@ public class RecipientsLoader extends SwingWorker<List<RecipientObject>, Void> {
                     for(RecipientObject ro : recipients) {
                         if(!this.isCancelled()) {
                             
+                            ro.setMatched("N");
+                            ro.setUserBes("none");
+                            ro.setSyncDate("none");
                             int id = recListDao.saveRecord(ro);
                             RecipientObject recObj = new RecipientObject(ro.getRecEmail(),
-                                         ro.getUserBes(), "", id);
+                                         ro.getUserBes(), "N", "none", id);
                             recipientsPanel.addRecipientsListEntry(recObj);
                             recipientsPanel.printToResults("Adding Recipient Email: " + ro.getRecEmail());
                         }
@@ -101,7 +104,7 @@ public class RecipientsLoader extends SwingWorker<List<RecipientObject>, Void> {
          System.out.println("RecipientsLoader IOException:  " + ex.getMessage());
         } catch (Exception e) {
         System.out.println("Major failure in RecipientsLoader Thread. " + e.getMessage());
-        e.printStackTrace();
+        
 
     } 
         return recipients;

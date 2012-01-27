@@ -26,9 +26,6 @@ import java.sql.SQLException;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.LinkedList;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
@@ -95,7 +92,6 @@ public class ContactsDao {
             
         } catch(SQLException sqle) {
             System.out.println("AddressDAO Exception in Save Record: " + sqle.getMessage());
-            sqle.printStackTrace();
         }
         return id;
     }
@@ -127,7 +123,6 @@ public class ContactsDao {
             bEdited = true;
         } catch(SQLException sqle) {
             System.out.println("AddressDao Exception Update Record:" + sqle.getMessage());
-            sqle.printStackTrace();
          }
         return bEdited;
         
@@ -141,7 +136,7 @@ public class ContactsDao {
             stmtDeleteAddress.executeUpdate();
             bDeleted = true;
         } catch (SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLEXCEPTION in ContactsDao.deleteRecord " + sqle.getMessage());
         }
         
         return bDeleted;
@@ -154,7 +149,7 @@ public class ContactsDao {
             bDeleted = true;
         }catch (SQLException sqle){
             System.out.println("Error nuking addresses: " + sqle.getMessage());
-            sqle.printStackTrace();
+            
         }
         return bDeleted;
     }
@@ -199,7 +194,7 @@ public class ContactsDao {
             
         } catch (SQLException sqle) {
             System.out.println("Error getting List entires: " + sqle.getMessage());
-            sqle.printStackTrace();
+           
             
         }
         
@@ -235,7 +230,7 @@ public class ContactsDao {
                         country, title, company, id);
             }
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLEXCEPTION in ContactsDao.getAddress " + sqle.getMessage());
         }
         
         return address;
@@ -274,7 +269,7 @@ public class ContactsDao {
                 list1.add(m1);       
             }
         } catch(SQLException sqle) {
-            sqle.printStackTrace();
+            System.out.println("SQLEXCEPTION in ContactsDao.getJSONString " + sqle.getMessage());
         }
         System.out.println("objects in list1: " + list1.size() );
         

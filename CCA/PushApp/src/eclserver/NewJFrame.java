@@ -1593,7 +1593,7 @@ private void config_btResetActionPerformed(java.awt.event.ActionEvent evt) {//GE
               //       System.out.println("Saving record");
                      int id = recListDao.saveRecord(recipientsPanel.getPanelEntry());
                      RecipientObject recObj = new RecipientObject(ro.getRecEmail(),
-                             ro.getUserBes(), "12345", id);
+                             ro.getUserBes(), "N", "none", id);
                      recipientsPanel.addRecipientsListEntry(recObj);
             }else{
              //   System.out.println("Editing record.");
