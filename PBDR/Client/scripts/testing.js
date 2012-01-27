@@ -5,6 +5,10 @@
 
 //Global Variables
 var gTestingClearMethod = '';
+var gTestingDocuments2PrimaryURL = 'http://www.dagobahserver.com/pbdr/Documents2.ashx';
+var gTestingDocuments2SecondaryURL = 'http://www.dagobahserver.com/pbdr/Documents.ashx';
+var gTestingSmallDocumentCollection = false;
+var gTestingMode = false;
 
 function testingClearTables(msg) {
 	
@@ -246,16 +250,6 @@ function testingDownloadContacts() {
 	processJSONPayload();	
 }
 
-function testingDownloadContent() {
-	menuBar('Hide');
-	setTimeout(function() {
- 		displayScreen(gScreenNameHome);
-		setTimeout(function() {
-			downloadContent('');
-		}, 1000); 	
-	}, 500); 	
-}
-
 function testingDownloadDocuments() {
 	gJSONPayload =[
   {"filename":"test.pdf"
@@ -302,6 +296,30 @@ function testingDownloadRSS() {
 	processJSONPayload();
 }
 
+function testingDownloads(msg) {
+
+	var errMsg = '';
+	var sql = '';
+	if (msg == '') {	
+		gTestingMode = true;
+		downloadConfig('','getStarted');				
+	}
+	else if (msg == 'DOWNLOADCONFIGSUCCESS') {
+		downloadContent('');
+		gTestingMode = false;
+	}
+	else if (msg.substring(0,20) == 'DOWNLOADCONFIGERROR:') {
+		errMsg = msg.substring(20);
+	}	
+	else {
+		errMsg = ('Invalid msg: ' + msg); 	
+	} 
+	if (errMsg != '') {
+		gTestingMode = false;
+		displayMessage('<p>Error loading test data:<\p>' + errMsg, 'OkOnly');
+	}
+} 
+
 function testingSendPrimaryHTTPRequest(primaryURL, secondaryURL) {
 
 	switch (gDownloadRequest) {
@@ -318,4 +336,31 @@ function testingSendPrimaryHTTPRequest(primaryURL, secondaryURL) {
 			testingDownloadDocuments();	
 		  break;
 	}	
+}
+
+function testingUpdateNow(msg) {
+	
+	if (msg == undefined || msg == '' ) {
+		if (gDownloadInProgress == false) {
+			manageMusic('Stop');
+			menuBar('Hide');
+			displayScreen(gScreenNameHome);
+			gTestingSmallDocumentCollection = false;
+ 			downloadContent('USERCLICKEDYES');			
+			//setTimeout(function() {
+			//	displayMessage('Do you want to download the large document collection?','YesNo', testingUpdateNow);
+			//}, 500); 	
+		}
+		else {
+			displayMessage('Cannot process request as a previous download is already in progress.','OkOnly');
+		}
+	}
+ 	else if (msg == 'USERCLICKEDYES') {
+ 		gTestingSmallDocumentCollection = true;
+ 		downloadContent('USERCLICKEDYES');
+	}
+ 	else if (msg == 'USERCLICKEDNO') {
+		gTestingSmallDocumentCollection = false;
+ 		downloadContent('USERCLICKEDYES');
+	}
 }

@@ -30,64 +30,64 @@ function buildContactPanel(contactid, group, firstname, lastname, title, company
 	var html = '';
 	html += '<div class="panelTitle ui-header ui-bar-c collIco" data-role="header" data-position="inline">';
 	if (gUserListingOrder == 'FirstName') {
-		html += '<div style="font-size:10pt; font-weight:strong">' + firstname + ' ' + lastname + '</div>';
+		html += '<div style="font-size:14pt; font-weight:strong">' + firstname + ' ' + lastname + '</div>';
 	}
 	else {
-		html += '<div style="font-size:10pt; font-weight:strong">' + lastname + ', ' + firstname + '</div>';
+		html += '<div style="font-size:14pt; font-weight:strong">' + lastname + ', ' + firstname + '</div>';
 	}
 	if (title != '' && gUserShowTitleOnContactBar == 'True') {
-		html += '<div style="font-size:7pt; color:#7E2217; font-weight:normal">' + title + '</div>';
+		html += '<div style="font-size:10pt; color:#7E2217; font-weight:normal">' + title + '</div>';
 	}
 	if (company != '' && gUserShowCompanyOnContactBar == 'True') {
-		html += '<div style="font-size:7pt; font-weight:normal">' + company + '</div>';
+		html += '<div style="font-size:10pt; font-weight:normal">' + company + '</div>';
 	}	
 	html += '</div>';
 	html += '<div class="panel">';
 	html +=	'<div class="ui-body-e">';
 	if (gGroupNameSelected == 'AllOfThem') {
-		html += '<div style="font-size:7pt; font-weight:normal">' + 'Group: ';
-		html += '<label style="font-size:9pt; color:#006600; font-weight:normal">' + group + '</label></div>';
+		html += '<div style="font-size:10pt; font-weight:normal">' + 'Group: ';
+		html += '<label style="font-size:12pt; color:#006600; font-weight:normal">' + group + '</label></div>';
 	}
 	if (title != '' && gUserShowTitleOnContactBar != 'True') {
-		html += '<div style="font-size:9pt; color:#347235; font-weight:normal">' + title + '</div>';
+		html += '<div style="font-size:12pt; color:#347235; font-weight:normal">' + title + '</div>';
 	}
 	if (company != '' && gUserShowCompanyOnContactBar != 'True') {
-		html += '<div style="font-size:9pt; color:#AF7817; font-weight:normal">' + company + '</div>';
+		html += '<div style="font-size:12pt; color:#AF7817; font-weight:normal">' + company + '</div>';
 	}	
 	if (email != '') {
 		html +=	'<div><img src="images/email.png"/>';
 		if (email != 'missingvalue') {
-			html +=	'<a style="font-size:9pt; font-weight:normal" href="mailto:' + email + '?subject=Emergency_Contact&body=Please contact me at">  ' + email + '</a></div>';
+			html +=	'<a class="contactDetail" href="mailto:' + email + '?subject=Emergency_Contact&body=Please contact me at">  ' + email + '</a></div>';
 		}
 		else {
-			html += '<div style="font-size:9pt; font-weight:normal">' + email + '</div>';
+			html += '<div class="contactDetail">' + email + '</div>';
 		}
 	}
 	if (workphone != '') {
 		html += '<div><img src="images/phone.png"/><label style="font-size:7pt; font-weight:normal"> (w):</label>';
-		html += '<a style="font-size:9pt; font-weight:normal">' + workphone +'</a></div>';
+		html += '<a class="contactDetail">' + workphone +'</a></div>';
 	}
 	if (mobilephone != '') {
 		html += '<div><img src="images/phone.png"/><label style="font-size:7pt; font-weight:normal"> (m):</label>';
-		html += '<a style="font-size:9pt; font-weight:normal">' + mobilephone + '</a></div>';
+		html += '<a class="contactDetail">' + mobilephone + '</a></div>';
 	}
 	if (homephone != '') {
 		html += '<div><img src="images/phone.png"/><label style="font-size:7pt; font-weight:normal"> (h):</label>';
-		html += '<a style="font-size:9pt; font-weight:normal">' + homephone + '</a></div>';
+		html += '<a class="contactDetail">' + homephone + '</a></div>';
 	}
 	if(pin != '') {
 		html += '<div><img src="images/pin.png"/><label style="font-size:7pt; font-weight:normal"> pin:</label>';
-		html += '<a style="font-size:9pt; font-weight:normal">' + pin + '</a></div>';
+		html += '<a class="contactDetail">' + pin + '</a></div>';
 	}
 	if (address != '') {			
-		html += '<div style="font-size:9pt; font-weight:normal">' + address + '</div>';
+		html += '<div class="contactDetail">' + address + '</div>';
 	}
 	if (address2 != '') {			
-		html += '<div style="font-size:9pt; font-weight:normal">' + address2 + '</div>';
+		html += '<div class="contactDetail">' + address2 + '</div>';
 	}
 	if (city != '' || state != '' || country != '') {			
 		commaCheck = ((city != '' && state != '') ? (city + ', ' + state) : (city + state));
-		html += '<div style="font-size:9pt; font-weight:normal">' + commaCheck + '  ' + zipcode + '  ' + country + '</div>';
+		html += '<div class="contactDetail">' + commaCheck + '  ' + zipcode + '  ' + country + '</div>';
 	} 
 	html += '</div>';
 	return html;	
@@ -113,7 +113,7 @@ function buildContactsListing() {
 	var array;
 	var counter;
 	var prevChar = '';
-	var char = '';
+	var beginChar = '';
 	var html = '';
 	var emails = '';
 	var displayContact = true;
@@ -143,15 +143,15 @@ function buildContactsListing() {
 			html = '';	
 			if (showDivider == true) {
 				if (gUserListingOrder == 'FirstName') {
-					char = array[2].substr(0,1).toUpperCase();
+					beginChar = array[2].substr(0,1).toUpperCase();
 				}
 				else {
-					char = array[3].substr(0,1).toUpperCase();
+					beginChar = array[3].substr(0,1).toUpperCase();
 				}		
-				if (prevChar != char) {
-					html = '<li style="font-size:8pt; font-weight:strong" data-role="list-divider">' + char + '</li>';
+				if (prevChar != beginChar) {
+					html = '<li data-role="list-divider">' + beginChar + '</li>';
 				}
-				prevChar = char;
+				prevChar = beginChar;
 			}
 			panel = buildContactPanel(array[0], array[1], array[2], array[3], array[4], array[5], array[6], array[7], array[8], array[9], array[10],array[11],array[12],array[13],array[14],array[15], array[16]);
 			html += panel;
@@ -222,7 +222,7 @@ function buildContactsScreen(msg, groupName) {
 	}	
 	if (errMsg != '') {
 		writeLog('buildContactsScreen Finished - ERROR - ' + errMsg);
-		displayMessage ('Error building contacts listing:\n' + errMsg + '\n\nPlease contact your administrator.');		
+		displayMessage ('<p>Error building contacts listing:</p>' + errMsg + '<p>Please contact your administrator.</p>');		
 	}	
 }
 

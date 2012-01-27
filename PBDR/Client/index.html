@@ -9,7 +9,7 @@
     <link rel="stylesheet"  href="scripts/jquery.mobile/jquery.mobile-1.0a4.1.min.css"/>    
 		<link rel="stylesheet" type="text/css" href="styles/home.css"/>
  	 	<link rel="stylesheet" type="text/css" href="styles/styles.css"/>
- 	 	    
+			 	 	    
   	<!--
   	<link rel="stylesheet" type="text/css" href="styles/jquery-ui.css"> 
   	-->
@@ -17,15 +17,16 @@
     <!--JQuery and JQuery Mobile javascript Libraries-->
    	<script type="text/javascript" src="scripts/jquery/jquery-1.6.min.js"></script> 
 		<script type="text/javascript" src="scripts/jquery/jquery.xdomainajax.js"></script> 
-    <script type="text/javascript" src="scripts/thirdparty/jquery-ui-1.8.9.custom.min.js"></script>
-    <script type="text/javascript" src="scripts/thirdparty/jquery.easing.1.3.js"></script>
     <script type="text/javascript" src="scripts/jquery.mobile/jquery.mobile-1.0a4.1.min.js"></script>
    	<script type="text/javascript" src="scripts/jquery/jquery_collapse.js"></script>	
 		<script type="text/javascript" src="scripts/jquery/jquery-ui.min.js"></script>		
 
     <!--Third Party Javascript Libraries-->
-		<script type="text/javascript" src="scripts/thirdparty/rope.js"></script>
-				
+    <script type="text/javascript" src="scripts/thirdparty/jquery-ui-1.8.9.custom.min.js"></script>
+    <script type="text/javascript" src="scripts/thirdparty/jquery.easing.1.3.js"></script>    
+		<script type='text/javascript' src='scripts/thirdparty/jquery.simplemodal.js'></script>
+		<script type="text/javascript" src="scripts/thirdparty/rope.js"></script>   		
+   
     <!--Our Javascript Libraries-->
 	  <script type="text/javascript" src="scripts/actions.js"></script>
  	 	<script type="text/javascript" src="scripts/database.js"></script>
@@ -44,6 +45,19 @@
 		<script type="text/javascript">
 			$(document).ready(function() {
 				buildHomeScreen();
+				
+				//Setup event for click on OK button
+				//$("#okbutton").click(function () { 
+    	  //  $("#dialog-overlay, #dialog-box").hide();       
+   	  	//  return false;
+   		 	//});
+     
+  	  	// if user resize the window, call the same function again
+  	  	// to make sure the overlay fills the screen and dialogbox aligned to center    
+  	  	//$(window).resize(function () {         
+  	    //  //only do it if the dialog box is not hidden
+   	    //  if (!$("#dialog-box").is(":hidden")) popup();       
+	 		  //});      
 			});
 		</script>
 		<!-- Custom JS -->	 	
@@ -58,9 +72,9 @@
 				<section class="stage">
 					<div id="graphics" style="display:none">
 						<svg id="my_path" width="1024px" height="600px" style="position:fixed; top:0px; z-index: 1110;" version="1.1" xmlns="http://www.w3.org/2000/svg"> 
-				 			<image id="imgDocuments" width="175" height="150" xlink:href="images/documents.png" onclick="requestDisplay('Documents')"/>
-							<image id="imgPeople" width="233" height="150" xlink:href="images/contact.png" onclick="requestDisplay('Groups')"/>
-							<image id="imgNewsFeeds" width="130" height="110" xlink:href="images/rss.png" onclick="requestDisplay('RSS')"/>	
+				 			<image id="imgDocuments" width="175" height="150" xlink:href="images/optiondocuments.png" onclick="requestDisplay('Documents')"/>
+							<image id="imgPeople" width="233" height="150" xlink:href="images/optionpeople.png" onclick="requestDisplay('Groups')"/>
+							<image id="imgNewsFeeds" width="130" height="110" xlink:href="images/optionrss.png" onclick="requestDisplay('RSS')"/>	
 							<image id="txtDocuments" width="200" height="150" xlink:href="images/txtdocuments.png"/>
 							<image id="txtPeople" width="200" height="150" xlink:href="images/txtpeople.png"/>
 							<image id="txtNewsFeeds" width="200" height="150" xlink:href="images/txtnewsfeeds.png"/> 		
@@ -79,10 +93,6 @@
 					-->
 				</section>
 			</div>			
-			
-			<div id="showMenuBarButton" data-role="controlgroup" data-type="horizontal">
-				<a data-role="button" data-theme="a" onclick="requestDisplay('MenuBar')">Swipe Down</a>
-			</div>
 
 			<div id="menuBar" onclick="menuBar('Hide')">
 				<ul class="menuBarButton">
@@ -92,11 +102,16 @@
 					<li onclick="buildSettingsScreen()">Settings</li>					
 				</ul>
 				<ul class="menuBarButton">
+					<li onclick="testingUpdateNow('')">Update Now</li>					
+				</ul>
+<!--				
+				<ul class="menuBarButton">
 					<li onclick="testingClearTables('')">Clear Tables</li>					
 				</ul>
 				<ul class="menuBarButton">
-					<li onclick="testingDownloadContent('')">Update Now</li>					
-				</ul>
+					<li onclick="testingDownloads('')">Test Data</li>					
+				</ul>				
+-->
 				<img src="images/cancel.png" onclick="menuBar('Hide')" class="menuBarImage">
 			</div>  			
 			
@@ -112,7 +127,7 @@
 
 			<div id="groups" data-theme="b">
 				<div data-role="header" data-theme="a">
-					<h1 id="listheader"></h1>				
+					<h1 id="groupsheader"></h1>				
 				</div> 			
 				<div data-role="content" data-theme="b">				
 					<ul id="groupslisting" data-role="listview" class="ui-listview" data-inset="true">
@@ -126,7 +141,7 @@
 					<h1 id="contactsheader" onclick="buildGroupsScreen('')"></h1>				
 				</div> 			
 				<div data-role="content" data-theme="b">				
-					<ul id="contactslisting" data-role="listview" data-inset="true" data-filter="true">
+					<ul id="contactslisting" data-role="listview" data-dividertheme="b" data-inset="true" data-filter="true">
 					<!--Content is dynamically created via buildContactsScreen() functionn -->
   	  		</ul>
 				</div>
@@ -142,34 +157,76 @@
 				</ul>
 			</div>
 			
-			<div id="settings">				
-			 	<label>Groups:</label>
-			  <input type="checkbox" name="cbShowAllGroup" id="cbShowAllGroup" data-role="custom"/>
-			  <label for="cbShowAllGroup">Show 'All' Listing?</label>			
-			 	<label>Contacts:</label>
-			  <fieldset data-role="controlgroup">
-			   	<legend>Listing Order:</legend>
-			   	<input type="radio" name="Listing" id="rbListingLastName"/>
-			   	<label for="rbListingLastName">LastName</label>
-			   	<input type="radio" name="Listing" id="rbListingFirstName"/>
-			   	<label for="rbListingFirstName">FirstName</label>
-			  </fieldset>
-			  <input type="checkbox" name="cbShowContactDividers" id="cbShowContactDividers"/>
-			  <label for="cbShowContactDividers">Show contact dividers?</label>
-			  <input type="checkbox" name="cbShowTitleOnContactBar" id="cbShowTitleOnContactBar"/>
-			  <label for="cbShowTitleOnContactBar">Show title on contact bar?</label>
-			  <input type="checkbox" name="cbShowCompanyOnContactBar" id="cbShowCompanyOnContactBar"/>
-			  <label for="cbShowCompanyOnContactBar">Show company on contact bar?</label>
-			 	<label>General:</label>
-			  <fieldset data-role="controlgroup">
-			   	<legend>Date Display:</legend>
-			   	<input type="radio" name="DateDisplay" id="rbDateDisplayMMDDYYYY"/>
-			   	<label for="rbDateDisplayMMDDYYYY">MM/DD/YYYY</label>
-			   	<input type="radio" name="DateDisplay" id="rbDateDisplayDDMMYYYY"/>
-			   	<label for="rbDateDisplayDDMMYYYY">DD/MM/YYYY</label>
-			   	<input type="radio" name="DateDisplay" id="rbDateDisplayYYYYMMDD"/>
-			   	<label for="rbDateDisplayYYYYMMDD">YYYYMMDD</label>
-			  </fieldset>
+			<div id="settings">
+				<div id="settingsHeading"> 	
+					<img id="settingsHeadingCloseButton" src="images/cancel.png" class="settingsCloseButton">
+					<a class="settingsHeadingText">PBDR Settings</a>
+				</div>
+				<h2 class="sectionHeaderSettings" id="optionsgeneralheader" onclick="toggleSection('optionsgeneralheader','optionsgeneralcontent')">General<img class="sectionHeaderImage" src="images/minus.png"/></h2>
+				<ul id="optionsgeneralcontent">					
+					<fieldset>
+						<legend class="legend">Date Display</legend>
+						<div class="element" onclick="setRadioButtonIcon('mmddyyyy')">
+							<a class="elementtext">mm/dd/yyyy</a>
+							<img id="imgDateDisplayMMDDYYYY" src="images/elementunselected.png" class="elementimage">
+						</div>				
+						<div class="element" onclick="setRadioButtonIcon('ddmmyyyy')">
+							<a class="elementtext">dd/mm/yyyy</a>
+							<img id="imgDateDisplayDDMMYYYY" src="images/elementunselected.png" class="elementimage">
+						</div>
+						<div class="element" onclick="setRadioButtonIcon('yyyymmdd')">
+							<a class="elementtext">yyyy-mm-dd</a>
+							<img id="imgDateDisplayYYYYMMDD" src="images/elementunselected.png" class="elementimage">
+						</div>					
+					</fieldset>
+					<fieldset>
+						<legend class="legend">Music</legend>
+						<div class="element" onclick="setCheckBoxIcon('imgPlayIntroMusic')">
+							<a class="elementtext">Play at Startup?</a>
+							<img id="imgPlayIntroMusic" src="images/elementunselected.png" class="elementimage">
+						</div>				
+						<div class="element" onclick="setCheckBoxIcon('imgPlayWaitingMusic')">
+							<a class="elementtext">Play while Waiting?</a>
+							<img id="imgPlayWaitingMusic" src="images/elementunselected.png" class="elementimage">
+						</div>						
+					</fieldset>
+				</ul>	
+				<h2 class="sectionHeaderSettings" id="optionsgroupsheader" onclick="toggleSection('optionsgroupsheader','optionsgroupscontent')">Groups<img class="sectionHeaderImage" src="images/minus.png"/></h2>
+				<ul id="optionsgroupscontent">
+					<div class="element" onclick="setCheckBoxIcon('imgShowAllGroup')">
+						<a class="elementtext">Show 'All' listing?</a>
+						<img id="imgShowAllGroup" src="images/elementunselected.png" class="elementimage">
+					</div>
+				</ul>				
+				<h2 class="sectionHeaderSettings" id="optionscontactsheader" onclick="toggleSection('optionscontactsheader','optionscontactscontent')">Contacts<img class="sectionHeaderImage" src="images/minus.png"/></h2>
+				<ul id="optionscontactscontent">
+					<fieldset>
+						<legend class="legend">Name Display</legend>
+						<div class="element" onclick="setRadioButtonIcon('lastname')">
+							<a class="elementtext">By Last Name?</a>
+							<img id="imgNameDisplayLastName" src="images/elementunselected.png" class="elementimage">
+						</div>				
+						<div class="element" onclick="setRadioButtonIcon('firstname')">
+							<a class="elementtext">By First Name?</a>
+							<img id="imgNameDisplayFirstName" src="images/elementunselected.png" class="elementimage">
+						</div>				
+					</fieldset>
+					<fieldset>
+						<legend class="legend">Listing Options</legend>
+						<div class="element" onclick="setCheckBoxIcon('imgContactDividers')">
+							<a class="elementtext">Alphabetic dividers?</a>
+							<img id="imgContactDividers" src="images/elementunselected.png" class="elementimage">
+						</div>				
+						<div class="element" onclick="setCheckBoxIcon('imgTitleOnContactBar')">
+							<a class="elementtext">Place title on contact bar?</a>
+							<img id="imgTitleOnContactBar" src="images/elementunselected.png" class="elementimage">
+						</div>						
+						<div class="element" onclick="setCheckBoxIcon('imgCompanyOnContactBar')">
+							<a class="elementtext">Place company on contact bar?</a>
+							<img id="imgCompanyOnContactBar" src="images/elementunselected.png" class="elementimage">
+						</div>		
+					</fieldset>					
+				</ul>	
 			</div>
 				
 			<div id="downloadstatus" class="progressBox">
@@ -186,10 +243,27 @@
 					</div>
 				</div>
 			</div>
-			
+
 			<!--		
 			<output id="results"></output>
 			-->
+			
+		</div>
+					
+		<!-- Dialog "box" to allow content to be displayed, but processing halted until user clicks a button -->
+		<div id="dialog">
+			<div id="content" class="content"> </div>	
+			<div id="yesnobuttons">
+				<div class="buttonrow">
+					<div class="no">No</div>
+					<div class="yes">Yes</div>	
+				</div>
+			</div>
+			<div id="okbutton">
+				<div class="buttonrow">
+					<div class="ok">Ok</div>
+				</div>
+			</div>
 		</div>
 	</body>	
 </html>

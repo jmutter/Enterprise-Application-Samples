@@ -59,8 +59,8 @@ function buildHomeScreen() {
 	xLocation = (screen.width / 2) - 60;
 	gPleaseWaitRope = ropeHandler.createRope({"length":175, "width":3,"anchorX":xLocation,"anchorY":-600, "lock":false, "color":"white","attachElement":"imgPleaseWait", "attachX":45, "attachY":61, "angle":8});
 	gDownloadingContactsRope = ropeHandler.createRope({"length":150, "width":2,"anchorX":130,"anchorY":-600, "lock":false, "color":"white", "attachElement":"imgDownloadingContacts", "attachX":20, "attachY":50, "angle":5 });		
-	gDownloadingRSSRope = ropeHandler.createRope({"length":160, "width":2,"anchorX":220,"anchorY":-600, "lock":false, "color":"white", "attachElement":"imgDownloadingRSS", "attachX":20, "attachY":50, "angle":5 });		
-	gDownloadingDocumentsRope = ropeHandler.createRope({"length":165, "width":2,"anchorX":315,"anchorY":-600, "lock":false, "color":"white", "attachElement":"imgDownloadingDocuments", "attachX":20, "attachY":50, "angle":5 });		
+	gDownloadingDocumentsRope = ropeHandler.createRope({"length":165, "width":2,"anchorX":220,"anchorY":-600, "lock":false, "color":"white", "attachElement":"imgDownloadingDocuments", "attachX":20, "attachY":50, "angle":5 });		
+	gDownloadingRSSRope = ropeHandler.createRope({"length":160, "width":2,"anchorX":315,"anchorY":-600, "lock":false, "color":"white", "attachElement":"imgDownloadingRSS", "attachX":20, "attachY":50, "angle":5 });		
 		
 	document.getElementById('data').innerHTML = '<label style="font-size:60%">Disaster Recovery</label>';
 	document.getElementById('graphics').style.display="block";

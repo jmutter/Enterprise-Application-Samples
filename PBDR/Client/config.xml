@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:rim="http://www.blackberry.com/ns/widgets" version="1.0.0.0">
-  <name>PB Disaster Recovery</name>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:rim="http://www.blackberry.com/ns/widgets" version="1.0.0.6">
+  <name>Disaster Recovery</name>
   <description>This application provides a listing of documents, contacts, and RSS feeds for use during an emergency</description>
   <author rim:copyright="2011" href="www.blackberry.com/developers">Research In Motion</author>
   <license>This application is provided as a sample, but is fully functional.</license>
@@ -26,5 +26,5 @@
   <feature id="webworks.io.fileTransfer" />
   <rim:cache maxCacheSizeTotal="2048"/>
   <rim:orientation mode="landscape"/>
-  <rim:loadingScreen backgroundColor="#000000" foregroundImage="images/blackLoading.gif" onLocalPageLoad="true" onFirstLaunch="true"/>
+  <rim:loadingScreen backgroundColor="#000000" foregroundImage="images/pleasewait.png" onLocalPageLoad="true" onFirstLaunch="true"/>
 </widget>

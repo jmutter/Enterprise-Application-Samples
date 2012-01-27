@@ -119,7 +119,9 @@ function dbCreateTable(tableName, functionToCall) {
 		sql += ', showcontactdividers text';	//True or False
 		sql += ', showtitleoncontactbar text';	//True or False
 		sql += ', showcompanyoncontactbar text';	//True or False		
-		sql += ', datedisplay text)';	//MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD
+		sql += ', datedisplay text';	//MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD
+		sql += ', playintromusic text';	//True or False		
+		sql += ', playwaitingmusic text)';	//True of False
 	}	
 	else {
 		returnValue = 'DBCREATETABLEERROR:Invalid table name (' + tableName + ') requested';

@@ -35,7 +35,7 @@ function buildGroupsScreen(msg) {
 			var counter = 0;
 			var groupArray;	
 			$('#groupslisting').empty();
-			document.getElementById('listheader').innerHTML = '<label>Groups (' + convertDateTime(gContactsDateTime, gUserDateDisplay) + ')</label>';
+			document.getElementById('groupsheader').innerHTML = '<label>Groups</label>';
 			var html = '';
 			if (gUserShowAllGroup == 'True') {
 				var totalUsers = 0;
@@ -43,13 +43,13 @@ function buildGroupsScreen(msg) {
  			   	groupArray = gGroupRecords[counter].split(gDelim);  
 					totalUsers = totalUsers + parseInt(groupArray[1]);	 	
 				}		
-  			html = '<li data-theme="e" style="font-size:10pt"><a onclick="buildContactsScreen(\'\',\'AllOfThem\');">' + 'All' + '</a> <span class="ui-li-count">' + totalUsers + '</span>';
+  			html = '<li data-theme="e"><a onclick="buildContactsScreen(\'\',\'AllOfThem\');">' + 'All' + '</a> <span class="ui-li-count">' + totalUsers + '</span>';
 			  html += '</li>';
 			 	$('#groupslisting').append(html);
 			}
 		  for (counter = 0; counter < gGroupRecords.length; ++counter) {
  		   groupArray = gGroupRecords[counter].split(gDelim);  
-		    html = '<li data-theme="e" style="font-size:10pt"><a onclick="buildContactsScreen(\'\',\'' + groupArray[0] + '\');">' + groupArray[0] + '</a> <span class="ui-li-count">' + groupArray[1] + '</span>';
+		    html = '<li data-theme="e"><a onclick="buildContactsScreen(\'\',\'' + groupArray[0] + '\');">' + groupArray[0] + '</a> <span class="ui-li-count">' + groupArray[1] + '</span>';
 				html += '</li>';
 	 			$('#groupslisting').append(html);
 			}
