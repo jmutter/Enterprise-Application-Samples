@@ -7,6 +7,7 @@
 var gConfigUpdateCounter = 0;
 var gContactsServerDateTime = '';
 var gDocumentsServerDateTime = '';
+var gDownloadInProgress = false;
 var gDownloadRequest = '';
 var gDownloadResults = '';
 var gJSONPayload;
@@ -64,25 +65,33 @@ function downloadConfig(msg, functionToCall) {
 	
 	var errMsg = '';
 	if (msg == '') {
-		gParentFunctionToCall = functionToCall;	
-		gRequestingFunction = 'downloadConfig';	
-		gDownloadRequest = 'Config';	
-		if (blackberry.system.hasDataCoverage() == true) {	
-			if (gTestingMode == true) {
-				testingSendPrimaryHTTPRequest(gConfigPrimaryURL, gConfigSecondaryURL);	
+		if (blackberry.system.hasDataCoverage() == true) {		
+			gDownloadInProgress = true;
+			gParentFunctionToCall = functionToCall;	
+			gRequestingFunction = 'downloadConfig';	
+			gDownloadRequest = 'Config';	
+			if (blackberry.system.hasDataCoverage() == true) {	
+				if (gTestingMode == true) {
+					testingSendPrimaryHTTPRequest(gConfigPrimaryURL, gConfigSecondaryURL);	
+				}
+				else {			
+				  sendPrimaryHTTPRequest(gConfigPrimaryURL, gConfigSecondaryURL);	
+				}
+	 		}
+	 		else {		
+				window[gParentFunctionToCall]('DOWNLOADCONFIGSUCCESS'); 
 			}
-			else {			
-			  sendPrimaryHTTPRequest(gConfigPrimaryURL, gConfigSecondaryURL);	
-			}
- 		}
- 		else {		
-			window[gParentFunctionToCall]('DOWNLOADCONFIGSUCCESS'); 
+		}
+		else {
+			displayMessage ('<p>There doesn\'t appear to be sufficient coverage to perform the server lookup.</p><p>You will only have access to the current content on the device.</p>', 'OkOnly')
+			proceedWithDownload = false;
 		}
 	}
- 	else if (msg == 'CONFIGLOADED') {
+	else if (msg == 'CONFIGLOADED') {
+		gDownloadInProgress = false;
 		window[gParentFunctionToCall]('DOWNLOADCONFIGSUCCESS');  		
 	}
- 	else if (msg.substring(0,30) == 'SENDSECONDARYHTTPREQUESTERROR:') {
+	else if (msg.substring(0,30) == 'SENDSECONDARYHTTPREQUESTERROR:') {
 		errMsg = 'Unable to contact configuration server(s): ' + msg.substring(30);
 	}
  	else if (msg.substring(0,24) == 'PROCESSJSONPAYLOADERROR:') {
@@ -95,6 +104,7 @@ function downloadConfig(msg, functionToCall) {
  		errMsg = 'Invalid msg: ' + msg;
  	} 	
  	if (errMsg != '') {
+ 		gDownloadInProgress = false;
  		window[gParentFunctionToCall]('DOWNLOADCONFIGERROR:' + errMsg); 	
 	}			
 }
@@ -189,7 +199,7 @@ function downloadContent(msg) {
 	 		//}		
  		}
  		else {
- 			displayMessage ('<p>There doesn\'t appear to be sufficient coverage to perform the server lookup.</p><p>You will only have access to the current content on the device.</p>', 'OkOnly', downloadContent)
+ 			displayMessage ('<p>There doesn\'t appear to be sufficient coverage to perform the server lookup.</p><p>You will only have access to the current content on the device.</p>', 'OkOnly')
  			proceedWithDownload = false;
  		}
  	}
@@ -202,9 +212,6 @@ function downloadContent(msg) {
  	else if (msg == 'USERCLICKEDNO') {
 		proceedWithDownload = false;
 	}
- 	else if (msg == 'USERCLICKEDOK') {
-		proceedWithDownload = false;
-	}
  	else if (msg == 'CONTACTSLOADED') {
 		proceedWithDownload = true;
 	}
@@ -215,7 +222,6 @@ function downloadContent(msg) {
 		proceedWithDownload = true;
 	}	
  	else if (msg.substring(0,30) == 'SENDSECONDARYHTTPREQUESTERROR:') {
-		//errMsg = msg.substring(30);
 		errMsg = 'Unable to contact server(s): ' + msg.substring(30);
 	}
  	else if (msg.substring(0,24) == 'PROCESSJSONPAYLOADERROR:') {
@@ -244,6 +250,7 @@ function downloadContent(msg) {
  	else {
 		switch (gDownloadRequest) {
 			case '':
+				gDownloadInProgress = true;
 				gDownloadResults = '';
 				gScreenDisplayedAtDownload = gScreenDisplayed;
 				displayScreen(gScreenNameHome,'NoStrings');
@@ -282,7 +289,7 @@ function downloadContent(msg) {
 			 		}
 			 		else {
 					  //sendPrimaryHTTPRequest(gDocumentsPrimaryURL, gDocumentsSecondaryURL);	
-						//When completed testing remove these 7 lines and uncomment the line above
+						//When completed testing with multiple document counts, remove these 7 lines and uncomment the line above
 						if (gTestingSmallDocumentCollection == false) {
 						  sendPrimaryHTTPRequest(gDocumentsPrimaryURL, gDocumentsSecondaryURL);	
 						}
@@ -295,6 +302,7 @@ function downloadContent(msg) {
 			case 'Documents':
 				updateOverAllProgressBar();
 				hideDownloadingOption('Documents');
+				gDownloadInProgress = false;
 				setTimeout(function() {
 					if (gDownloadResults != '') {
 					 	gDownloadResults = '<p>Contacts, RSS, and Document downloads were attempted.</p><p>One or more issues/errors occurred while downloading and updating the information:</p>' + gDownloadResults;

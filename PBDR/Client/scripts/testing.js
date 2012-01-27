@@ -341,12 +341,19 @@ function testingSendPrimaryHTTPRequest(primaryURL, secondaryURL) {
 function testingUpdateNow(msg) {
 	
 	if (msg == undefined || msg == '' ) {
-		manageMusic('Stop');
-		menuBar('Hide');
-		displayScreen(gScreenNameHome);
-		setTimeout(function() {
-			displayMessage('Do you want to download the large document collection?','YesNo', testingUpdateNow);
-		}, 500); 	
+		if (gDownloadInProgress == false) {
+			manageMusic('Stop');
+			menuBar('Hide');
+			displayScreen(gScreenNameHome);
+			gTestingSmallDocumentCollection = false;
+ 			downloadContent('USERCLICKEDYES');			
+			//setTimeout(function() {
+			//	displayMessage('Do you want to download the large document collection?','YesNo', testingUpdateNow);
+			//}, 500); 	
+		}
+		else {
+			displayMessage('Cannot process request as a previous download is already in progress.','OkOnly');
+		}
 	}
  	else if (msg == 'USERCLICKEDYES') {
  		gTestingSmallDocumentCollection = true;

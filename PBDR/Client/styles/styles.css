@@ -39,9 +39,9 @@ body {
 		linear,
 		left bottom,
 		left top,
-		color-stop(0.33, rgb(96,99,69)),
-		color-stop(0.66, rgb(160,168,91)),
-		color-stop(0.99, rgb(220,242,17))
+		color-stop(0.33, rgb(56,45,44)),
+		color-stop(0.66, rgb(118,111,109)),
+		color-stop(0.99, rgb(192,192,192))
 	);
 }
 	
