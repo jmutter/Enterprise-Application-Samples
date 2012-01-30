@@ -1,4 +1,4 @@
-{"Contact":[
+{"Contacts":[
 {"groupname":"Directs"
 ,"firstname":"Alex"
 ,"lastname":"Ovechkin"

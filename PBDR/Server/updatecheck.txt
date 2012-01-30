@@ -1,10 +1,17 @@
 { "Updates" : [   
            { "contacts" : "20111208193900" ,
              "documents": "20111208193900",
-	     "rss": "20111208193900"}
-],"Config" : [   
-           { "primaryurl" : "http://www.dagobahserver.com/pbdr" ,
-             "secondaryurl": "http://www.dagobahserver.com/pbdr",
+	     "rss": "20111208193900",
              "configuration": "20111208193900"}
+],"Config" : [   
+           { "contactsprimaryurl" : "http://www.dagobahserver.com/pbdr/Contacts.ashx" ,
+             "contactssecondaryurl": "http://www.dagobahserver.com/pbdr/Contacts.ashx",
+             "userid": "",
+             "password": "",
+             "documentsprimaryurl" : "http://www.dagobahserver.com/pbdr/Documents.ashx" ,
+             "documentssecondaryurl": "http://www.dagobahserver.com/pbdr/Documents.ashx",
+             "rssprimaryurl" : "http://www.dagobahserver.com/pbdr/Rss.ashx" ,
+             "rsssecondaryurl": "http://www.dagobahserver.com/pbdr/Rss.ashx"
+             }
 ]
 }

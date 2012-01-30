@@ -1,4 +1,4 @@
-{ "Rss" : [   
+{ "RSS" : [   
            { "id" : 1 ,
              "title": "The System is down!",
              "detail": "We are in a disaster recovery cycle" },
