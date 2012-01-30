@@ -1,0 +1,11 @@
+[
+  {"filename":"test.pdf"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/test.pdf" 
+  } 	
+ ,{"filename":"testdoc.doc"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testdoc.doc" 
+  } 
+ ,{"filename":"testexcel.xls"
+  	,"url":"http://www.dagobahserver.com/pbdr/docs/testexcel.xls" 
+  } 
+]
