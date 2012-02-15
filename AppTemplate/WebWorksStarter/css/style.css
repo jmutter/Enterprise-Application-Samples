@@ -18,7 +18,7 @@
 	margin:0;
 	font-family: BBAlpha Sans;
 	font-size: 13pt;
-	color: #848393; 
+	color: #000000; 
 	background-color: #dcdce1; 
 	overflow:visible;
 }
@@ -32,6 +32,10 @@
 
 	/* 5. Links
 	------------------------------------------------------*/
+	A:link {text-decoration: none; color: red;}
+	A:visited {text-decoration: none; color: orange;}
+	A:active {text-decoration: none; color: red;}
+	A:hover {text-decoration: underline; color: orange;}
 	
 	/* 6. Text
 	------------------------------------------------------*/
