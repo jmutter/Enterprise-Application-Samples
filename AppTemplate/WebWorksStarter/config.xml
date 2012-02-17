@@ -32,7 +32,7 @@
 	<name>WebWorks Starter</name>
 	<description>This application provides a starting template for your WebWorks Applications.</description>
 	<author rim:copyright="2011" email="info@rim.com" href="http://www.blackberry.com/developers">WAA Team</author>
-  <rim:loadingScreen backgroundImage="images/loading.png" foregroundImage="" onRemotePageLoad="true" onLocalPageLoad="true" onFirstLaunch="true"/>
+   
 	<icon src="images/icon.png"/>
 	
 	<rim:orientation mode="auto" />
