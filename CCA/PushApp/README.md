@@ -20,9 +20,18 @@ To contribute code to this repository, make sure you have signed up as an [offic
 [TODOs: 
 
 	1`.  Tweak and Clean: Interfaces PLEASE!
-  	2.   Work Active Sync hooks
+	2.   Screen Shots of Application.  Since UI still needs work saving til done with tweaks.
+  3.   Work Active Sync hooks:  didnt have an environment for this so feel free if you do.
 
 :/TODOs]
+
+[HOWTOBUILD:
+
+1.  This project was created using the NetBeans IDE.  I do not use netbeans objects only swing.  The IDE is good and worth checking out.
+2.  If you go the Netbeans route then all you need to do is import the project.  If you go the Eclipse route then be sure to configure your environment to have the libraries that are apart of this project.
+3.  Then run your project.  If you have a clean build should be as easy as:  java -jar ECLServer.jar 
+
+
 
 ## Disclaimer
 
