@@ -8,8 +8,8 @@ To contribute code to this repository, make sure you have signed up as an [offic
 
 [FEATURES:
 
-1.	Store BlackBerry Enterprise Server [BES] + CallBack Server Details: use the configuration tab to setup your environment details.  *Note:  when using this application your system must be able to access to BES server in order to work.  If you are testing using this application to test push clients, your BES port will either be “28080” (Ripple) or “8080” (Stand Alone MDS). 
-2.	Validate a user’s BlackBerry Enterprise Server (BES): application will check the loaded or created recipients on the “Recipients” tab against the BES servers listed on the “Configuration” tab.
+1.	Store BlackBerry Enterprise Server [BES] + CallBack Server Details: use the configuration tab to setup your environment details.  *Note:  when using this application your system must be able to access to BES server in order to work.  If you are testing using this application to test push clients, your BES port will either be: 28080 (Ripple) or 8080 (Stand Alone MDS). 
+2.	Validate a user BlackBerry Enterprise Server (BES): application will check the loaded or created recipients on the Recipients tab against the BES servers listed on the Configuration tab.
 3.	Push Contacts to Recipients: application will push a contacts JSON payload.  
 4.	Push Emergency Call to Recipients: application will push an emergency call JSON payload.
 5.	Push Emergency Notification to Recipients: application will push an emergency notification payload.
