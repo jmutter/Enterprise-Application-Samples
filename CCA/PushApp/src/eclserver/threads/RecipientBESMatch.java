@@ -206,7 +206,7 @@ public class RecipientBESMatch extends SwingWorker<String, Void> {
      private URL getPushURL(String host, String port, String email, String aPort) throws MalformedURLException {
         
       return new URL("http", host, Integer.valueOf(port), "/push?DESTINATION=" + email + "&PORT=" + aPort + "&REQUESTURI=/");
-                      
+     // http://besserver:8080/push?DESTINATION=rbalsewich@rim.com&PORT=1234&REQUESTUI="           
     }
      
      private int userBesCheck(String pushId, URL testURL){
