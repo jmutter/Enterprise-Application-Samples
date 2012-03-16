@@ -238,20 +238,29 @@ public class ContactsDao {
     
     public String getJSONString(String machineName, String confirmURL){
         
-
+             
+       // {"Source": [ {"machinename":"localhost" }],
+       //  "Confirmation": [ {"url":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=ContactsAdded"}],
+        
+        String jsonString = "{\"Source\":[{\"machinename\":\""+ machineName + "\"}],";
+        jsonString += "\"Confirmation\":[{\"url\":\"" + confirmURL + "\"}],";
+        jsonString += "\"Contacts\":[";
+        
         JSONObject m1 = new JSONObject();
         m1.clear();
-        JSONArray list1 = new JSONArray();
-        int rW = 0;
+   //     JSONArray list1 = new JSONArray();
+  
         try {            
             stmtGetListEntries.clearParameters();
             ResultSet result = stmtGetListEntries.executeQuery();
             while (result.next()) {
+                m1.clear();
                 m1.put("GROUPNAME", result.getString("GROUPNAME"));
                 m1.put("FIRSTNAME", result.getString("FIRSTNAME"));
                 m1.put("LASTNAME", result.getString("LASTNAME"));
                 m1.put("TITLE", result.getString("TITLE"));
                 m1.put("COMPANY", result.getString("COMPANY"));
+                m1.put("EMAIL", result.getString("EMAIL"));
                 m1.put("HOMEPHONE", result.getString("HOMEPHONE"));
                 m1.put("WORKPHONE", result.getString("WORKPHONE"));
                 m1.put("MOBILEPHONE", result.getString("MOBILEPHONE"));
@@ -263,22 +272,23 @@ public class ContactsDao {
                 m1.put("ZIPCODE", result.getString("ZIP"));
                 m1.put("COUNTRY", result.getString("COUNTRY"));
                 
-            //    System.out.println("database record " + rW);
-                ++rW;
-                
-                list1.add(m1);       
+                System.out.println("database record " + m1.toString());
+          
+                jsonString += "" + m1.toString() + ",";
+                 
             }
         } catch(SQLException sqle) {
             System.out.println("SQLEXCEPTION in ContactsDao.getJSONString " + sqle.getMessage());
         }
-        System.out.println("objects in list1: " + list1.size() );
+
         
-       // {"Source": [ {"machinename":"localhost" }],
-       //  "Confirmation": [ {"url":"http://CI0000001380643/PushConfirmation/PUSHConfirmationHandler.ashx?MyMessage=ContactsAdded"}],
+        //TBF: remove last comma correctly
+        if (jsonString.endsWith(",")){
+            jsonString = jsonString.substring(0, jsonString.length() - 1);
+        }
         
-        String jsonString = "{\"Source\":[{\"machinename\":\""+ machineName + "\"}],";
-        jsonString += "\"Confirmation\":[{\"url\":\"" + confirmURL + "\"}],";
-        jsonString += "\"Contacts\":" + list1.toString() + "}";
+        jsonString += "]}";
+        System.out.println("\n\n\n JSON STRING  " + jsonString);
         
         return jsonString;
     }
