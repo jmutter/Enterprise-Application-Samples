@@ -41,6 +41,10 @@
 	
 	<rim:category name="All"/>
 	
+	<rim:connection>    
+		<id>MDS</id>  
+	</rim:connection>  
+	
 	<rim:permissions>
 		<rim:permit>access_shared</rim:permit>
 		<rim:permit>record_audio</rim:permit>
